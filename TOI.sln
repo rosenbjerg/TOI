@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOIFeedServer", "TOI\TOIFeedServer.csproj", "{DCEBD9C8-E45A-4A86-A318-0BD0CA22DA69}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOIFeedServer", "TOIFeedServer\TOIFeedServer.csproj", "{DCEBD9C8-E45A-4A86-A318-0BD0CA22DA69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOIFeedServer.Tests", "TOIFeedServer.Tests\TOIFeedServer.Tests.csproj", "{85FF5B6A-AD30-4503-BFCC-207A16F109AF}"
 EndProject
