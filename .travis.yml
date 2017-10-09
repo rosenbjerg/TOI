@@ -1,0 +1,11 @@
+language: csharp
+solution: TOI.sln
+install:
+  - nuget restore TOI.sln
+  - nuget install xunit.runner.console -Version 2.3.0 -OutputDirectory Tests
+script:
+  - dotnet build /p:Configuration=Release TOI.sln
+  - dotnet ./Tests/xunit.runner.console.2.3.0/tools/xunit.console.coreclr.exe ./MyProject.Tests/bin/Release/TOIFeedServer.Tests.dll
+  - dotnet ./Tests/xunit.runner.console.2.3.0/tools/xunit.console.coreclr.exe ./MyProject.Tests/bin/Release/TOIFeedRepo.Tests.dll
+  - dotnet ./Tests/xunit.runner.console.2.3.0/tools/xunit.console.coreclr.exe ./MyProject.Tests/bin/Release/TOIMobileClient.Tests.dll
+  - dotnet ./Tests/xunit.runner.console.2.3.0/tools/xunit.console.coreclr.exe ./MyProject.Tests/bin/Release/TOIWebClient.Tests.dll
