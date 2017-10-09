@@ -1,5 +1,5 @@
 # TOI
 
-![Travic CI](https://img.shields.io/travis/rosenbjerg/TOI.svg "Travis CI")
+[![Travis](https://img.shields.io/travis/rust-lang/rust.svg)](https://github.com/rosenbjerg/TOI)
 
 This is a project about things of interest
