@@ -6,7 +6,7 @@ dotnet: 2.0.0
 install:
 - dotnet restore
 script:
-- dotnet build
+- dotnet build 
 - dotnet test TOIFeedRepo.Tests/TOIFeedRepo.Tests.csproj
 - dotnet test TOIFeedServer.Tests/TOIFeedServer.Tests.csproj
 - dotnet test TOIWebClient.Tests/TOIWebClient.Tests.csproj
