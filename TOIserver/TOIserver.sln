@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOIserver", "TOIserver\TOIserver.csproj", "{4F30748E-2A52-4806-8810-E5B3864A8D0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOIserver.Tests", "TOIserver.Tests\TOIserver.Tests.csproj", "{3FE42ABE-3809-41A2-9EF7-DD339B2CD3C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F30748E-2A52-4806-8810-E5B3864A8D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F30748E-2A52-4806-8810-E5B3864A8D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F30748E-2A52-4806-8810-E5B3864A8D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F30748E-2A52-4806-8810-E5B3864A8D0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FE42ABE-3809-41A2-9EF7-DD339B2CD3C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FE42ABE-3809-41A2-9EF7-DD339B2CD3C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FE42ABE-3809-41A2-9EF7-DD339B2CD3C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FE42ABE-3809-41A2-9EF7-DD339B2CD3C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C66D032B-36B9-4BED-8ACA-E9D926C5CD5B}
+	EndGlobalSection
+EndGlobal
