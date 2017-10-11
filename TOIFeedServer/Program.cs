@@ -1,12 +1,29 @@
 ﻿using System;
+using RedHttpServerCore;
 
-namespace TOI
+namespace TOIFeedServer
 {
-    class Program
+    public class Server
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+           
+        }
+    }
+
+    public class FeedServer
+    {
+        private readonly RedHttpServer _server = new RedHttpServer();
+
+        public FeedServer()
+        {
+            _server.Get("/hello", async (req, res) =>
+            {
+                await res.SendString("Hello World");
+            });
+
+            _server.Start();
         }
     }
 }
+
