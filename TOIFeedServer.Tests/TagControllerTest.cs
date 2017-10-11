@@ -6,16 +6,16 @@ namespace TOIFeedServer.Tests
     [TestClass]
     public class TagControllerTest
     {
-        [TestInitialize]
+        [ClassInitialize]
         public void Initialize()
         {
             new FeedServer(); 
         }
 
-        [TestCleanup]
+        [ClassCleanup]
         public void Cleanup()
         {
-            Assert.IsTrue(true);
+            
         }
 
         [TestMethod]
