@@ -13,7 +13,7 @@ namespace TOIFeedServer.Tests
         }
 
         [ClassCleanup]
-        public static void Cleanup(TestContext context)
+        public static void Cleanup()
         {
             
         }
