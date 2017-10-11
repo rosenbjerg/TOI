@@ -13,7 +13,7 @@ namespace TOIFeedServer
 
     public class FeedServer
     {
-        private readonly RedHttpServer _server = new RedHttpServer();
+        private readonly RedHttpServer _server = new RedHttpServer(27015);
 
         public FeedServer()
         {

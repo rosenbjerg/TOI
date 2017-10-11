@@ -64,7 +64,7 @@ namespace TOIFeedServer.Tests
         public void GetHelloWorld_NoInput_Valid()
         {
             //Arrange
-            var page = "http://localhost:5000/hello";
+            var page = "http://localhost:27015/hello";
             var client = new HttpClient();
             
             //Act
