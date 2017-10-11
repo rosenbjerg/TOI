@@ -7,13 +7,13 @@ namespace TOIFeedServer.Tests
     public class TagControllerTest
     {
         [ClassInitialize]
-        public static void Initialize()
+        public static void Initialize(TestContext context)
         {
             new FeedServer(); 
         }
 
         [ClassCleanup]
-        public static void Cleanup()
+        public static void Cleanup(TestContext context)
         {
             
         }
