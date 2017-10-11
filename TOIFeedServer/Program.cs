@@ -22,7 +22,7 @@ namespace TOIFeedServer
                 await res.SendString("Hello World");
             });
 
-            _server.Start(true);
+            _server.Start("127.0.0.1");
         }
     }
 }
