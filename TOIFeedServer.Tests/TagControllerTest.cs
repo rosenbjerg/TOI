@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -73,6 +74,17 @@ namespace TOIFeedServer.Tests
             
             //Assert
             Assert.AreEqual("Hello World", task.Result);
+        }
+
+        [TestMethod]
+        public void Database_Insert_Toi()
+        {
+            var service = new DatabaseService(true);
+            var model = new ToiModel("test");
+
+            service.InsertToiModel(model);
+
+            Assert.AreEqual("test", service.GetToiModelFromContext("test"));
         }
     }
 }
