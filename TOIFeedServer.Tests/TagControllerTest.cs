@@ -83,8 +83,9 @@ namespace TOIFeedServer.Tests
             var model = new ToiModel("test");
 
             service.InsertToiModel(model);
+            var res = service.GetToiModelFromContext("test").First().Type;
 
-            Assert.AreEqual("test", service.GetToiModelFromContext("test"));
+            Assert.AreEqual("test", res);
         }
     }
 }
