@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RedHttpServerCore;
+using TOIFeedServer.Models;
 
 namespace TOIFeedServer
 {
@@ -43,7 +44,7 @@ namespace TOIFeedServer
                 res.ServerPlugins.Use<DatabaseService>();
             });
 
-            _server.ConfigureServices = s => { s.AddDbContext<ToiModelContext>(); };
+            _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
             _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
             _server.Start("127.0.0.1");
         }

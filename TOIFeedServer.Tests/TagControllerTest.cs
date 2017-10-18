@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Net.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Tests
 {

@@ -3,38 +3,39 @@ using System;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using TOIFeedServer.Models;
 
 
 namespace TOIFeedServer
 {
     public class ToiDbFactory
     {
-        private DbContextOptions<ToiModelContext> CreateOptions(SqliteConnection connection)
+        private DbContextOptions<DatabaseContext> CreateOptions(SqliteConnection connection)
         {
-            return new DbContextOptionsBuilder<ToiModelContext>()
+            return new DbContextOptionsBuilder<DatabaseContext>()
                 .UseSqlite(connection).Options;
         }
-        public ToiModelContext CreateTestContext()
+        public DatabaseContext CreateTestContext()
         {
             var connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
 
             var options = CreateOptions(connection);
-            using (var context = new ToiModelContext(options))
+            using (var context = new DatabaseContext(options))
             {
                 context.Database.Migrate();
             }
 
-            return new ToiModelContext(options);
+            return new DatabaseContext(options);
         }
-        public ToiModelContext CreateContext()
+        public DatabaseContext CreateContext()
         {
             var connection = new SqliteConnection("DataSource=toi.db");
             connection.Open();
 
             var options = CreateOptions(connection);
 
-            return new ToiModelContext(options);
+            return new DatabaseContext(options);
         }
       
     }
