@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using TOIFeedServer;
+using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Migrations
 {
@@ -25,7 +26,9 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(70);
 
                     b.HasKey("Id");
 
@@ -37,11 +40,15 @@ namespace TOIFeedServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int>("TagModelId");
+
                     b.Property<double>("X");
 
                     b.Property<double>("Y");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagModelId");
 
                     b.ToTable("Positions");
                 });
@@ -50,6 +57,8 @@ namespace TOIFeedServer.Migrations
                 {
                     b.Property<int>("TagId")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<int>("TagType");
 
                     b.HasKey("TagId");
 
@@ -66,6 +75,14 @@ namespace TOIFeedServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tois");
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.PositionModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
+                        .WithMany()
+                        .HasForeignKey("TagModelId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

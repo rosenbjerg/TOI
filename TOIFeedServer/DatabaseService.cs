@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer
@@ -44,9 +45,66 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public object GetTagFromID(int i)
+        public TagModel GetTagFromID(int i)
         {
-            return db.Tags.Where(t => t.TagId == i);
+            return db.Tags.SingleOrDefault(t => t.TagId == i);
+        }
+
+        public void InsertTags(IEnumerable<TagModel> tags)
+        {
+            db.Tags.AddRange(tags);
+            db.SaveChanges();  
+        }
+
+        public void InsertContext(ContextModel context)
+        {
+            db.Contexts.Add(context);
+            db.SaveChanges();
+        }
+
+        public ContextModel GetContextFromId(int id)
+        {
+            return db.Contexts.SingleOrDefault(c => c.Id == id);
+        }
+
+        public void InsertContexts(IEnumerable<ContextModel> contexts)
+        {
+            db.Contexts.AddRange(contexts);
+            db.SaveChanges();
+        }
+
+        public IEnumerable<ContextModel> GetAllContexts()
+        {
+            return db.Contexts.Where(c => c.Id != -1);
+        }
+
+        public void InsertPosition(PositionModel position)
+        {
+            db.Positions.Add(position);
+            db.SaveChanges();
+        }
+
+        public void TruncateDatabase()
+        {
+            var tags = db.Tags.Where(x => x.TagId != -1);
+            db.RemoveRange(tags);
+            var tois = db.Tois.Where(x => x.Id != -1);
+            db.RemoveRange(tois);
+            var positions = db.Positions.Where(x => x.Id != -1);
+            db.RemoveRange(positions);
+            var contexts = db.Contexts.Where(x => x.Id != -1);
+            db.RemoveRange(contexts);
+            db.SaveChanges();
+        }
+
+        public IEnumerable<TagModel> GetTagsFromType(TagType type)
+        {
+            return db.Tags.Where(s => s.TagType == type);
+        }
+
+        public PositionModel GetPositionFromTagId(int tagId)
+        {
+            return db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
         }
     }
     
