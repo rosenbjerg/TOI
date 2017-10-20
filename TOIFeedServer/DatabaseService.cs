@@ -34,9 +34,9 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public IEnumerable<ToiModel> GetToiModelFromContext(string context)
+        public IEnumerable<ToiModel> GetToiModelFromInfo(string info)
         {
-            return db.Tois.Where(s => s.Type == context);
+            return db.Tois.Where(s => s.Info == info);
         }
 
         public void InsertTag(TagModel tag)
@@ -95,6 +95,17 @@ namespace TOIFeedServer
             var contexts = db.Contexts.Where(x => x.Id != -1);
             db.RemoveRange(contexts);
             db.SaveChanges();
+        }
+
+        public void InsertToi(ToiModel model)
+        {
+            db.Tois.Add(model);
+            db.SaveChanges();
+        }
+
+        public IEnumerable<ToiModel> GetToisByTagId(int tagId)
+        {
+            return db.Tois.Where(t => t.TagModel.TagId == tagId);
         }
 
         public IEnumerable<TagModel> GetTagsFromType(TagType type)

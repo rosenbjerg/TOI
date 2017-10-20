@@ -152,5 +152,25 @@ namespace TOIFeedServer.Tests
             Assert.AreEqual(40, res.X);
             Assert.AreEqual(45, res.Y);
         }
+
+        [TestMethod]
+        public void GetToiFromTagId()
+        {
+            // Arrange
+            var tag = new TagModel(3, TagType.Bluetooth);
+            var context = new ContextModel(2, "test");
+            var toi = new ToiModel(1, "test")
+            {
+                ContextModel = context,
+                TagModel = tag
+            };
+
+            // Act
+            db.InsertToi(toi);
+            var result = db.GetToisByTagId(3);
+            
+            // Assert
+            Assert.AreEqual(1, result.Count());
+        }
     }
 }

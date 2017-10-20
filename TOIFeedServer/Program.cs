@@ -13,22 +13,6 @@ namespace TOIFeedServer
         public static void Main(string[] args)
         {
             var service = new DatabaseService();
-            var model = new ToiModel("Hejsa");
-            var model2 = new ToiModel("Heya");
-
-            var myList = new List<ToiModel>
-            {
-                model,
-                model2
-            };
-
-            service.InsertToiModelList(myList);
-
-            var response = service.GetToiModelFromContext("Heya");
-
-            Console.WriteLine(response.ToList().Count);
-            Console.ReadLine();
-
         }
     }
 

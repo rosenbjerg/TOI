@@ -8,13 +8,17 @@ namespace TOIFeedServer.Models
         {
             
         }
-        public ToiModel(string type)
+        public ToiModel(int id ,string info)
         {
-            Type = type;
+            Id = id;
+            Info = info;
         }
 
         [Key]
         public int Id { get; set; }
-        public string Type { get; set; }
+        public string Info { get; set; }
+
+        public TagModel TagModel { get; set; }
+        public ContextModel ContextModel { get; set; }
     }
 }

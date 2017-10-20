@@ -36,19 +36,6 @@ namespace TOIFeedServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tois",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Type = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tois", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Positions",
                 columns: table => new
                 {
@@ -69,22 +56,59 @@ namespace TOIFeedServer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Tois",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ContextModelId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Info = table.Column<string>(type: "TEXT", nullable: true),
+                    TagModelTagId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tois", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tois_Contexts_ContextModelId",
+                        column: x => x.ContextModelId,
+                        principalTable: "Contexts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tois_Tags_TagModelTagId",
+                        column: x => x.TagModelTagId,
+                        principalTable: "Tags",
+                        principalColumn: "TagId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Positions_TagModelId",
                 table: "Positions",
                 column: "TagModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tois_ContextModelId",
+                table: "Tois",
+                column: "ContextModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tois_TagModelTagId",
+                table: "Tois",
+                column: "TagModelTagId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Contexts");
-
-            migrationBuilder.DropTable(
                 name: "Positions");
 
             migrationBuilder.DropTable(
                 name: "Tois");
+
+            migrationBuilder.DropTable(
+                name: "Contexts");
 
             migrationBuilder.DropTable(
                 name: "Tags");

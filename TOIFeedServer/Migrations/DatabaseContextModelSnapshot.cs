@@ -70,9 +70,17 @@ namespace TOIFeedServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Type");
+                    b.Property<int?>("ContextModelId");
+
+                    b.Property<string>("Info");
+
+                    b.Property<int?>("TagModelTagId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContextModelId");
+
+                    b.HasIndex("TagModelTagId");
 
                     b.ToTable("Tois");
                 });
@@ -83,6 +91,17 @@ namespace TOIFeedServer.Migrations
                         .WithMany()
                         .HasForeignKey("TagModelId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
+                        .WithMany()
+                        .HasForeignKey("ContextModelId");
+
+                    b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
+                        .WithMany()
+                        .HasForeignKey("TagModelTagId");
                 });
 #pragma warning restore 612, 618
         }

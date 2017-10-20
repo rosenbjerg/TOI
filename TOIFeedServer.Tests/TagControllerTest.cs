@@ -76,17 +76,5 @@ namespace TOIFeedServer.Tests
             //Assert
             Assert.AreEqual("Hello World", task.Result);
         }
-
-        [TestMethod]
-        public void Database_Insert_Toi()
-        {
-            var service = new DatabaseService(true);
-            var model = new ToiModel("test");
-
-            service.InsertToiModel(model);
-            var res = service.GetToiModelFromContext("test").First().Type;
-
-            Assert.AreEqual("test", res);
-        }
     }
 }
