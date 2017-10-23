@@ -55,7 +55,7 @@ namespace TOIFeedServer
 
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
             _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
-            _server.Start();
+            _server.Start("127.0.0.1");
             Console.ReadKey();
         }
     }
