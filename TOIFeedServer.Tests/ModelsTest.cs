@@ -237,7 +237,8 @@ namespace TOIFeedServer.Tests
             db.InsertToiModelList(tois);
 
             var result = db.GetToisByTagIds(tagsId).ToList();
-            Assert.AreEqual(true, tois.All(result.Contains));
+            Assert.IsTrue(false);
+            //Assert.AreEqual(true, tois.All(result.Contains));
         }
     }
 }
