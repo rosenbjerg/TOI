@@ -34,18 +34,13 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public IEnumerable<ToiModel> GetToiModelFromContext(string context)
-        {
-            return db.Tois.Where(s => s.Type == context);
-        }
-
         public void InsertTag(TagModel tag)
         {
             db.Tags.Add(tag);
             db.SaveChanges();
         }
 
-        public TagModel GetTagFromID(Guid i)
+        public TagModel GetTagFromId(Guid i)
         {
             return db.Tags.SingleOrDefault(t => t.TagId == i);
         }
@@ -97,8 +92,6 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-<<<<<<< Updated upstream
-=======
         public void InsertToi(ToiModel model)
         {
             db.Tois.Add(model);
@@ -110,7 +103,6 @@ namespace TOIFeedServer
             return db.Tois.Where(t => t.TagModel.TagId == tagId);
         }
 
->>>>>>> Stashed changes
         public IEnumerable<TagModel> GetTagsFromType(TagType type)
         {
             return db.Tags.Where(s => s.TagType == type);

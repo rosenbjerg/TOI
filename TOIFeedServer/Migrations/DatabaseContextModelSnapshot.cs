@@ -54,6 +54,24 @@ namespace TOIFeedServer.Migrations
                     b.ToTable("Positions");
                 });
 
+            modelBuilder.Entity("TOIFeedServer.Models.TagInfoModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Image");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TagInfoModel");
+                });
+
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
                 {
                     b.Property<Guid>("TagId")
@@ -71,17 +89,19 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-<<<<<<< Updated upstream
-                    b.Property<string>("Type");
-=======
                     b.Property<int?>("ContextModelId");
 
-                    b.Property<string>("Info");
+                    b.Property<Guid?>("InfoId");
 
                     b.Property<Guid?>("TagModelTagId");
->>>>>>> Stashed changes
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContextModelId");
+
+                    b.HasIndex("InfoId");
+
+                    b.HasIndex("TagModelTagId");
 
                     b.ToTable("Tois");
                 });
@@ -92,6 +112,21 @@ namespace TOIFeedServer.Migrations
                         .WithMany()
                         .HasForeignKey("TagModelId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
+                        .WithMany()
+                        .HasForeignKey("ContextModelId");
+
+                    b.HasOne("TOIFeedServer.Models.TagInfoModel", "Info")
+                        .WithMany()
+                        .HasForeignKey("InfoId");
+
+                    b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
+                        .WithMany()
+                        .HasForeignKey("TagModelTagId");
                 });
 #pragma warning restore 612, 618
         }

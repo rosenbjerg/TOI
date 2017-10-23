@@ -23,6 +23,21 @@ namespace TOIFeedServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TagInfoModel",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "BLOB", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Image = table.Column<string>(type: "TEXT", nullable: true),
+                    Title = table.Column<string>(type: "TEXT", nullable: true),
+                    Url = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TagInfoModel", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tags",
                 columns: table => new
                 {
@@ -61,7 +76,7 @@ namespace TOIFeedServer.Migrations
                 {
                     Id = table.Column<Guid>(type: "BLOB", nullable: false),
                     ContextModelId = table.Column<int>(type: "INTEGER", nullable: true),
-                    Info = table.Column<string>(type: "TEXT", nullable: true),
+                    InfoId = table.Column<Guid>(type: "BLOB", nullable: true),
                     TagModelTagId = table.Column<Guid>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>
@@ -71,6 +86,12 @@ namespace TOIFeedServer.Migrations
                         name: "FK_Tois_Contexts_ContextModelId",
                         column: x => x.ContextModelId,
                         principalTable: "Contexts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Tois_TagInfoModel_InfoId",
+                        column: x => x.InfoId,
+                        principalTable: "TagInfoModel",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -92,6 +113,11 @@ namespace TOIFeedServer.Migrations
                 column: "ContextModelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tois_InfoId",
+                table: "Tois",
+                column: "InfoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tois_TagModelTagId",
                 table: "Tois",
                 column: "TagModelTagId");
@@ -107,6 +133,9 @@ namespace TOIFeedServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Contexts");
+
+            migrationBuilder.DropTable(
+                name: "TagInfoModel");
 
             migrationBuilder.DropTable(
                 name: "Tags");

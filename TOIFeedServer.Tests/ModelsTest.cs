@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TOIClasses;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Tests
@@ -37,7 +38,7 @@ namespace TOIFeedServer.Tests
 
             //Act
             db.InsertTag(tag);
-            var res = db.GetTagFromID(guid);
+            var res = db.GetTagFromId(guid);
             
             //Assert
             Assert.AreEqual(typeof(TagModel), res.GetType());
@@ -52,7 +53,7 @@ namespace TOIFeedServer.Tests
 
             //Act
             db.InsertTag(tag);
-            var res = db.GetTagFromID(guid);
+            var res = db.GetTagFromId(guid);
 
             //Assert
             Assert.AreEqual(TagType.Bluetooth, res.TagType);
@@ -159,9 +160,6 @@ namespace TOIFeedServer.Tests
             Assert.AreEqual(40, res.X);
             Assert.AreEqual(45, res.Y);
         }
-<<<<<<< Updated upstream
-=======
-
         [TestMethod]
         public void GetToiFromTagId()
         {
@@ -169,7 +167,13 @@ namespace TOIFeedServer.Tests
             var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
             var tag = new TagModel(guid, TagType.Bluetooth);
             var context = new ContextModel(2, "test");
-            var toi = new ToiModel(Guid.NewGuid(), "test")
+            var toi = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
+
             {
                 ContextModel = context,
                 TagModel = tag
@@ -191,11 +195,21 @@ namespace TOIFeedServer.Tests
             var tag1 = new TagModel(guid1, TagType.Bluetooth);
             var tag2 = new TagModel(guid2, TagType.Bluetooth);
 
-            var toi1 = new ToiModel(Guid.NewGuid(), "test")
+            var toi1 = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
             {
                 TagModel = tag1
             };
-            var toi2 = new ToiModel(Guid.NewGuid(), "test2")
+            var toi2 = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
             {
                 TagModel = tag2
             };
@@ -222,6 +236,5 @@ namespace TOIFeedServer.Tests
             var result = db.GetToisByTagIds(tagsId).ToList();
             Assert.AreEqual(true, tois.All(result.Contains));
         }
->>>>>>> Stashed changes
     }
 }

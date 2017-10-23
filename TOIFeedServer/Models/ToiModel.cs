@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using TOIClasses;
 
 namespace TOIFeedServer.Models
 {
@@ -9,25 +10,20 @@ namespace TOIFeedServer.Models
         {
             
         }
-<<<<<<< Updated upstream
-        public ToiModel(string type)
-=======
-        public ToiModel(Guid id ,string info)
->>>>>>> Stashed changes
+
+        public ToiModel(Guid id, TagInfoModel info)
         {
-            Type = type;
+            Id = id;
+            Info = info;
         }
 
         [Key]
-<<<<<<< Updated upstream
-        public int Id { get; set; }
-        public string Type { get; set; }
-=======
+
         public Guid Id { get; set; }
-        public string Info { get; set; }
+        public TagInfoModel Info { get; set; }
 
         public TagModel TagModel { get; set; }
         public ContextModel ContextModel { get; set; }
->>>>>>> Stashed changes
+
     }
 }
