@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace TOIFeedServer.Models
 {
@@ -8,14 +9,14 @@ namespace TOIFeedServer.Models
         {
             
         }
-        public TagModel(int id, TagType type)
+        public TagModel(Guid id, TagType type)
         {
             TagId = id;
             TagType = type;
         }
 
         [Key]
-        public int TagId { get; set; }
+        public Guid TagId { get; set; }
 
         public TagType TagType { get; set; }
     }

@@ -12,9 +12,10 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20171023075414_Toi")]
+    partial class Toi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,17 +72,17 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-<<<<<<< Updated upstream
-                    b.Property<string>("Type");
-=======
                     b.Property<int?>("ContextModelId");
 
                     b.Property<string>("Info");
 
                     b.Property<Guid?>("TagModelTagId");
->>>>>>> Stashed changes
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContextModelId");
+
+                    b.HasIndex("TagModelTagId");
 
                     b.ToTable("Tois");
                 });
@@ -92,6 +93,17 @@ namespace TOIFeedServer.Migrations
                         .WithMany()
                         .HasForeignKey("TagModelId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
+                        .WithMany()
+                        .HasForeignKey("ContextModelId");
+
+                    b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
+                        .WithMany()
+                        .HasForeignKey("TagModelTagId");
                 });
 #pragma warning restore 612, 618
         }

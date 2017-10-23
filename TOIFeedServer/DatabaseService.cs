@@ -45,7 +45,7 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public TagModel GetTagFromID(int i)
+        public TagModel GetTagFromID(Guid i)
         {
             return db.Tags.SingleOrDefault(t => t.TagId == i);
         }
@@ -86,9 +86,9 @@ namespace TOIFeedServer
 
         public void TruncateDatabase()
         {
-            var tags = db.Tags.Where(x => x.TagId != -1);
+            var tags = db.Tags.Where(x => x.TagId != null);
             db.RemoveRange(tags);
-            var tois = db.Tois.Where(x => x.Id != -1);
+            var tois = db.Tois.Where(x => x.Id != null);
             db.RemoveRange(tois);
             var positions = db.Positions.Where(x => x.Id != -1);
             db.RemoveRange(positions);
@@ -97,14 +97,38 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
+<<<<<<< Updated upstream
+=======
+        public void InsertToi(ToiModel model)
+        {
+            db.Tois.Add(model);
+            db.SaveChanges();
+        }
+
+        public IEnumerable<ToiModel> GetToisByTagId(Guid tagId)
+        {
+            return db.Tois.Where(t => t.TagModel.TagId == tagId);
+        }
+
+>>>>>>> Stashed changes
         public IEnumerable<TagModel> GetTagsFromType(TagType type)
         {
             return db.Tags.Where(s => s.TagType == type);
         }
 
-        public PositionModel GetPositionFromTagId(int tagId)
+        public PositionModel GetPositionFromTagId(Guid tagId)
         {
             return db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
+        }
+
+        public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
+        {
+            List<ToiModel> result = new List<ToiModel>();
+            foreach (var id in ids)
+            {
+                result.Add(db.Tois.FirstOrDefault(p => p.TagModel.TagId == id));
+            }
+            return result;
         }
     }
     
