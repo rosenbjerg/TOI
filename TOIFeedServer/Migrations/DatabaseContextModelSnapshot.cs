@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 using TOIFeedServer;
 using TOIFeedServer.Models;
@@ -40,7 +41,7 @@ namespace TOIFeedServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("TagModelId");
+                    b.Property<Guid>("TagModelId");
 
                     b.Property<double>("X");
 
@@ -53,9 +54,27 @@ namespace TOIFeedServer.Migrations
                     b.ToTable("Positions");
                 });
 
+            modelBuilder.Entity("TOIFeedServer.Models.TagInfoModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Image");
+
+                    b.Property<string>("Title");
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TagInfoModel");
+                });
+
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
                 {
-                    b.Property<int>("TagId")
+                    b.Property<Guid>("TagId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("TagType");
@@ -67,18 +86,20 @@ namespace TOIFeedServer.Migrations
 
             modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int?>("ContextModelId");
 
-                    b.Property<string>("Info");
+                    b.Property<Guid?>("InfoId");
 
-                    b.Property<int?>("TagModelTagId");
+                    b.Property<Guid?>("TagModelTagId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContextModelId");
+
+                    b.HasIndex("InfoId");
 
                     b.HasIndex("TagModelTagId");
 
@@ -98,6 +119,10 @@ namespace TOIFeedServer.Migrations
                     b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
                         .WithMany()
                         .HasForeignKey("ContextModelId");
+
+                    b.HasOne("TOIFeedServer.Models.TagInfoModel", "Info")
+                        .WithMany()
+                        .HasForeignKey("InfoId");
 
                     b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
                         .WithMany()

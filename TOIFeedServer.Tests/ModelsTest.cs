@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TOIClasses;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Tests
@@ -32,11 +33,12 @@ namespace TOIFeedServer.Tests
         public void TagUploaded_CorrectFetch()
         {
             //Arrange
-            var tag = new TagModel(1, TagType.Bluetooth);
+            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var tag = new TagModel(guid, TagType.Bluetooth);
 
             //Act
             db.InsertTag(tag);
-            var res = db.GetTagFromID(1);
+            var res = db.GetTagFromId(guid);
             
             //Assert
             Assert.AreEqual(typeof(TagModel), res.GetType());
@@ -46,11 +48,12 @@ namespace TOIFeedServer.Tests
         public void TagUploaded_ReturnCorrectType()
         {
             //Arrange
-            var tag = new TagModel(1, TagType.Bluetooth);
+            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var tag = new TagModel(guid, TagType.Bluetooth);
 
             //Act
             db.InsertTag(tag);
-            var res = db.GetTagFromID(1);
+            var res = db.GetTagFromId(guid);
 
             //Assert
             Assert.AreEqual(TagType.Bluetooth, res.TagType);
@@ -60,8 +63,9 @@ namespace TOIFeedServer.Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void TagBulkUploadSameIdMustReturnInvalid()
         {
-            var tag1 = new TagModel(1, TagType.Bluetooth);
-            var tag2 = new TagModel(1, TagType.Bluetooth);
+            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var tag1 = new TagModel(guid1, TagType.Bluetooth);
+            var tag2 = new TagModel(guid1, TagType.Bluetooth);
 
             var collection = new List<TagModel>()
             {
@@ -70,7 +74,6 @@ namespace TOIFeedServer.Tests
             };
 
                 db.InsertTags(collection);
-                Assert.IsTrue(true);
             
         }
 
@@ -78,9 +81,13 @@ namespace TOIFeedServer.Tests
         public void ReturnCorrectNumberTagType()
         {
             //Arrange
-            var tag1 = new TagModel(1, TagType.Bluetooth);
-            var tag2 = new TagModel(2, TagType.Bluetooth);
-            var tag3 = new TagModel(3, TagType.GPS);
+            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var guid2 = Guid.ParseExact("2".PadLeft(32, '0'), "N");
+            var guid3 = Guid.ParseExact("3".PadLeft(32, '0'), "N");
+
+            var tag1 = new TagModel(guid1, TagType.Bluetooth);
+            var tag2 = new TagModel(guid2, TagType.Bluetooth);
+            var tag3 = new TagModel(guid3, TagType.GPS);
 
             var collection = new List<TagModel>()
             {
@@ -140,13 +147,14 @@ namespace TOIFeedServer.Tests
         public void CreatePositionForTag_PositonAntTagOkay_Success()
         {
             // Arrange
-            var tag = new TagModel(1, TagType.GPS);
+            var guid = Guid.ParseExact("1".PadLeft(32, '0'),"N");
+            var tag = new TagModel(guid, TagType.GPS);
             var pos = new PositionModel(tag, 40, 45);
 
             // Act
             db.InsertTag(tag);
             db.InsertPosition(pos);
-            var res = db.GetPositionFromTagId(1);
+            var res = db.GetPositionFromTagId(guid);
 
             // Assert
             Assert.AreEqual(40, res.X);
@@ -157,9 +165,16 @@ namespace TOIFeedServer.Tests
         public void GetToiFromTagId()
         {
             // Arrange
-            var tag = new TagModel(3, TagType.Bluetooth);
+            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var tag = new TagModel(guid, TagType.Bluetooth);
             var context = new ContextModel(2, "test");
-            var toi = new ToiModel(1, "test")
+            var toi = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
+
             {
                 ContextModel = context,
                 TagModel = tag
@@ -167,10 +182,62 @@ namespace TOIFeedServer.Tests
 
             // Act
             db.InsertToi(toi);
-            var result = db.GetToisByTagId(3);
+
+            var result = db.GetToisByTagId(guid);
             
             // Assert
             Assert.AreEqual(1, result.Count());
+        }
+
+
+        [TestMethod]
+        public void GetMultipleToisFromMultipleTags()
+        {
+            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
+            var guid2 = Guid.ParseExact("2".PadLeft(32, '0'), "N");
+            var tag1 = new TagModel(guid1, TagType.Bluetooth);
+            var tag2 = new TagModel(guid2, TagType.Bluetooth);
+
+            var toi1 = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
+            {
+                TagModel = tag1
+            };
+            var toi2 = new ToiModel(Guid.NewGuid(), new TagInfoModel
+            {
+                Description = "kludder",
+                Title = "Test Title",
+                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+            })
+            {
+                TagModel = tag2
+            };
+            var tags = new List<TagModel>()
+            {
+                tag1,
+                tag2
+            };
+            var tois = new List<ToiModel>()
+            {
+                toi1,
+                toi2
+            };
+            var tagsId= new List<Guid>()
+            {
+                tag1.TagId,
+                tag2.TagId
+            };
+
+
+            db.InsertTags(tags);
+            db.InsertToiModelList(tois);
+
+            var result = db.GetToisByTagIds(tagsId).ToList();
+            Assert.AreEqual(true, tois.All(result.Contains));
         }
     }
 }

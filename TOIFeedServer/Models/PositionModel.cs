@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TOIFeedServer.Models
@@ -23,7 +24,7 @@ namespace TOIFeedServer.Models
 
         [ForeignKey(nameof(TagModelId))]
         public TagModel TagModel { get; set; }
-        public int TagModelId { get; set; }
+        public Guid TagModelId { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
     }

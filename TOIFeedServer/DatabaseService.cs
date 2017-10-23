@@ -34,18 +34,13 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public IEnumerable<ToiModel> GetToiModelFromInfo(string info)
-        {
-            return db.Tois.Where(s => s.Info == info);
-        }
-
         public void InsertTag(TagModel tag)
         {
             db.Tags.Add(tag);
             db.SaveChanges();
         }
 
-        public TagModel GetTagFromID(int i)
+        public TagModel GetTagFromId(Guid i)
         {
             return db.Tags.SingleOrDefault(t => t.TagId == i);
         }
@@ -86,9 +81,9 @@ namespace TOIFeedServer
 
         public void TruncateDatabase()
         {
-            var tags = db.Tags.Where(x => x.TagId != -1);
+            var tags = db.Tags.Where(x => x.TagId != null);
             db.RemoveRange(tags);
-            var tois = db.Tois.Where(x => x.Id != -1);
+            var tois = db.Tois.Where(x => x.Id != null);
             db.RemoveRange(tois);
             var positions = db.Positions.Where(x => x.Id != -1);
             db.RemoveRange(positions);
@@ -103,7 +98,8 @@ namespace TOIFeedServer
             db.SaveChanges();
         }
 
-        public IEnumerable<ToiModel> GetToisByTagId(int tagId)
+
+        public IEnumerable<ToiModel> GetToisByTagId(Guid tagId)
         {
             return db.Tois.Where(t => t.TagModel.TagId == tagId);
         }
@@ -113,9 +109,19 @@ namespace TOIFeedServer
             return db.Tags.Where(s => s.TagType == type);
         }
 
-        public PositionModel GetPositionFromTagId(int tagId)
+        public PositionModel GetPositionFromTagId(Guid tagId)
         {
             return db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
+        }
+
+        public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
+        {
+            List<ToiModel> result = new List<ToiModel>();
+            foreach (var id in ids)
+            {
+                result.Add(db.Tois.FirstOrDefault(p => p.TagModel.TagId == id));
+            }
+            return result;
         }
     }
     
