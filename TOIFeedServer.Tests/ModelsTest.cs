@@ -186,7 +186,7 @@ namespace TOIFeedServer.Tests
             var result = db.GetToisByTagId(guid);
             
             // Assert
-            Assert.AreEqual(1, result.Count());
+            Assert.IsNotNull(result);
         }
 
 
