@@ -9,119 +9,107 @@ namespace TOIFeedServer
 {
     public class DatabaseService
     {
-        private DatabaseContext db;
+        private readonly DatabaseContext _db;
         public DatabaseService(bool test = false)
         {
-            var TDF = new ToiDbFactory();
-            if (test)
-            {
-                db = TDF.CreateTestContext();
-            }
-            else
-            {
-                db = TDF.CreateContext();
-            }
+            var tdf = new ToiDbFactory();
+            _db = test ? tdf.CreateTestContext() : tdf.CreateContext();
         }
         public void InsertToiModel(ToiModel toiModel)
         {
-            db.Tois.Add(toiModel);
-            db.SaveChanges();    
+            _db.Tois.Add(toiModel);
+            _db.SaveChanges();    
         }
 
         public async void InsertToiModelList(IEnumerable<ToiModel> toiModelList)
         {
-            await db.Tois.AddRangeAsync(toiModelList);
-            db.SaveChanges();
+            await _db.Tois.AddRangeAsync(toiModelList);
+            _db.SaveChanges();
         }
 
         public void InsertTag(TagModel tag)
         {
-            db.Tags.Add(tag);
-            db.SaveChanges();
+            _db.Tags.Add(tag);
+            _db.SaveChanges();
         }
 
         public TagModel GetTagFromId(Guid i)
         {
-            return db.Tags.SingleOrDefault(t => t.TagId == i);
+            return _db.Tags.SingleOrDefault(t => t.TagId == i);
         }
 
         public void InsertTags(IEnumerable<TagModel> tags)
         {
-            db.Tags.AddRange(tags);
-            db.SaveChanges();  
+            _db.Tags.AddRange(tags);
+            _db.SaveChanges();  
         }
 
         public void InsertContext(ContextModel context)
         {
-            db.Contexts.Add(context);
-            db.SaveChanges();
+            _db.Contexts.Add(context);
+            _db.SaveChanges();
         }
 
         public ContextModel GetContextFromId(int id)
         {
-            return db.Contexts.SingleOrDefault(c => c.Id == id);
+            return _db.Contexts.SingleOrDefault(c => c.Id == id);
         }
 
         public void InsertContexts(IEnumerable<ContextModel> contexts)
         {
-            db.Contexts.AddRange(contexts);
-            db.SaveChanges();
+            _db.Contexts.AddRange(contexts);
+            _db.SaveChanges();
         }
 
         public IEnumerable<ContextModel> GetAllContexts()
         {
-            return db.Contexts.Where(c => c.Id != -1);
+            return _db.Contexts.Where(c => c.Id != -1);
         }
 
         public void InsertPosition(PositionModel position)
         {
-            db.Positions.Add(position);
-            db.SaveChanges();
+            _db.Positions.Add(position);
+            _db.SaveChanges();
         }
 
         public void TruncateDatabase()
         {
-            var tags = db.Tags.Where(x => x.TagId != null);
-            db.RemoveRange(tags);
-            var tois = db.Tois.Where(x => x.Id != null);
-            db.RemoveRange(tois);
-            var positions = db.Positions.Where(x => x.Id != -1);
-            db.RemoveRange(positions);
-            var contexts = db.Contexts.Where(x => x.Id != -1);
-            db.RemoveRange(contexts);
-            db.SaveChanges();
+            var tags = _db.Tags.Where(x => x.TagId != null);
+            _db.RemoveRange(tags);
+            var tois = _db.Tois.Where(x => x.Id != null);
+            _db.RemoveRange(tois);
+            var positions = _db.Positions.Where(x => x.Id != -1);
+            _db.RemoveRange(positions);
+            var contexts = _db.Contexts.Where(x => x.Id != -1);
+            _db.RemoveRange(contexts);
+            _db.SaveChanges();
         }
 
         public void InsertToi(ToiModel model)
         {
-            db.Tois.Add(model);
-            db.SaveChanges();
+            _db.Tois.Add(model);
+            _db.SaveChanges();
         }
 
 
-        public IEnumerable<ToiModel> GetToisByTagId(Guid tagId)
+        public ToiModel GetToisByTagId(Guid tagId)
         {
-            return db.Tois.Where(t => t.TagModel.TagId == tagId);
+            return _db.Tois.FirstOrDefault(t => t.TagModel.TagId == tagId);
         }
 
         public IEnumerable<TagModel> GetTagsFromType(TagType type)
         {
-            return db.Tags.Where(s => s.TagType == type);
+            return _db.Tags.Where(s => s.TagType == type);
         }
 
         public PositionModel GetPositionFromTagId(Guid tagId)
         {
-            return db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
+            return _db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
         }
 
         public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
         {
-            List<ToiModel> result = new List<ToiModel>();
-            foreach (var id in ids)
-            {
-                result.Add(db.Tois.FirstOrDefault(p => p.TagModel.TagId == id));
-            }
-            return result;
+            return ids.Select(id => _db.Tois.FirstOrDefault(p => p.TagModel.TagId == id)).ToList();
         }
     }
     

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TOIFeedServer.Migrations
 {
-    public partial class Toi : Migration
+    public partial class toi : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -76,7 +76,7 @@ namespace TOIFeedServer.Migrations
                 {
                     Id = table.Column<Guid>(type: "BLOB", nullable: false),
                     ContextModelId = table.Column<int>(type: "INTEGER", nullable: true),
-                    InfoId = table.Column<Guid>(type: "BLOB", nullable: true),
+                    TagInfoModelId = table.Column<Guid>(type: "BLOB", nullable: true),
                     TagModelTagId = table.Column<Guid>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>
@@ -89,8 +89,8 @@ namespace TOIFeedServer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Tois_TagInfoModel_InfoId",
-                        column: x => x.InfoId,
+                        name: "FK_Tois_TagInfoModel_TagInfoModelId",
+                        column: x => x.TagInfoModelId,
                         principalTable: "TagInfoModel",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -113,9 +113,9 @@ namespace TOIFeedServer.Migrations
                 column: "ContextModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tois_InfoId",
+                name: "IX_Tois_TagInfoModelId",
                 table: "Tois",
-                column: "InfoId");
+                column: "TagInfoModelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tois_TagModelTagId",

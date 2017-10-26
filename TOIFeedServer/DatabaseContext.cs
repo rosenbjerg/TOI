@@ -31,6 +31,10 @@ namespace TOIFeedServer
             {
                 optionsBuilder.UseSqlite("Data Source=toi.db");
             }
+            else
+            {
+                
+            }
         }
         
     }

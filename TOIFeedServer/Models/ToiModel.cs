@@ -10,15 +10,15 @@ namespace TOIFeedServer.Models
         {
             
         }
-        public ToiModel(Guid id, TagInfoModel info)
+        public ToiModel(Guid id, TagInfoModel tagInfoModel)
         {
             Id = id;
-            Info = info;
+            TagInfoModel = tagInfoModel;
         }
 
         [Key]
         public Guid Id { get; set; }
-        public TagInfoModel Info { get; set; }
+        public TagInfoModel TagInfoModel { get; set; }
 
         public TagModel TagModel { get; set; }
         public ContextModel ContextModel { get; set; }
