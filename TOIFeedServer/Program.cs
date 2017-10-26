@@ -111,7 +111,9 @@ namespace TOIFeedServer
                         }
                     }
                 };
-                await res.SendJson(outList);
+                var tagInfoList = new List<TagInfo>();
+                outList.ForEach(toi => tagInfoList.Add(toi.TagInfoModel.GetTagInfo()));
+                await res.SendJson(tagInfoList);
             });
 
             if (File.Exists("toi.db"))
