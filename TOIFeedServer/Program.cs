@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using RedHttpServerCore;
 using TOIClasses;
+using TOIFeedServer.Managers;
 using TOIFeedServer.Models;
 
 
@@ -14,7 +15,9 @@ namespace TOIFeedServer
     {
         public static void Main(string[] args)
         {
-            new FeedServer();
+            var travisBuild = args.Contains("--travis");
+            var generateSampleData = args.Contains("--sample-data");
+            new FeedServer(travisBuild, generateSampleData);
         }
     }
 
@@ -22,31 +25,34 @@ namespace TOIFeedServer
     {
         private readonly RedHttpServer _server = new RedHttpServer(7474);
 
-        public FeedServer()
+        public FeedServer(bool travisDeploy, bool sampleData)
         {
             _server.Get("/hello", async (req, res) =>
             {
                 await res.SendString("Hello World");
                 res.ServerPlugins.Use<DatabaseService>();
             });
-            _server.Post("/tags", async (req, res) =>
-            {
-                //                List<Guid> ids;
-                //                try
-                //                {
-                //                    ids = await req.ParseBodyAsync<List<Guid>>();
-                //                }
-                //                catch
-                //                {
-                //                    await res.SendString("NO", status: 401);
-                //                    return;
-                //                }
-                //
-                //                var outList = new List<TagInfo>();
-                //                ids.ForEach(tag => outList.Add(_server.Plugins.Use<DatabaseService>().GetToisByTagId(tag).TagInfoModel.GetTagInfo()));
 
-                var modelList = 
-                    new List<ToiModel>
+            var tagMan = new TagManager();
+            _server.Post("/tags", tagMan.AllTags);
+
+            if (sampleData)
+            {
+                if(File.Exists("toi.db"))
+                    File.Delete("toi.db");
+                fillMockDatabase(_server);
+            }
+
+            _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
+            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
+            _server.Start();
+            if (!travisDeploy)
+                Console.ReadLine();
+        }
+
+        private void fillMockDatabase(RedHttpServer server)
+        {
+            var modelList = new List<ToiModel>
                     {
                         new ToiModel
                         {
@@ -60,7 +66,7 @@ namespace TOIFeedServer
                             },
                             TagModel = new TagModel
                             {
-                                TagId = CreateGuid("FA:C4:D1:03:8D:3D"),
+                                TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
                                 TagType = TagType.Bluetooth
                             }
                         },
@@ -76,7 +82,7 @@ namespace TOIFeedServer
                             },
                             TagModel = new TagModel
                             {
-                                TagId = CreateGuid("CC:14:54:01:52:82"),
+                                TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
                                 TagType = TagType.Bluetooth
                             }
                         },
@@ -92,7 +98,7 @@ namespace TOIFeedServer
                             },
                             TagModel = new TagModel
                             {
-                                TagId = CreateGuid("CB:FF:B9:6C:A4:7D"),
+                                TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
                                 TagType = TagType.Bluetooth
                             }
                         },
@@ -108,32 +114,12 @@ namespace TOIFeedServer
                             },
                             TagModel = new TagModel
                             {
-                                TagId = CreateGuid("F4:B4:15:05:42:05"),
+                                TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
                                 TagType = TagType.Bluetooth
                             }
                         }
                     };
-                res.ServerPlugins.Use<DatabaseService>().InsertToiModelList(modelList);
-                
-                var tagInfoList = new List<TagInfo>();
-                res.ServerPlugins.Use<DatabaseService>().GetAllToiModels().ToList().ForEach(p => tagInfoList.Add(p.TagInfoModel.GetTagInfo()));
-                await res.SendJson(tagInfoList);
-                res.ServerPlugins.Use<DatabaseService>().TruncateDatabase();
-            });
-
-            if (File.Exists("toi.db"))
-            {
-                File.Delete("toi.db");
-            }
-
-            _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
-            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
-            _server.Start(); 
-        }
-
-        public Guid CreateGuid(string bdAddr)
-        {
-            return Guid.ParseExact(bdAddr.Replace(":", string.Empty).PadLeft(32, '0'), "N");
+            server.Plugins.Use<DatabaseService>().InsertToiModelList(modelList);
         }
     }
 }
