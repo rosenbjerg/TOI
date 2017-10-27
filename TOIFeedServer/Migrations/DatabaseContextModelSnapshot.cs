@@ -69,7 +69,7 @@ namespace TOIFeedServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TagInfoModel");
+                    b.ToTable("TagInfos");
                 });
 
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>

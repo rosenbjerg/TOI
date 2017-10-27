@@ -34,6 +34,10 @@ namespace TOIFeedServer
             connection.Open();
 
             var options = CreateOptions(connection);
+            using (var context = new DatabaseContext(options))
+            {
+                context.Database.Migrate();
+            }
 
             return new DatabaseContext(options);
         }

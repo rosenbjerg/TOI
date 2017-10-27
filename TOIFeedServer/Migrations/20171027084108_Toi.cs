@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TOIFeedServer.Migrations
 {
-    public partial class toi : Migration
+    public partial class Toi : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,7 +23,7 @@ namespace TOIFeedServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TagInfoModel",
+                name: "TagInfos",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "BLOB", nullable: false),
@@ -34,7 +34,7 @@ namespace TOIFeedServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagInfoModel", x => x.Id);
+                    table.PrimaryKey("PK_TagInfos", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,9 +89,9 @@ namespace TOIFeedServer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Tois_TagInfoModel_TagInfoModelId",
+                        name: "FK_Tois_TagInfos_TagInfoModelId",
                         column: x => x.TagInfoModelId,
-                        principalTable: "TagInfoModel",
+                        principalTable: "TagInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -135,7 +135,7 @@ namespace TOIFeedServer.Migrations
                 name: "Contexts");
 
             migrationBuilder.DropTable(
-                name: "TagInfoModel");
+                name: "TagInfos");
 
             migrationBuilder.DropTable(
                 name: "Tags");

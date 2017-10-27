@@ -15,10 +15,11 @@ namespace TOIFeedServer
             var tdf = new ToiDbFactory();
             _db = test ? tdf.CreateTestContext() : tdf.CreateContext();
         }
-        public void InsertToiModel(ToiModel toiModel)
+
+        public async void InsertToiModel(ToiModel toiModel)
         {
-            _db.Tois.Add(toiModel);
-            _db.SaveChanges();    
+            await _db.Tois.AddAsync(toiModel);
+            _db.SaveChanges();
         }
 
         public async void InsertToiModelList(IEnumerable<ToiModel> toiModelList)
@@ -84,14 +85,6 @@ namespace TOIFeedServer
             _db.RemoveRange(contexts);
             _db.SaveChanges();
         }
-
-        public void InsertToi(ToiModel model)
-        {
-            _db.Tois.Add(model);
-            _db.SaveChanges();
-        }
-
-
         public ToiModel GetToisByTagId(Guid tagId)
         {
             return _db.Tois.FirstOrDefault(t => t.TagModel.TagId == tagId);
@@ -110,6 +103,11 @@ namespace TOIFeedServer
         public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
         {
             return ids.Select(id => _db.Tois.FirstOrDefault(p => p.TagModel.TagId == id)).ToList();
+        }
+
+        public IEnumerable<ToiModel> GetAllToiModels()
+        {
+            return _db.Tois.Where(p => p != null);
         }
     }
     

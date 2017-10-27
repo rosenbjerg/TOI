@@ -12,8 +12,8 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171026131758_toi")]
-    partial class toi
+    [Migration("20171027084108_Toi")]
+    partial class Toi
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -70,7 +70,7 @@ namespace TOIFeedServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TagInfoModel");
+                    b.ToTable("TagInfos");
                 });
 
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>

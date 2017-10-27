@@ -181,7 +181,7 @@ namespace TOIFeedServer.Tests
             };
 
             // Act
-            db.InsertToi(toi);
+            db.InsertToiModel(toi);
 
             var result = db.GetToisByTagId(guid);
             
