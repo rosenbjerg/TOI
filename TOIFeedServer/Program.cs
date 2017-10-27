@@ -17,6 +17,7 @@ namespace TOIFeedServer
             // Block thread to avoid closing server immediately
             if (!travisBuild)
                 Console.ReadLine();
+            Console.WriteLine("Server closed");
         }
     }
 }
