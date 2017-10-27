@@ -129,7 +129,6 @@ namespace TOIFeedServer
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
             _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
             _server.Start();
-            Console.ReadKey();
         }
 
         public Guid CreateGuid(string bdAddr)
