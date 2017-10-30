@@ -11,6 +11,11 @@ namespace TOIFeedServer
         {
             var travisBuild = args.Contains("--travis");
             var generateSampleData = args.Contains("--sample-data");
+            if (generateSampleData)
+            {
+                Console.WriteLine("Adding sample tag data.");
+            }
+
             var fs = new FeedServer(generateSampleData);
             fs.Start();
 

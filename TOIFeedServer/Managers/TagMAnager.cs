@@ -16,8 +16,9 @@ namespace TOIFeedServer.Managers
         {
             var tagInfoList = new List<TagInfo>();
             res.ServerPlugins.Use<DatabaseService>().GetAllToiModels().ToList().ForEach(p => tagInfoList.Add(p.TagInfoModel.GetTagInfo()));
+            Console.WriteLine($"Received request. Sending {tagInfoList.Count} tags.");
             await res.SendJson(tagInfoList);
-            res.ServerPlugins.Use<DatabaseService>().TruncateDatabase();
+            res.ServerPlugins.Use<DatabaseService>();
         }
 
         public static Guid CreateTagGuid(string bdAddr)

@@ -23,15 +23,21 @@ namespace TOIFeedServer
             var tagMan = new TagManager();
             _server.Post("/tags", tagMan.AllTags);
 
+
             if (sampleData)
             {
                 if(File.Exists("toi.db"))
                     File.Delete("toi.db");
+            }
+
+            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
+
+            if (sampleData)
+            {
                 FillMockDatabase();
             }
 
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
-            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
         }
 
         private void FillMockDatabase()

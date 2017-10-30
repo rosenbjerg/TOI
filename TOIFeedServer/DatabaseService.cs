@@ -9,7 +9,7 @@ namespace TOIFeedServer
 {
     public class DatabaseService
     {
-        private readonly DatabaseContext _db;
+        private DatabaseContext _db;
         public DatabaseService(bool test = false)
         {
             var tdf = new ToiDbFactory();
@@ -42,7 +42,7 @@ namespace TOIFeedServer
         public void InsertTags(IEnumerable<TagModel> tags)
         {
             _db.Tags.AddRange(tags);
-            _db.SaveChanges();  
+            _db.SaveChanges();
         }
 
         public void InsertContext(ContextModel context)
@@ -110,5 +110,5 @@ namespace TOIFeedServer
             return _db.Tois.Where(p => p != null);
         }
     }
-    
+
 }
