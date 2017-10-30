@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ServiceStack.Text;
 using TOIClasses;
 
 
@@ -9,6 +10,7 @@ namespace TOIFeedServer
     {
         public static void Main(string[] args)
         {
+            JsConfig.UseSystemParseMethods = true;
             var travisBuild = args.Contains("--travis");
             var generateSampleData = args.Contains("--sample-data");
             if (generateSampleData)
