@@ -17,15 +17,15 @@ namespace TOIFeedServer.Managers
             try
             {
                 var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                var tagInfo = res.ServerPlugins.Use<DatabaseService>().GetAllToiModels()
-                    .Where(t => guids.Contains(t.TagModel.TagId)).Select(x => x.TagInfoModel.GetTagInfo()).ToList();
+                var tagInfo = res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)
+                    .Select(x => x.TagInfoModel.GetTagInfo()).ToList();
                 Console.WriteLine(
                     $"Received request. Sending {tagInfo.Count} tags.");
                 await res.SendJson(tagInfo);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message + "");
+                Console.WriteLine(e.StackTrace + "");
             }
         }
 

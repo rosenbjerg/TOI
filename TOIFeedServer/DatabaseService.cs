@@ -85,10 +85,6 @@ namespace TOIFeedServer
             _db.RemoveRange(contexts);
             _db.SaveChanges();
         }
-        public ToiModel GetToisByTagId(Guid tagId)
-        {
-            return _db.Tois.FirstOrDefault(t => t.TagModel.TagId == tagId);
-        }
 
         public IEnumerable<TagModel> GetTagsFromType(TagType type)
         {
@@ -102,7 +98,8 @@ namespace TOIFeedServer
 
         public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
         {
-            return ids.Select(id => _db.Tois.FirstOrDefault(p => p.TagModel.TagId == id)).ToList();
+            var hash = ids.ToHashSet();
+            return _db.Tois.Where(p => p.TagModel.Any(x => hash.Contains(x.TagId)));
         }
 
         public IEnumerable<ToiModel> GetAllToiModels()

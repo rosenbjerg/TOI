@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using TOIClasses;
 
@@ -20,7 +21,7 @@ namespace TOIFeedServer.Models
         public Guid Id { get; set; }
         public TagInfoModel TagInfoModel { get; set; }
 
-        public TagModel TagModel { get; set; }
+        public List<TagModel> TagModel { get; set; }
         public ContextModel ContextModel { get; set; }
     }
 }

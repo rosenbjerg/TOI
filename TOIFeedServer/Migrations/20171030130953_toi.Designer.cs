@@ -12,8 +12,8 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171027084108_Toi")]
-    partial class Toi
+    [Migration("20171030130953_toi")]
+    partial class toi
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -80,7 +80,11 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<int>("TagType");
 
+                    b.Property<Guid?>("ToiModelId");
+
                     b.HasKey("TagId");
+
+                    b.HasIndex("ToiModelId");
 
                     b.ToTable("Tags");
                 });
@@ -94,15 +98,11 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<Guid?>("TagInfoModelId");
 
-                    b.Property<Guid?>("TagModelTagId");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ContextModelId");
 
                     b.HasIndex("TagInfoModelId");
-
-                    b.HasIndex("TagModelTagId");
 
                     b.ToTable("Tois");
                 });
@@ -115,6 +115,13 @@ namespace TOIFeedServer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.ToiModel")
+                        .WithMany("TagModel")
+                        .HasForeignKey("ToiModelId");
+                });
+
             modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
                 {
                     b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
@@ -124,10 +131,6 @@ namespace TOIFeedServer.Migrations
                     b.HasOne("TOIFeedServer.Models.TagInfoModel", "TagInfoModel")
                         .WithMany()
                         .HasForeignKey("TagInfoModelId");
-
-                    b.HasOne("TOIFeedServer.Models.TagModel", "TagModel")
-                        .WithMany()
-                        .HasForeignKey("TagModelTagId");
                 });
 #pragma warning restore 612, 618
         }

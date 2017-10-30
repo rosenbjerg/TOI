@@ -54,10 +54,14 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/gCTCL7z.jpg",
                         Url = "https://imgur.com/gallery/yWoZC"
                     },
-                    TagModel = new TagModel
+                    
+                    TagModel = new List<TagModel>
                     {
-                        TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
-                        TagType = TagType.Bluetooth
+                        new TagModel
+                        {
+                            TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
+                            TagType = TagType.Bluetooth
+                        } 
                     }
                 },
                 new ToiModel
@@ -70,10 +74,13 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/6UwO2nF.mp4",
                         Url = "https://imgur.com/gallery/6UwO2nF"
                     },
-                    TagModel = new TagModel
+                    TagModel = new List<TagModel>
                     {
-                        TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
-                        TagType = TagType.Bluetooth
+                        new TagModel
+                        {
+                            TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
+                            TagType = TagType.Bluetooth
+                        }
                     }
                 },
                 new ToiModel
@@ -86,10 +93,13 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/aNV3gzq.png",
                         Url = "https://imgur.com/gallery/aNV3gzq"
                     },
-                    TagModel = new TagModel
+                    TagModel = new List<TagModel>
                     {
-                        TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
-                        TagType = TagType.Bluetooth
+                        new TagModel
+                        {
+                            TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
+                            TagType = TagType.Bluetooth
+                        }
                     }
                 },
                 new ToiModel
@@ -102,10 +112,13 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/2Ivtb0i.jpg",
                         Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59"
                     },
-                    TagModel = new TagModel
+                    TagModel = new List<TagModel>
                     {
-                        TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
-                        TagType = TagType.Bluetooth
+                        new TagModel
+                        {
+                            TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
+                            TagType = TagType.Bluetooth
+                        }
                     }
                 }
             };
