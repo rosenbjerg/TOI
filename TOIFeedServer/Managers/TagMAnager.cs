@@ -16,6 +16,7 @@ namespace TOIFeedServer.Managers
         {
             try
             {
+                Console.WriteLine(req.ServerPlugins.Use<DatabaseService>().GetAllToiModels().Count());
                 var guids = await req.ParseBodyAsync<HashSet<Guid>>();
                 var tagInfo = res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)
                     .Select(x => x.TagInfoModel.GetTagInfo()).ToList();
@@ -25,7 +26,7 @@ namespace TOIFeedServer.Managers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace + "");
+                Console.WriteLine(e.Message + " " + e.StackTrace);
             }
         }
 
