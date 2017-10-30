@@ -14,11 +14,10 @@ namespace TOIFeedServer.Managers
     {
         public async Task AllTags(RRequest req, RResponse res)
         {
-            var tagInfoList = new List<TagInfo>();
-            res.ServerPlugins.Use<DatabaseService>().GetAllToiModels().ToList().ForEach(p => tagInfoList.Add(p.TagInfoModel.GetTagInfo()));
-            Console.WriteLine($"Received request. Sending {tagInfoList.Count} tags.");
-            await res.SendJson(tagInfoList);
-            res.ServerPlugins.Use<DatabaseService>();
+            var guids = await req.ParseBodyAsync<HashSet<Guid>>();
+            var tagInfo = res.ServerPlugins.Use<DatabaseService>().GetAllToiModels().Where(t => guids.Contains(t.Id)).ToList();
+            Console.WriteLine($"Received request from {req.UnderlyingRequest.HttpContext.Connection.RemoteIpAddress}. Sending {tagInfo.Count} tags.");
+            await res.SendJson(tagInfo);
         }
 
         public static Guid CreateTagGuid(string bdAddr)

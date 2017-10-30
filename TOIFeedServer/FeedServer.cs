@@ -12,7 +12,7 @@ namespace TOIFeedServer
     {
         private readonly RedHttpServer _server = new RedHttpServer(7474);
 
-        public FeedServer(bool sampleData)
+        public FeedServer(bool sampleData = false)
         {
             _server.Get("/hello", async (req, res) =>
             {
