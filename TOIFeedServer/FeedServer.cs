@@ -10,10 +10,15 @@ namespace TOIFeedServer
 {
     public class FeedServer
     {
-        private readonly RedHttpServer _server = new RedHttpServer(7474);
+        private readonly RedHttpServer _server;
 
         public FeedServer(bool sampleData = false, bool testDb = false)
         {
+			if (!testDb)
+				_server = new RedHttpServer(7474, "./WebManagement");
+			else
+				_server = new RedHttpServer(7474);
+			
             _server.Get("/hello", async (req, res) =>
             {
                 await res.SendString("Hello World");
