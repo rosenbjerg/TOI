@@ -16,9 +16,13 @@ namespace TOIFeedServer.Managers
         {
             try
             {
-                Console.WriteLine((await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result.Count());
+                
                 var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                var test = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result;
+                if (guids.Count == 0)
+                {
+                    Console.WriteLine("Invalid body, no tags included");
+                    return;
+                }
                 var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
                     .Select(x => x.TagInfoModel).ToList();
                 Console.WriteLine(
