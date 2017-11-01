@@ -12,8 +12,7 @@ namespace TOIFeedServer.Migrations
                 name: "Contexts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<Guid>(type: "BLOB", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     Title = table.Column<string>(type: "TEXT", maxLength: 70, nullable: false)
                 },
@@ -42,7 +41,7 @@ namespace TOIFeedServer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "BLOB", nullable: false),
-                    ContextModelId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ContextModelId = table.Column<Guid>(type: "BLOB", nullable: true),
                     TagInfoModelId = table.Column<Guid>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>

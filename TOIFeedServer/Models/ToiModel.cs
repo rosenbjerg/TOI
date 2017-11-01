@@ -21,7 +21,22 @@ namespace TOIFeedServer.Models
         public Guid Id { get; set; }
         public TagInfoModel TagInfoModel { get; set; }
 
-        public List<TagModel> TagModel { get; set; }
+        public List<TagModel> TagModels { get; set; }
         public ContextModel ContextModel { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ToiModel t && t.Id == Id;
+        }
+
+        protected bool Equals(ToiModel other)
+        {
+            return Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

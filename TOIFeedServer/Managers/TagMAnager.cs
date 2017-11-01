@@ -16,10 +16,10 @@ namespace TOIFeedServer.Managers
         {
             try
             {
-                Console.WriteLine(req.ServerPlugins.Use<DatabaseService>().GetAllToiModels().Count());
+                Console.WriteLine((await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result.Count());
                 var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                var tagInfo = res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)
-                    .Select(x => x.TagInfoModel.GetTagInfo()).ToList();
+                var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
+                    .Select(x => x.TagInfoModel).ToList();
                 Console.WriteLine(
                     $"Received request. Sending {tagInfo.Count} tags.");
                 await res.SendJson(tagInfo);

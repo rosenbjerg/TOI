@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -27,6 +28,7 @@ namespace TOIFeedServer.Models
         public Guid TagModelId { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
+
     }
 
 }

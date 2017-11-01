@@ -19,5 +19,20 @@ namespace TOIFeedServer.Models
         public Guid TagId { get; set; }
 
         public TagType TagType { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TagModel t && t.TagId == TagId;
+        }
+
+        protected bool Equals(TagModel other)
+        {
+            return TagId.Equals(other.TagId);
+        }
+
+        public override int GetHashCode()
+        {
+            return TagId.GetHashCode();
+        }
     }
 }

@@ -12,7 +12,7 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171030130953_toi")]
+    [Migration("20171101121330_toi")]
     partial class toi
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,7 +23,7 @@ namespace TOIFeedServer.Migrations
 
             modelBuilder.Entity("TOIFeedServer.Models.ContextModel", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
@@ -94,7 +94,7 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("ContextModelId");
+                    b.Property<Guid?>("ContextModelId");
 
                     b.Property<Guid?>("TagInfoModelId");
 

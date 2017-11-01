@@ -34,7 +34,7 @@ namespace TOIFeedServer
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
         }
 
-        private void FillMockDatabase()
+        private async void FillMockDatabase()
         {
             var modelList = new List<ToiModel>
             {
@@ -49,7 +49,7 @@ namespace TOIFeedServer
                         Url = "https://imgur.com/gallery/yWoZC"
                     },
                     
-                    TagModel = new List<TagModel>
+                    TagModels = new List<TagModel>
                     {
                         new TagModel
                         {
@@ -68,7 +68,7 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/6UwO2nF.mp4",
                         Url = "https://imgur.com/gallery/6UwO2nF"
                     },
-                    TagModel = new List<TagModel>
+                    TagModels = new List<TagModel>
                     {
                         new TagModel
                         {
@@ -87,7 +87,7 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/aNV3gzq.png",
                         Url = "https://imgur.com/gallery/aNV3gzq"
                     },
-                    TagModel = new List<TagModel>
+                    TagModels = new List<TagModel>
                     {
                         new TagModel
                         {
@@ -106,7 +106,7 @@ namespace TOIFeedServer
                         Image = "https://i.imgur.com/2Ivtb0i.jpg",
                         Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59"
                     },
-                    TagModel = new List<TagModel>
+                    TagModels = new List<TagModel>
                     {
                         new TagModel
                         {
@@ -116,7 +116,7 @@ namespace TOIFeedServer
                     }
                 }
             };
-            _server.Plugins.Use<DatabaseService>().InsertToiModelList(modelList);
+            await _server.Plugins.Use<DatabaseService>().InsertToiModelList(modelList);
         }
 
         public void Start()

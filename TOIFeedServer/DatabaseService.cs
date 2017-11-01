@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TOIFeedServer.Models;
 
@@ -16,96 +17,158 @@ namespace TOIFeedServer
             _db = test ? tdf.CreateTestContext() : tdf.CreateContext();
         }
 
-        public async void InsertToiModel(ToiModel toiModel)
+        public async Task<DatabaseStatusCode> InsertToiModel(ToiModel toiModel)
         {
+            if (await _db.Tois.AnyAsync(t => t.Equals(toiModel)))
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
             await _db.Tois.AddAsync(toiModel);
             _db.SaveChanges();
+            return DatabaseStatusCode.Created;
         }
 
-        public async void InsertToiModelList(IEnumerable<ToiModel> toiModelList)
+        public async Task<DatabaseStatusCode> InsertToiModelList(List<ToiModel> toiModelList)
         {
+            if (await _db.Tois.AnyAsync(t => toiModelList.Contains(t)))
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            if(toiModelList.Count() != toiModelList.Distinct().Count())
+            {
+                return DatabaseStatusCode.ListContainsDuplicate;
+            }
             await _db.Tois.AddRangeAsync(toiModelList);
             _db.SaveChanges();
+            return DatabaseStatusCode.Created;
         }
 
-        public void InsertTag(TagModel tag)
+        public async Task<DatabaseStatusCode> InsertTag(TagModel tag)
         {
-            _db.Tags.Add(tag);
-            _db.SaveChanges();
+            if (await _db.Tags.AnyAsync(t => t.Equals(tag)))
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            await _db.Tags.AddAsync(tag);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Created;
         }
 
-        public TagModel GetTagFromId(Guid i)
+        public async Task<DbResult<TagModel>> GetTagFromId(Guid id)
         {
-            return _db.Tags.SingleOrDefault(t => t.TagId == i);
+            var tag = await _db.Tags.FindAsync(id);
+            var status = tag == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            return new DbResult<TagModel>(tag, status);
         }
 
-        public void InsertTags(IEnumerable<TagModel> tags)
+
+        public async Task<DatabaseStatusCode> InsertTags(List<TagModel> tags)
         {
-            _db.Tags.AddRange(tags);
-            _db.SaveChanges();
+            if (await _db.Tags.AnyAsync(t => tags.Contains(t)))
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            if (tags.Count() != tags.Distinct().Count())
+            {
+                return DatabaseStatusCode.ListContainsDuplicate;
+            }
+            await _db.Tags.AddRangeAsync(tags);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Created;
+
         }
 
-        public void InsertContext(ContextModel context)
+        public async Task<DatabaseStatusCode> InsertContext(ContextModel context)
         {
-            _db.Contexts.Add(context);
-            _db.SaveChanges();
+            if (await _db.Contexts.FindAsync(context.Id) != null)
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            await _db.Contexts.AddAsync(context);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Created;
         }
 
-        public ContextModel GetContextFromId(int id)
+        public async Task<DbResult<ContextModel>> GetContextFromId(Guid id)
         {
-            return _db.Contexts.SingleOrDefault(c => c.Id == id);
+            var context = await _db.Contexts.SingleOrDefaultAsync(t => t.Id == id);
+            var status = context == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            return new DbResult<ContextModel>(context, status);
         }
 
-        public void InsertContexts(IEnumerable<ContextModel> contexts)
+        public async Task<DatabaseStatusCode> InsertContexts(List<ContextModel> contexts)
         {
-            _db.Contexts.AddRange(contexts);
-            _db.SaveChanges();
+            if (_db.Contexts.Any(t => contexts.Contains(t)))
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            if (contexts.Count() != contexts.Distinct().Count())
+            {
+                return DatabaseStatusCode.ListContainsDuplicate;
+            }
+            await _db.Contexts.AddRangeAsync(contexts);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Created;
         }
 
-        public IEnumerable<ContextModel> GetAllContexts()
+        public async Task<DbResult<IEnumerable<ContextModel>>> GetAllContexts()
         {
-            return _db.Contexts.Where(c => c.Id != -1);
+            var list = await _db.Contexts.ToListAsync();
+            var statusCode = list.Count == 0 ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            return new DbResult<IEnumerable<ContextModel>>(list, statusCode);
         }
 
-        public void InsertPosition(PositionModel position)
+
+        public async Task<DatabaseStatusCode> InsertPosition(PositionModel position)
         {
-            _db.Positions.Add(position);
-            _db.SaveChanges();
+            if (await _db.Positions.FindAsync(position.Id) != null)
+            {
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
+            await _db.Positions.AddAsync(position);
+            await _db.SaveChangesAsync();
+
+            return DatabaseStatusCode.Created;
         }
 
-        public void TruncateDatabase()
+        public async Task<DatabaseStatusCode> TruncateDatabase()
         {
-            var tags = _db.Tags.Where(x => x.TagId != null);
-            _db.RemoveRange(tags);
-            var tois = _db.Tois.Where(x => x.Id != null);
-            _db.RemoveRange(tois);
-            var positions = _db.Positions.Where(x => x.Id != -1);
-            _db.RemoveRange(positions);
-            var contexts = _db.Contexts.Where(x => x.Id != -1);
-            _db.RemoveRange(contexts);
-            _db.SaveChanges();
+            _db.RemoveRange(_db.Tags);
+            _db.RemoveRange(_db.Tois);
+            _db.RemoveRange(_db.Positions);
+            _db.RemoveRange(_db.Contexts);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Ok;
         }
-
-        public IEnumerable<TagModel> GetTagsFromType(TagType type)
+        
+        public DbResult<IEnumerable<TagModel>> GetTagsFromType(TagType type)
         {
-            return _db.Tags.Where(s => s.TagType == type);
+            var tags = _db.Tags.Where(tag => tag.TagType == type);
+            var statsCode = tags.Any() ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
         }
 
-        public PositionModel GetPositionFromTagId(Guid tagId)
+        public async Task<DbResult<PositionModel>> GetPositionFromTagId(Guid tagId)
         {
-            return _db.Positions.FirstOrDefault(p => p.TagModelId == tagId);
+            var result = await _db.Positions.FirstOrDefaultAsync(p => p.TagModelId == tagId);
+            var statusCode = result == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            return new DbResult<PositionModel>(result, statusCode);
         }
 
-        public IEnumerable<ToiModel> GetToisByTagIds(IEnumerable<Guid> ids)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<Guid> ids)
         {
             var hash = ids.ToHashSet();
-            return _db.Tois.Where(p => p.TagModel.Any(x => hash.Contains(x.TagId)));
+            var result = _db.Tois.Where(p => p.TagModels.Any(x => hash.Contains(x.TagId)));
+            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
         }
 
-        public IEnumerable<ToiModel> GetAllToiModels()
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetAllToiModels()
         {
-            return _db.Tois.Where(p => p != null);
+            var result = _db.Tois as IQueryable<ToiModel>;
+            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
+
         }
     }
-
 }

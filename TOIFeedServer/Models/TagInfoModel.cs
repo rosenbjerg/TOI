@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using TOIClasses;
 
 namespace TOIFeedServer.Models
@@ -10,17 +11,22 @@ namespace TOIFeedServer.Models
             Id = new Guid();
         }
 
-        public TagInfo GetTagInfo()
+        [JsonIgnore]
+        public Guid Id { get; set; }
+
+        public override bool Equals(object obj)
         {
-            return new TagInfo
-            {
-                Description = this.Description,
-                Image = this.Image,
-                Title = this.Title,
-                Url = this.Url
-            };
+            return obj is TagInfoModel t && t.Id == Id;
         }
 
-        public Guid Id { get; set; }
+        protected bool Equals(TagInfoModel other)
+        {
+            return Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

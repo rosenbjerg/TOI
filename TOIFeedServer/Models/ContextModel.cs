@@ -10,7 +10,7 @@ namespace TOIFeedServer.Models
         {
             
         }
-        public ContextModel(int id, string title, string description = null)
+        public ContextModel(Guid id, string title, string description = null)
         {
             Id = id;
             Title = title;
@@ -18,12 +18,27 @@ namespace TOIFeedServer.Models
         }
 
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Description { get; set; }
 
         [StringLength(70)]
         [Required]
         public string Title { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ContextModel t && t.Id == Id;
+        }
+
+        protected bool Equals(ContextModel other)
+        {
+            return Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }
