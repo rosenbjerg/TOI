@@ -158,7 +158,7 @@ namespace TOIFeedServer
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<Guid> ids)
         {
             var hash = ids.ToHashSet();
-            var result = _db.Tois.Where(p => p.TagModels.Any(x => hash.Contains(x.TagId)));
+            var result = _db.Tois.Include(t => t.TagInfoModel).Where(p => p.TagModels.Any(x => hash.Contains(x.TagId)));
             var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
         }
