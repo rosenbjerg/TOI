@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RedHttpServerCore.Request;
 using RedHttpServerCore.Response;
 using TOIClasses;
@@ -16,9 +17,10 @@ namespace TOIFeedServer.Managers
         {
             try
             {
-                
-                var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                if (guids.Count == 0)
+                var str = await req.ParseBodyAsync<string>();
+                Console.WriteLine("body: " + str);
+                var guids = JsonConvert.DeserializeObject<HashSet<Guid>>(str);
+                if (guids == null)
                 {
                     Console.WriteLine("Invalid body, no tags included");
                     return;
