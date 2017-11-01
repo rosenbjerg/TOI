@@ -1,23 +1,120 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>TOI Management Markinator</title>
 
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"
+            async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
+    <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&sensor=false&libraries=places'></script>
+    <script src="js/locationpicker.jquery.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<template>
+    <div>
+        <h1>Save/Edit Tag</h1>
+
+        <form>
+            <div class="row">
+                <input required="required" name="title" class="u-full-width" type="text" placeholder="Titel"
+                       id="titleInput"/>
+            </div>
+
+            <div class="row">
+                <input required="required" name="id" class="u-full-width" type="text" placeholder="Hardware Id"
+                       id="idInput"/>
+            </div>
+
+            <div class="row">
+                <select name="type" class="u-full-width" id="typeInput">
+                    <option value="nfc">NFC</option>
+                    <option value="ble">Bluetooth Low Energy</option>
+                    <option value="wifi">Wi-Fi</option>
+                    <option value="gps">GPS</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <input class="u-full-width" type="text" id="locationNameInput"/>
+            </div>
+
+            <div class="row">
+                <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
+                <div class="map-picker" id="mapPicker"></div>
+            </div>
+
+            <div class="row">
+                <div class="four columns">
+                    <label for="latitudeInput">Latitude</label>
+                    <input required="required" class="u-full-width" type="text" id="latitudeInput"/>
+                </div>
+                <div class="four columns">
+                    <label for="longitudeInput">Longitude</label>
+                    <input required="required" class="u-full-width" type="text" id="longitudeInput"/>
+                </div>
+                <div class="four columns">
+                    <label for="radiusInput">Radius</label>
+                    <input required="required" class="u-full-width" type="number" id="radiusInput"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="six columns">
+                    <input class="u-full-width button" type="submit" value="Slet"/>
+                </div>
+                <div class="six columns">
+                    <input class="u-full-width button-primary" type="submit" value="Gem"/>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <h1>Login</h1>
+
+        <div class="row">
+            <input required="required" type="text" class="u-full-width" placeholder="Brugernavn" id="usernameInput">
+        </div>
+
+        <div class="row">
+            <input required="required" type="password" class="u-full-width" placeholder="Adgangskode" id="passwordInput">
+        </div>
+
+        <div class="row">
+            <input class="button-primary" type="submit" value="Login">
+        </div>
+    </div>
+</template>
+
+<div class="container">
+
+    <div>
+        <h1>Opret Thing of Interest</h1>
+
+        <div class="row">
+            <div class="six columns">
+                <input placeholder="Titel" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
+            </div>
+            <div class="six columns">
+                <select name="type" class="u-full-width" id="createTypeInput">
+                    <option value="image">Billede</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <script src="main.js"></script>
 </body>
