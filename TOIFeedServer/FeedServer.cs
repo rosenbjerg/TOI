@@ -24,18 +24,18 @@ namespace TOIFeedServer
 
             _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService(testDb));
 
-            if (sampleData)
-            {
-                if (File.Exists("toi.db"))
-                    File.Delete("toi.db");
-                FillMockDatabase();
-            }
+
+            FillMockDatabase();
+
 
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
         }
 
         private async void FillMockDatabase()
         {
+            if(_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
+                return;
+
             var modelList = new List<ToiModel>
             {
                 new ToiModel
