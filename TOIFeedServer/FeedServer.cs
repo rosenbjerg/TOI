@@ -12,28 +12,22 @@ namespace TOIFeedServer
     {
         private readonly RedHttpServer _server = new RedHttpServer(7474);
 
-        public FeedServer(bool sampleData = false)
+        public FeedServer(bool sampleData = false, bool testDb = false)
         {
             _server.Get("/hello", async (req, res) =>
             {
                 await res.SendString("Hello World");
-                res.ServerPlugins.Use<DatabaseService>();
             });
 
             var tagMan = new TagManager();
             _server.Post("/tags", tagMan.AllTags);
 
+            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService(testDb));
 
             if (sampleData)
             {
-                if(File.Exists("toi.db"))
+                if (File.Exists("toi.db"))
                     File.Delete("toi.db");
-            }
-
-            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService());
-
-            if (sampleData)
-            {
                 FillMockDatabase();
             }
 

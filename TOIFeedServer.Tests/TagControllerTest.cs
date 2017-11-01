@@ -11,7 +11,7 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            new FeedServer(); 
+            new FeedServer(false, true).Start();
         }
 
         [ClassCleanup]
