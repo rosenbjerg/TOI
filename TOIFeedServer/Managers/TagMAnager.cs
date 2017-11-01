@@ -18,7 +18,6 @@ namespace TOIFeedServer.Managers
             try
             {
                 var str = await req.ParseBodyAsync<string>();
-                Console.WriteLine("body: " + str);
                 var guids = JsonConvert.DeserializeObject<HashSet<Guid>>(str);
                 if (guids == null)
                 {
