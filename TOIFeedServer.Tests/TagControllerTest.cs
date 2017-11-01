@@ -19,49 +19,7 @@ namespace TOIFeedServer.Tests
         {
             
         }
-
-        [TestMethod]
-        public void GetTagByID_ExsistingTag_ValidTagData()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void GetTagByID_NonExsistingTag_404()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void UploadTagInfo_ValidInfoValidTag_200()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void UploadTagInfo_InvalidTagID_404()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void UploadTagInfo_ValidTagInvalidData_400()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void GetTags_TagsPresent_ListOfTags()
-        {
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void GetTags_NoTags_EmptyList()
-        {
-            Assert.IsTrue(true);
-        }
-
+ 
         [TestMethod]
         public void GetHelloWorld_NoInput_Valid()
         {
