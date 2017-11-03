@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
     <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&sensor=false&libraries=places'></script>
     <script src="js/locationpicker.jquery.js"></script>
+    <script src="js/JsTemplates.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
@@ -21,23 +22,29 @@
 </head>
 <body>
 
-<template>
-    <div>
-        <h1>Save/Edit Tag</h1>
+<div class="container">
+
+</div>
+
+<template id="saveEditTag">
+        <h1>{{action}} tag</h1>
 
         <form>
             <div class="row">
-                <input required="required" name="title" class="u-full-width" type="text" placeholder="Titel"
-                       id="titleInput"/>
+                <label for="titleInput">Title</label>
+                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title"
+                       id="titleInput" />
             </div>
 
             <div class="row">
-                <input required="required" name="id" class="u-full-width" type="text" placeholder="Hardware Id"
+                <label for="idInput">Hardware ID</label>
+                <input required="required" name="idInput" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
                        id="idInput"/>
             </div>
 
             <div class="row">
-                <select name="type" class="u-full-width" id="typeInput">
+                <label for="typeInput">Type</label>
+                <select name="typeInput" class="u-full-width" value="{{type}}" id="typeInput">
                     <option value="nfc">NFC</option>
                     <option value="ble">Bluetooth Low Energy</option>
                     <option value="wifi">Wi-Fi</option>
@@ -46,75 +53,78 @@
             </div>
 
             <div class="row">
-                <input class="u-full-width" type="text" id="locationNameInput"/>
+                <label for="locationNameInput">Location name (optional)</label>
+                <input class="u-full-width" type="text" id="locationNameInput" name="locationNameInput" placeholder="Location name" />
             </div>
 
             <div class="row">
                 <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
-                <div class="map-picker" id="mapPicker"></div>
+                <label for="mapPicker">Pick location or type in coordinates</label>
+                <div class="map-picker u-full-width" id="mapPicker"></div>
             </div>
 
             <div class="row">
                 <div class="four columns">
                     <label for="latitudeInput">Latitude</label>
-                    <input required="required" class="u-full-width" type="text" id="latitudeInput"/>
+                    <input required="required" class="u-full-width" value="{{lat}}" type="text" id="latitudeInput" placeholder="57.012301" />
                 </div>
                 <div class="four columns">
                     <label for="longitudeInput">Longitude</label>
-                    <input required="required" class="u-full-width" type="text" id="longitudeInput"/>
+                    <input required="required" class="u-full-width" value="{{lon}}" type="text" id="longitudeInput" placeholder="9.991118"/>
                 </div>
                 <div class="four columns">
                     <label for="radiusInput">Radius</label>
-                    <input required="required" class="u-full-width" type="number" id="radiusInput"/>
+                    <input required="required" class="u-full-width" value="{{radius}}" type="number" id="radiusInput"/>
                 </div>
             </div>
 
             <div class="row">
                 <div class="six columns">
-                    <input class="u-full-width button" type="submit" value="Slet"/>
+                    <input class="u-full-width button" type="submit" value="Delete"/>
                 </div>
                 <div class="six columns">
-                    <input class="u-full-width button-primary" type="submit" value="Gem"/>
+                    <input class="u-full-width button-primary" type="submit" value="Save"/>
                 </div>
             </div>
         </form>
-    </div>
+</template>
 
-    <div>
+<template id="login">
         <h1>Login</h1>
 
         <div class="row">
-            <input required="required" type="text" class="u-full-width" placeholder="Brugernavn" id="usernameInput">
+            <div class="twelve columns">
+                <input required="required" type="text" placeholder="Username" id="usernameInput">
+            </div>
         </div>
 
         <div class="row">
-            <input required="required" type="password" class="u-full-width" placeholder="Adgangskode" id="passwordInput">
+            <div class="twelve columns">
+                <input required="required" type="password" placeholder="Password" id="passwordInput">
+            </div>
         </div>
 
         <div class="row">
             <input class="button-primary" type="submit" value="Login">
         </div>
-    </div>
 </template>
 
-<div class="container">
+<template id="createTOI">
+        <div>
+            <h1>Create Thing of Interest</h1>
 
-    <div>
-        <h1>Opret Thing of Interest</h1>
-
-        <div class="row">
-            <div class="six columns">
-                <input placeholder="Titel" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
-            </div>
-            <div class="six columns">
-                <select name="type" class="u-full-width" id="createTypeInput">
-                    <option value="image">Billede</option>
-                </select>
+            <div class="row">
+                <div class="six columns">
+                    <input placeholder="Title" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
+                </div>
+                <div class="six columns">
+                    <select name="type" class="u-full-width" id="createTypeInput">
+                        <option value="image">Picture</option>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
-
-</div>
+</template>
 
 <script src="main.js"></script>
 </body>
