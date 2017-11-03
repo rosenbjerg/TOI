@@ -5,24 +5,27 @@ using TOIClasses;
 
 namespace TOIFeedServer.Models
 {
-    public class ToiModel
+    public class ToiModel : TagInfo
     {
         public ToiModel()
         {
             
         }
-        public ToiModel(Guid id, TagInfoModel tagInfoModel)
+        public ToiModel(Guid id)
         {
             Id = id;
-            TagInfoModel = tagInfoModel;
         }
 
         [Key]
         public Guid Id { get; set; }
-        public TagInfoModel TagInfoModel { get; set; }
 
         public List<TagModel> TagModels { get; set; }
         public ContextModel ContextModel { get; set; }
+
+        public object GetToiInfo()
+        {
+            return new { Title, Description, Url, Image };
+        }
 
         public override bool Equals(object obj)
         {

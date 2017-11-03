@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RedHttpServerCore.Request;
 using RedHttpServerCore.Response;
 using TOIClasses;
+using TOIFeedServer.Database;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Managers
@@ -18,9 +19,8 @@ namespace TOIFeedServer.Managers
             {
                 Console.WriteLine((await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result.Count());
                 var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                var test = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result;
                 var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
-                    .Select(x => x.TagInfoModel).ToList();
+                    .Select(x => x.GetToiInfo()).ToList();
                 Console.WriteLine(
                     $"Received request. Sending {tagInfo.Count} tags.");
                 await res.SendJson(tagInfo);
@@ -31,6 +31,20 @@ namespace TOIFeedServer.Managers
             }
         }
 
+        public async Task CreateTag(RRequest req, RResponse res)
+        {
+            try
+            {
+                var tag = await req.ParseBodyAsync<TagModel>();
+                var statusCode = await res.ServerPlugins.Use<DatabaseService>().InsertTag(tag);
+                await res.SendJson(statusCode);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + " " + e.StackTrace);
+                throw;
+            }
+        }
         public static Guid CreateTagGuid(string bdAddr)
         {
             return Guid.ParseExact(bdAddr.Replace(":", string.Empty).PadLeft(32, '0'), "N");

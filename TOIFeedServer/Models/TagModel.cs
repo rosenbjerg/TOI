@@ -18,7 +18,13 @@ namespace TOIFeedServer.Models
         [Key]
         public Guid TagId { get; set; }
 
+        public string Name { get; set; }
+
         public TagType TagType { get; set; }
+
+        public double X { get; set; }
+
+        public double Y { get; set; }   
 
         public override bool Equals(object obj)
         {

@@ -28,7 +28,7 @@ namespace TOIFeedServer.Models
 
         public override bool Equals(object obj)
         {
-            return obj is ContextModel t && t.Id == Id;
+            return obj != null && obj is ContextModel t && t.Id == Id;
         }
 
         protected bool Equals(ContextModel other)

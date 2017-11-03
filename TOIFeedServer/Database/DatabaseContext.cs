@@ -11,9 +11,7 @@ namespace TOIFeedServer
 
         public DbSet<ToiModel> Tois { get; set; }
         public DbSet<TagModel> Tags { get; set; }
-        public DbSet<PositionModel> Positions { get; set; }
         public DbSet<ContextModel> Contexts { get; set; }
-        public DbSet<TagInfoModel> TagInfos { get; set; }
 
         public DatabaseContext()
         {
