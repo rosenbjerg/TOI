@@ -27,7 +27,8 @@ namespace TOIFeedServer
 
             var tagMan = new TagManager();
             _server.Post("/tags", tagMan.AllTags);
-            _server.Put("/createTag", tagMan.CreateTag);
+            _server.Post("/createTag", tagMan.CreateTag);
+            _server.Get("/getTag", tagMan.GetTag);
             _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService(testDb));
 
 
