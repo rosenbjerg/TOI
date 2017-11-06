@@ -22,29 +22,39 @@
 </head>
 <body>
 
+<!--<div class="header-bgc"></div>-->
 <div class="container">
-
+    <div class="header">
+        <h3>TOI Manager</h3>
+        <div class="header-menu">
+            <div class="header-menu-button">Test1</div>
+            <div class="header-menu-button">Test2</div>
+            <div class="header-menu-button">Test3</div>
+            <div class="header-menu-button">Test4</div>
+        </div>
+    </div>
+    <div id="viewSpace"></div>
 </div>
 
-<template id="saveEditTag">
+<template id="save-edit-tag-template">
         <h1>{{action}} tag</h1>
 
-        <form id="saveEditTagForm">
+        <form>
             <div class="row">
                 <label for="titleInput">Title</label>
-                <input required="required" name="title" class="u-full-width" type="text" value="{{title}}" placeholder="Title"
-                       id="titleInput" />
+                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title" id="titleInput" />
             </div>
 
             <div class="row">
                 <label for="idInput">Hardware ID</label>
-                <input required="required" name="id" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
+                <input required="required" name="idInput" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
                        id="idInput"/>
             </div>
 
             <div class="row">
                 <label for="typeInput">Type</label>
-                <select name="type" class="u-full-width" value="{{type}}" id="typeInput">
+                <select name="typeInput" class="u-full-width" value="{{type = none}}" id="typeInput">
+                    <option value="none">- Please select</option>
                     <option value="nfc">NFC</option>
                     <option value="ble">Bluetooth Low Energy</option>
                     <option value="wifi">Wi-Fi</option>
@@ -53,63 +63,55 @@
             </div>
 
             <div class="row">
-                <label for="locationNameInput">Location name</label>
-                <input class="u-full-width" type="text" id="locationNameInput" name="locationName" placeholder="Location name" />
+                <label for="locationNameInput">Location name (optional)</label>
+                <input class="u-full-width" type="text" id="locationNameInput" name="locationNameInput" placeholder="Location name" />
             </div>
 
             <div class="row">
                 <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
-                <label for="mapPicker">Type location, pick location on map, or type in coordinates</label>
+                <label for="mapPicker">Pick location or type in coordinates</label>
                 <div class="map-picker u-full-width" id="mapPicker"></div>
             </div>
 
             <div class="row">
                 <div class="four columns">
                     <label for="latitudeInput">Latitude</label>
-                    <input required="required" class="u-full-width" value="{{lat}}" type="text" name="latitude" id="latitudeInput" placeholder="57.012301" />
+                    <input required="required" class="u-full-width" value="{{lat}}" type="text" id="latitudeInput" placeholder="57.012301" />
                 </div>
                 <div class="four columns">
                     <label for="longitudeInput">Longitude</label>
-                    <input required="required" class="u-full-width" value="{{lon}}" type="text" name="longitude" id="longitudeInput" placeholder="9.991118"/>
+                    <input required="required" class="u-full-width" value="{{lon}}" type="text" id="longitudeInput" placeholder="9.991118"/>
                 </div>
                 <div class="four columns">
                     <label for="radiusInput">Radius</label>
-                    <input required="required" class="u-full-width" value="{{radius}}" type="number" name="radius" id="radiusInput"/>
+                    <input required="required" class="u-full-width" value="{{radius}}" type="number" id="radiusInput"/>
                 </div>
             </div>
 
             <div class="row">
                 <div class="six columns">
-                    <input class="u-full-width button" type="submit" value="Delete"/>
+                    <input class="u-full-width button-primary" type="submit" value="Save"/>
                 </div>
                 <div class="six columns">
-                    <input class="u-full-width button-primary" type="submit" value="Save"/>
+                    <input class="u-full-width button" type="submit" value="Delete"/>
                 </div>
             </div>
         </form>
 </template>
 
-<template id="login">
-        <h1>Login</h1>
+<template id="login-template">
+    <h3 class="u-full-width" style="text-align: center">Login</h3>
 
-        <div class="row">
-            <div class="twelve columns">
-                <input required="required" type="text" placeholder="Username" id="usernameInput">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="twelve columns">
-                <input required="required" type="password" placeholder="Password" id="passwordInput">
-            </div>
-        </div>
-
-        <div class="row">
-            <input class="button-primary" type="submit" value="Login">
-        </div>
+    <form id="login-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <input class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
 </template>
 
-<template id="createTOI">
+<template id="save-edit-toi-template">
         <div>
             <h1>Create Thing of Interest</h1>
 
@@ -126,7 +128,23 @@
         </div>
 </template>
 
+<template id="list-template">
+    <h4>{{title}}</h4>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{list}}</ul>
+</template>
+
+<template id="tag-template">
+    <li class="u-full-width tag">
+        <p>{{Name = Unnamed tag}}</p>
+        <pre title="Hardware id">{{TagId}}</pre>
+        <p>Type: {{TagType}}</p>
+    </li>
+</template>
+
+<template id="toi-template">
+
+</template>
+
 <script src="main.js"></script>
 </body>
 </html>
-
