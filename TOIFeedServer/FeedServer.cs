@@ -13,34 +13,43 @@ namespace TOIFeedServer
     {
         private readonly RedHttpServer _server;
 
-        public FeedServer(bool sampleData = false, bool testDb = false)
+        public FeedServer(bool sampleData = false, bool testDb = false, int port = 7474)
         {
-			if (!testDb)
-				_server = new RedHttpServer(7474, "./WebManagement");
-			else
-				_server = new RedHttpServer(7474);
-			
-            _server.Get("/hello", async (req, res) =>
-            {
-                await res.SendString("Hello World");
-            });
+            _server = !testDb ? new RedHttpServer(port, "./WebManagement") : new RedHttpServer(port);
 
-            var tagMan = new TagManager();
+            _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
+
+            var dbService = new DatabaseService(testDb);
+            _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
+            var tagMan = new TagManager(dbService);
+
             _server.Post("/tags", tagMan.AllTags);
-            _server.Post("/createTag", tagMan.CreateTag);
+            _server.Post("/tags", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await tagMan.CreateTag(form))
+                {
+                    await res.SendString("OK");
+                }
+                else
+                {
+                    await res.SendString("ERROR", status: 400);
+                }
+            });
             _server.Get("/getTag", tagMan.GetTag);
-            _server.Plugins.Register<DatabaseService, DatabaseService>(new DatabaseService(testDb));
 
 
-            FillMockDatabase();
-
+            if (sampleData)
+            {
+                FillMockDatabase();
+            }
 
             _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
         }
 
         private async void FillMockDatabase()
         {
-            if(_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
+            if (_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
                 return;
 
             var modelList = new List<ToiModel>
@@ -59,7 +68,7 @@ namespace TOIFeedServer
                         {
                             TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
                             TagType = TagType.Bluetooth
-                        } 
+                        }
                     }
                 },
                 new ToiModel

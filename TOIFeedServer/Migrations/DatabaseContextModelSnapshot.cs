@@ -41,15 +41,17 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("TagId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<double>("Latitude");
+
+                    b.Property<double>("Longtitude");
+
                     b.Property<string>("Name");
+
+                    b.Property<int>("Radius");
 
                     b.Property<int>("TagType");
 
                     b.Property<Guid?>("ToiModelId");
-
-                    b.Property<double>("X");
-
-                    b.Property<double>("Y");
 
                     b.HasKey("TagId");
 
