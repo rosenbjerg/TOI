@@ -7,9 +7,9 @@ namespace TOIFeedServer.Models
     public enum TagType
     {
         Bluetooth,
-        NFC,
+        Nfc,
         Wifi,
-        GPS
+        Gps
     }
 
 }

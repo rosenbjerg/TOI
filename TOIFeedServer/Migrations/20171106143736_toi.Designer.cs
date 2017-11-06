@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
-using TOIFeedServer;
+using TOIFeedServer.Database;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171103120904_TOI")]
-    partial class TOI
+    [Migration("20171106143736_toi")]
+    partial class toi
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -42,15 +42,17 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("TagId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<double>("Latitude");
+
+                    b.Property<double>("Longtitude");
+
                     b.Property<string>("Name");
+
+                    b.Property<int>("Radius");
 
                     b.Property<int>("TagType");
 
                     b.Property<Guid?>("ToiModelId");
-
-                    b.Property<double>("X");
-
-                    b.Property<double>("Y");
 
                     b.HasKey("TagId");
 

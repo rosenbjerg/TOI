@@ -23,13 +23,11 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-
         }
-        
+
         [ClassCleanup]
         public static void Cleanup()
         {
-
         }
 
         [TestInitialize]
@@ -53,24 +51,24 @@ namespace TOIFeedServer.Tests
                 new TagModel(_guids[0], TagType.Bluetooth)
                 {
                     Name = "test1",
-                    Latitude = 45.00,
-                    Longitude = 50.00
+
+                    Longtitude = 45.00,
+                    Latitude = 50.00
                 },
 
                 new TagModel(_guids[1], TagType.Bluetooth)
                 {
                     Name = "test2",
-                    Latitude = 40,
-                    Longitude = 45
+                    Longtitude = 40,
+                    Latitude = 45
                 },
 
-                new TagModel(_guids[2], TagType.GPS)
+                new TagModel(_guids[2], TagType.Gps)
                 {
                     Name = "test3",
-                    Latitude = 30,
-                    Longitude = 20,
+                    Longtitude = 30,
+                    Latitude = 20
                 }
-
             };
 
             _contexts = new List<ContextModel>
@@ -79,7 +77,7 @@ namespace TOIFeedServer.Tests
                 new ContextModel(_guids[1], "Test", "Test"),
                 new ContextModel(_guids[2], "Carlsberg tour")
             };
-        
+
             _tois = new List<ToiModel>
             {
                 new ToiModel(_guids[0])
@@ -88,28 +86,28 @@ namespace TOIFeedServer.Tests
                     Title = "Test Title",
                     Image =
                         "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
-                    TagModels = new List<TagModel> { _tags[0] }
+                    TagModels = new List<TagModel> {_tags[0]}
                 },
                 new ToiModel(_guids[1])
                 {
-                Description = "kludder",
-                Title = "Test Title",
-                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
+                    Description = "kludder",
+                    Title = "Test Title",
+                    Image =
+                        "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
 
-                TagModels = new List<TagModel> { _tags[1] }
+                    TagModels = new List<TagModel> {_tags[1]}
                 }
             };
         }
-        
+
 
         [TestMethod]
         public async Task TagUploaded_CorrectFetch()
         {
-
             //Act
             await _dbs.InsertTag(_tags[0]);
             var res = await _dbs.GetTagFromId(_guids[0]);
-            
+
             //Assert
             Assert.AreEqual(typeof(TagModel), res.Result.GetType());
         }
@@ -117,7 +115,6 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task TagUploaded_ReturnCorrectType()
         {
-
             //Act
             await _dbs.InsertTag(_tags[0]);
             var res = await _dbs.GetTagFromId(_guids[0]);
@@ -144,7 +141,6 @@ namespace TOIFeedServer.Tests
 
             //Assert
             Assert.AreEqual(2, res.Result.Count());
-
         }
 
         [TestMethod]
@@ -159,14 +155,11 @@ namespace TOIFeedServer.Tests
 
             // Assert
             Assert.AreEqual(_guids[0], res.Result.Id);
-
         }
 
         [TestMethod]
         public async Task SaveMultipleContexts_CorrectSavedModel_ModelSaved()
         {
-
-
             var collection = new List<ContextModel>()
             {
                 _contexts[0],
@@ -185,24 +178,23 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task GetToiFromTagId()
         {
-
-
             // Act
             var test = await _dbs.InsertToiModel(_tois[0]);
 
-            var result = await _dbs.GetToisByTagIds(new [] { _guids[0] });
+            var result = await _dbs.GetToisByTagIds(new[] {_guids[0]});
 
             // Assert
             Assert.AreEqual(DatabaseStatusCode.Ok, result.Status);
             Assert.AreEqual(DatabaseStatusCode.Created, test);
             Assert.AreEqual(1, result.Result.Count());
-            Assert.AreEqual(_guids[0], result.Result.FirstOrDefault().TagModels[0].TagId);
+            var first = result.Result.FirstOrDefault();
+            Assert.AreEqual(_guids[0], first?.TagModels[0].TagId);
         }
 
         [TestMethod]
         public async Task InsertToiModelListReturnDataBaseStatusCodeListContainsDuplicates()
         {
-            List<ToiModel> toiModels = new List<ToiModel>
+            var toiModels = new List<ToiModel>
             {
                 _tois[0],
                 _tois[0]
@@ -226,7 +218,7 @@ namespace TOIFeedServer.Tests
                 _tois[0],
                 _tois[1]
             };
-            var tagsId= new List<Guid>()
+            var tagsId = new List<Guid>()
             {
                 _tags[0].TagId,
                 _tags[1].TagId
@@ -242,14 +234,12 @@ namespace TOIFeedServer.Tests
         }
 
 
-
         [TestMethod]
         public async Task UpdateToI()
         {
-
             var toi2 = new ToiModel(_guids[0])
             {
-                TagModels = new List<TagModel> { _tags[0] },
+                TagModels = new List<TagModel> {_tags[0]},
                 Description = "test2",
                 Title = "test2",
                 Url = "test2"
@@ -259,7 +249,7 @@ namespace TOIFeedServer.Tests
                 Description = "test",
                 Title = "test",
                 Url = "test",
-                TagModels = new List<TagModel> { _tags[0] }
+                TagModels = new List<TagModel> {_tags[0]}
             };
 
 

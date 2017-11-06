@@ -21,6 +21,26 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Created;
         }
 
+        public async Task<DatabaseStatusCode> UpdateTag(TagModel tagModel)
+        {
+            if (!await _db.Tags.AnyAsync(t => t.Equals(tagModel)))
+            {
+                return DatabaseStatusCode.NoElement;
+            }
+
+            var tag = (await GetTagFromId(tagModel.TagId)).Result;
+
+            tag.Name = tagModel.Name;
+            tag.Latitude = tagModel.Latitude;
+            tag.Longtitude = tagModel.Longtitude;
+            tag.Radius = tagModel.Radius;
+            tag.TagType = tagModel.TagType;
+
+            _db.Tags.Update(tag);
+            await _db.SaveChangesAsync();
+            return DatabaseStatusCode.Updated;
+        }
+
         public async Task<DbResult<TagModel>> GetTagFromId(Guid id)
         {
             var tag = await _db.Tags.FindAsync(id);
@@ -34,7 +54,7 @@ namespace TOIFeedServer.Database
             {
                 return DatabaseStatusCode.AlreadyContainsElement;
             }
-            if (tags.Count() != tags.Distinct().Count())
+            if (tags.Count != tags.Distinct().Count())
             {
                 return DatabaseStatusCode.ListContainsDuplicate;
             }
