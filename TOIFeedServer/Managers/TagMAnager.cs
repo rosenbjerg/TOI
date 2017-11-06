@@ -49,6 +49,7 @@ namespace TOIFeedServer.Managers
                 throw;
             }
         }
+
         public async Task GetTag(RRequest req, RResponse res)
         {
             try
@@ -63,6 +64,7 @@ namespace TOIFeedServer.Managers
                 throw;
             }
         }
+
         public static Guid CreateTagGuid(string bdAddr)
         {
             return Guid.ParseExact(bdAddr.Replace(":", string.Empty).PadLeft(32, '0'), "N");
