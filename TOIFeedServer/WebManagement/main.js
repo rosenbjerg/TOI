@@ -2,7 +2,7 @@
 let $container = $(".container");
 let templates = {
     saveEditTag : JsT.loadById("saveEditTag")
-}
+};
 
 function showSaveEditTag(tag) {
     if (arguments.length === 0){
@@ -34,7 +34,6 @@ function initMapPicker() {
             locationNameInput: $("#locationNameInput")
         }
     });
-    $("#mapPicker").locationpicker("autosize");
 }
 
 showSaveEditTag();

@@ -29,22 +29,22 @@
 <template id="saveEditTag">
         <h1>{{action}} tag</h1>
 
-        <form>
+        <form id="saveEditTagForm">
             <div class="row">
                 <label for="titleInput">Title</label>
-                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title"
+                <input required="required" name="title" class="u-full-width" type="text" value="{{title}}" placeholder="Title"
                        id="titleInput" />
             </div>
 
             <div class="row">
                 <label for="idInput">Hardware ID</label>
-                <input required="required" name="idInput" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
+                <input required="required" name="id" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
                        id="idInput"/>
             </div>
 
             <div class="row">
                 <label for="typeInput">Type</label>
-                <select name="typeInput" class="u-full-width" value="{{type}}" id="typeInput">
+                <select name="type" class="u-full-width" value="{{type}}" id="typeInput">
                     <option value="nfc">NFC</option>
                     <option value="ble">Bluetooth Low Energy</option>
                     <option value="wifi">Wi-Fi</option>
@@ -53,28 +53,28 @@
             </div>
 
             <div class="row">
-                <label for="locationNameInput">Location name (optional)</label>
-                <input class="u-full-width" type="text" id="locationNameInput" name="locationNameInput" placeholder="Location name" />
+                <label for="locationNameInput">Location name</label>
+                <input class="u-full-width" type="text" id="locationNameInput" name="locationName" placeholder="Location name" />
             </div>
 
             <div class="row">
                 <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
-                <label for="mapPicker">Pick location or type in coordinates</label>
+                <label for="mapPicker">Type location, pick location on map, or type in coordinates</label>
                 <div class="map-picker u-full-width" id="mapPicker"></div>
             </div>
 
             <div class="row">
                 <div class="four columns">
                     <label for="latitudeInput">Latitude</label>
-                    <input required="required" class="u-full-width" value="{{lat}}" type="text" id="latitudeInput" placeholder="57.012301" />
+                    <input required="required" class="u-full-width" value="{{lat}}" type="text" name="latitude" id="latitudeInput" placeholder="57.012301" />
                 </div>
                 <div class="four columns">
                     <label for="longitudeInput">Longitude</label>
-                    <input required="required" class="u-full-width" value="{{lon}}" type="text" id="longitudeInput" placeholder="9.991118"/>
+                    <input required="required" class="u-full-width" value="{{lon}}" type="text" name="longitude" id="longitudeInput" placeholder="9.991118"/>
                 </div>
                 <div class="four columns">
                     <label for="radiusInput">Radius</label>
-                    <input required="required" class="u-full-width" value="{{radius}}" type="number" id="radiusInput"/>
+                    <input required="required" class="u-full-width" value="{{radius}}" type="number" name="radius" id="radiusInput"/>
                 </div>
             </div>
 
@@ -129,3 +129,4 @@
 <script src="main.js"></script>
 </body>
 </html>
+
