@@ -23,8 +23,11 @@ namespace TOIFeedServer
             _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
             var tagMan = new TagManager(dbService);
 
-            _server.Post("/tags", tagMan.AllTags);
             _server.Post("/tags", async (req, res) =>
+            {
+                
+            });
+            _server.Post("/createtags", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 if (await tagMan.CreateTag(form))
