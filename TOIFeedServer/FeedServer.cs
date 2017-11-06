@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using RedHttpServerCore;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
@@ -25,12 +26,34 @@ namespace TOIFeedServer
 
             _server.Post("/tags", async (req, res) =>
             {
-                
+                var ids = await req.ParseBodyAsync<HashSet<Guid>>();
+                var tags = await tagMan.GetTags(ids);
+
+                if (tags != null)
+                {
+                    await res.SendJson(tags);
+                }
+                else
+                {
+                    await res.SendString("ERROR", status: 400);
+                }
             });
-            _server.Post("/createtags", async (req, res) =>
+            _server.Post("/createtag", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 if (await tagMan.CreateTag(form))
+                {
+                    await res.SendString("OK");
+                }
+                else
+                {
+                    await res.SendString("ERROR", status: 400);
+                }
+            });
+            _server.Post("/updatetag", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await tagMan.UpdateTag(form))
                 {
                     await res.SendString("OK");
                 }

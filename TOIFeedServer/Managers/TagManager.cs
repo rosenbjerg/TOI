@@ -22,6 +22,20 @@ namespace TOIFeedServer.Managers
             _dbService = dbService;
         }
 
+        public async Task<List<TagModel>> GetTags(HashSet<Guid> ids = null)
+        {
+            var tois = await _dbService.GetAllToiModels();
+//            var tags = await _dbService.GetAllToiModels()
+            var tagInfos = await _dbService.GetToisByTagIds(ids);
+
+
+
+//            var tags = tois.Result.
+
+
+
+            return null;
+        }
 
         public async Task AllTags(RRequest req, RResponse res)
         {
@@ -45,50 +59,40 @@ namespace TOIFeedServer.Managers
             }
         }
 
-        public async Task<bool> CreateTag(IFormCollection form)
+        private static TagModel ValidateTagForm(IFormCollection form)
         {
-            var fields = new List<string> {"title", "id", "longitude", "latitude", "radius", "type"};
+            var fields = new List<string> { "title", "id", "longitude", "latitude", "radius", "type" };
 
-            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return false;
+            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
             if (!int.TryParse(form["radius"][0], out var radius) ||
                 !double.TryParse(form["longitude"][0], out var longitude) ||
                 !double.TryParse(form["latitude"], out var latitude) ||
-                !int.TryParse(form["type"], out var type)) return false;
-            if (radius < 10) return false;
+                !int.TryParse(form["type"], out var type)) return null;
+            if (radius < 10) return null;
 
-            var tag = new TagModel
+            return new TagModel
             {
                 Name = form["title"][0],
                 TagId = CreateTagGuid(form["id"][0]),
                 Radius = radius,
                 Longtitude = longitude,
                 Latitude = latitude,
-                TagType = (TagType) type
+                TagType = (TagType)type
             };
+        }
 
+        public async Task<bool> CreateTag(IFormCollection form)
+        {
+            var tag = ValidateTagForm(form);
+            if (tag == null) return false;
             return await _dbService.InsertTag(tag) == DatabaseStatusCode.Created;
+        }
 
-
-
-            //            /*
-            //             * title
-            //             * id
-            //             * longitude
-            //             * latitude
-            //             * radius
-            //             * type
-            //             */
-//            try
-//            {
-//                var tag = await req.ParseBodyAsync<TagModel>();
-//                var statusCode = await res.ServerPlugins.Use<DatabaseService>().InsertTag(tag);
-//                await res.SendJson(statusCode);
-//            }
-//            catch (Exception e)
-//            {
-//                Console.WriteLine(e.Message + " " + e.StackTrace);
-//                throw;
-//            }
+        public async Task<bool> UpdateTag(IFormCollection form)
+        {
+            var tag = ValidateTagForm(form);
+            if (tag == null) return false;
+            return await _dbService.UpdateTag(tag) == DatabaseStatusCode.Updated;
         }
 
         public async Task GetTag(RRequest req, RResponse res)

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TOIFeedServer.Models;
 
-namespace TOIFeedServer
+namespace TOIFeedServer.Database
 {
     public class DatabaseContext : DbContext
     {
@@ -29,10 +26,6 @@ namespace TOIFeedServer
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlite("Data Source=toi.db");
-            }
-            else
-            {
-                
             }
         }
         

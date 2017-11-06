@@ -20,12 +20,36 @@ namespace TOIFeedServer.Tests
         public static void Initialize(TestContext context)
         {
             _manager = new TagManager(new DatabaseService(true));
+
+            for (var i = 0; i < 10; i++)
+            {
+                var form = new FormCollection(new Dictionary<string, StringValues>
+                {
+                    {"title", $"Bluetooth Tag {i}"},
+                    {"id", $"F4:B4:15:05:42:0{i}"},
+                    {"type", "0"},
+                    {"radius", $"3{i}{i}"},
+                    {"latitude", $"57.012392{1}"},
+                    {"longitude", $"9.991556{i}"}
+                });
+
+                var task = _manager.CreateTag(form);
+                task.Wait();
+            }
         }
 
         [ClassCleanup]
         public static void Cleanup()
         {
         }
+
+        [TestMethod]
+        public void GetTags_NotNull_Valid()
+        {
+            
+           
+        }
+
 
         [TestMethod]
         public void CreateTag_AllInput_Valid()
