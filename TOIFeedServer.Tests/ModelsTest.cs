@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TOIClasses;
+using TOIFeedServer.Database;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Tests
@@ -12,7 +14,12 @@ namespace TOIFeedServer.Tests
     [TestClass]
     public class ModelsTest
     {
-        private static DatabaseService _db;
+        private static DatabaseService _dbs;
+        private List<Guid> _guids;
+        private List<TagModel> _tags;
+        private List<ContextModel> _contexts;
+        private List<ToiModel> _tois;
+
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
@@ -24,221 +31,267 @@ namespace TOIFeedServer.Tests
         {
 
         }
+
         [TestInitialize]
         public void InitializeTest()
         {
-            _db = new DatabaseService(true);
-        }
-        [TestMethod]
-        public void TagUploaded_CorrectFetch()
-        {
-            //Arrange
-            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var tag = new TagModel(guid, TagType.Bluetooth);
-
-            //Act
-            _db.InsertTag(tag);
-            var res = _db.GetTagFromId(guid);
-            
-            //Assert
-            Assert.AreEqual(typeof(TagModel), res.GetType());
+            _dbs = new DatabaseService(true);
+            FillMock();
         }
 
-        [TestMethod]
-        public void TagUploaded_ReturnCorrectType()
+        private void FillMock()
         {
-            //Arrange
-            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var tag = new TagModel(guid, TagType.Bluetooth);
-
-            //Act
-            _db.InsertTag(tag);
-            var res = _db.GetTagFromId(guid);
-
-            //Assert
-            Assert.AreEqual(TagType.Bluetooth, res.TagType);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void TagBulkUploadSameIdMustReturnInvalid()
-        {
-            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var tag1 = new TagModel(guid1, TagType.Bluetooth);
-            var tag2 = new TagModel(guid1, TagType.Bluetooth);
-
-            var collection = new List<TagModel>()
+            _guids = new List<Guid>
             {
-                tag1,
-                tag2
+                Guid.ParseExact("1".PadLeft(32, '0'), "N"),
+                Guid.ParseExact("2".PadLeft(32, '0'), "N"),
+                Guid.ParseExact("3".PadLeft(32, '0'), "N")
             };
 
-                _db.InsertTags(collection);
-            
-        }
-
-        [TestMethod]
-        public void ReturnCorrectNumberTagType()
-        {
-            //Arrange
-            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var guid2 = Guid.ParseExact("2".PadLeft(32, '0'), "N");
-            var guid3 = Guid.ParseExact("3".PadLeft(32, '0'), "N");
-
-            var tag1 = new TagModel(guid1, TagType.Bluetooth);
-            var tag2 = new TagModel(guid2, TagType.Bluetooth);
-            var tag3 = new TagModel(guid3, TagType.GPS);
-
-            var collection = new List<TagModel>()
+            _tags = new List<TagModel>
             {
-                tag1,
-                tag2,
-                tag3
+                new TagModel(_guids[0], TagType.Bluetooth)
+                {
+                    Name = "test1",
+                    X = 45.00,
+                    Y = 50.00
+                },
+
+                new TagModel(_guids[1], TagType.Bluetooth)
+                {
+                    Name = "test2",
+                    X = 40,
+                    Y = 45
+                },
+
+                new TagModel(_guids[2], TagType.GPS)
+                {
+                    Name = "test3",
+                    X = 30,
+                    Y = 20,
+                }
+
             };
 
-            //Act
-            _db.InsertTags(collection);
-            var res = _db.GetTagsFromType(TagType.Bluetooth);
-
-            //Assert
-            Assert.AreEqual(2, res.Count());
-
-        }
-
-        [TestMethod]
-        public void SaveContextModel_CorrectlySavedModel_ModelIsSaved()
-        {
-            // Arrange 
-            var model = new ContextModel(1, "Microsoft Visual Studio", "A tour of the IDE");
-
-            // Act
-            _db.InsertContext(model);
-            var res = _db.GetContextFromId(1);
-
-            // Assert
-            Assert.AreEqual(1, res.Id);
-
-        }
-
-        [TestMethod]
-        public void SaveMultipleContexts_CorrectSavedModel_ModelSaved()
-        {
-            // Arrange
-            var con1 = new ContextModel(1, "Toi title", "Toi Description");
-            var con2 = new ContextModel(2, "Carlsberg tour");
-            var con3 = new ContextModel(3, "Unit Test Sessions", "Where we discover the flaws of the city");
-
-            var collection = new List<ContextModel>()
+            _contexts = new List<ContextModel>
             {
-                con1,
-                con2,
-                con3
+                new ContextModel(_guids[0], "Microsoft Visual Studio", "A tour of the IDE"),
+                new ContextModel(_guids[1], "Test", "Test"),
+                new ContextModel(_guids[2], "Carlsberg tour")
             };
-
-            // Act
-            _db.InsertContexts(collection);
-            var res = _db.GetAllContexts();
-
-            // Assert
-            Assert.AreEqual(3, res.Count());
-        }
-
-        [TestMethod]
-        public void CreatePositionForTag_PositonAntTagOkay_Success()
-        {
-            // Arrange
-            var guid = Guid.ParseExact("1".PadLeft(32, '0'),"N");
-            var tag = new TagModel(guid, TagType.GPS);
-            var pos = new PositionModel(tag, 40, 45);
-
-            // Act
-            _db.InsertTag(tag);
-            _db.InsertPosition(pos);
-            var res = _db.GetPositionFromTagId(guid);
-
-            // Assert
-            Assert.AreEqual(40, res.X);
-            Assert.AreEqual(45, res.Y);
-        }
-
-        [TestMethod]
-        public void GetToiFromTagId()
-        {
-            // Arrange
-            var guid = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var tag = new List<TagModel>{ new TagModel(guid, TagType.Bluetooth)};
-            var context = new ContextModel(2, "test");
-            var toi = new ToiModel(Guid.NewGuid(), new TagInfoModel
+        
+            _tois = new List<ToiModel>
             {
-                Description = "kludder",
-                Title = "Test Title",
-                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
-            })
-
-            {
-                ContextModel = context,
-                TagModel = tag
-            };
-
-            // Act
-            _db.InsertToiModel(toi);
-
-            var result = _db.GetToisByTagIds(new [] {guid});
-
-            // Assert
-            Assert.IsNotNull(result);
-        }
-
-
-        [TestMethod]
-        public void GetMultipleToisFromMultipleTags()
-        {
-            var guid1 = Guid.ParseExact("1".PadLeft(32, '0'), "N");
-            var guid2 = Guid.ParseExact("2".PadLeft(32, '0'), "N");
-            var tag1 = new TagModel(guid1, TagType.Bluetooth);
-            var tag2 = new TagModel(guid2, TagType.Bluetooth);
-
-            var toi1 = new ToiModel(Guid.NewGuid(), 
-            new TagInfoModel
-            {
+                new ToiModel(_guids[0])
+                {
+                    Description = "kludder",
+                    Title = "Test Title",
+                    Image =
+                        "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
+                    TagModels = new List<TagModel> { _tags[0] }
+                },
+                new ToiModel(_guids[1])
+                {
                 Description = "kludder",
                 Title = "Test Title",
                 Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
-            })
-            {
-                TagModel = new List<TagModel> { tag1 }
+
+                TagModels = new List<TagModel> { _tags[1] }
+                }
             };
-            var toi2 = new ToiModel(Guid.NewGuid(), new TagInfoModel
+        }
+        
+
+        [TestMethod]
+        public async Task TagUploaded_CorrectFetch()
+        {
+
+            //Act
+            await _dbs.InsertTag(_tags[0]);
+            var res = await _dbs.GetTagFromId(_guids[0]);
+            
+            //Assert
+            Assert.AreEqual(typeof(TagModel), res.Result.GetType());
+        }
+
+        [TestMethod]
+        public async Task TagUploaded_ReturnCorrectType()
+        {
+
+            //Act
+            await _dbs.InsertTag(_tags[0]);
+            var res = await _dbs.GetTagFromId(_guids[0]);
+
+            //Assert
+            Assert.AreEqual(TagType.Bluetooth, res.Result.TagType);
+        }
+
+        [TestMethod]
+        public async Task ReturnCorrectNumberTagType()
+        {
+            //Arrange
+
+            var collection = new List<TagModel>()
             {
-                Description = "kludder",
-                Title = "Test Title",
-                Image = "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
-            })
-            {
-                TagModel = new List<TagModel> { tag2 }
+                _tags[0],
+                _tags[1],
+                _tags[2]
             };
+
+            //Act
+            await _dbs.InsertTags(collection);
+            var res = _dbs.GetTagsFromType(TagType.Bluetooth);
+
+            //Assert
+            Assert.AreEqual(2, res.Result.Count());
+
+        }
+
+        [TestMethod]
+        public async Task SaveContextModel_CorrectlySavedModel_ModelIsSaved()
+        {
+            // Arrange 
+
+
+            // Act
+            await _dbs.InsertContext(_contexts[0]);
+            var res = await _dbs.GetContextFromId(_guids[0]);
+
+            // Assert
+            Assert.AreEqual(_guids[0], res.Result.Id);
+
+        }
+
+        [TestMethod]
+        public async Task SaveMultipleContexts_CorrectSavedModel_ModelSaved()
+        {
+
+
+            var collection = new List<ContextModel>()
+            {
+                _contexts[0],
+                _contexts[1],
+                _contexts[2]
+            };
+
+            // Act
+            await _dbs.InsertContexts(collection);
+            var res = await _dbs.GetAllContexts();
+
+            // Assert
+            Assert.AreEqual(3, res.Result.Count());
+        }
+
+        [TestMethod]
+        public async Task GetToiFromTagId()
+        {
+
+
+            // Act
+            var test = await _dbs.InsertToiModel(_tois[0]);
+
+            var result = await _dbs.GetToisByTagIds(new [] { _guids[0] });
+
+            // Assert
+            Assert.AreEqual(DatabaseStatusCode.Ok, result.Status);
+            Assert.AreEqual(DatabaseStatusCode.Created, test);
+            Assert.AreEqual(1, result.Result.Count());
+            Assert.AreEqual(_guids[0], result.Result.FirstOrDefault().TagModels[0].TagId);
+        }
+
+        [TestMethod]
+        public async Task InsertToiModelListReturnDataBaseStatusCodeListContainsDuplicates()
+        {
+            List<ToiModel> toiModels = new List<ToiModel>
+            {
+                _tois[0],
+                _tois[0]
+            };
+
+            var result = await _dbs.InsertToiModelList(toiModels);
+
+            Assert.AreEqual(DatabaseStatusCode.ListContainsDuplicate, result);
+        }
+
+        [TestMethod]
+        public async Task GetMultipleToisFromMultipleTags()
+        {
             var tags = new List<TagModel>()
             {
-                tag1,
-                tag2
+                _tags[0],
+                _tags[1]
             };
             var tois = new List<ToiModel>()
             {
-                toi1,
-                toi2
+                _tois[0],
+                _tois[1]
             };
             var tagsId= new List<Guid>()
             {
-                tag1.TagId,
-                tag2.TagId
+                _tags[0].TagId,
+                _tags[1].TagId
             };
 
 
-            _db.InsertTags(tags);
-            _db.InsertToiModelList(tois);
+            await _dbs.InsertTags(tags);
+            await _dbs.InsertToiModelList(tois);
 
-            var result = _db.GetToisByTagIds(tagsId).ToList();
-            Assert.AreEqual(true, tois.All(result.Contains));
+            var result = await _dbs.GetToisByTagIds(tagsId);
+
+            Assert.AreEqual(true, tois.All(result.Result.Contains));
+        }
+
+
+
+        [TestMethod]
+        public async Task UpdateToI()
+        {
+
+            var toi2 = new ToiModel(_guids[0])
+            {
+                TagModels = new List<TagModel> { _tags[0] },
+                Description = "test2",
+                Title = "test2",
+                Url = "test2"
+            };
+            var toi1 = new ToiModel(_guids[0])
+            {
+                Description = "test",
+                Title = "test",
+                Url = "test",
+                TagModels = new List<TagModel> { _tags[0] }
+            };
+
+
+            var insertStatusCode = await _dbs.InsertToiModel(toi1);
+
+            var statusCode = await _dbs.UpdateToiModel(toi2);
+
+            var updated = await _dbs.GetToi(_guids[0]);
+
+            Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
+            Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
+            Assert.AreEqual("test2", updated.Result.Description);
+        }
+
+        [TestMethod]
+        public async Task UpdateToiCorrectTags()
+        {
+            var toi1 = _tois[0];
+            var toi2 = _tois[1];
+            toi2.Id = toi1.Id;
+            toi1.TagModels.Add(_tags[1]);
+            toi2.TagModels.Add(_tags[2]);
+
+            var insertStatusCode = await _dbs.InsertToiModel(toi1);
+
+            var statusCode = await _dbs.UpdateToiModel(toi2);
+
+            var updated = await _dbs.GetToi(_guids[0]);
+
+            Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
+            Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
+            Assert.AreEqual(2, updated.Result.TagModels.Count);
         }
     }
 }
