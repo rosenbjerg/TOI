@@ -11,15 +11,33 @@ let templates = {
     toi : JsT.loadById("toi-template"),
 
 };
+let modalTemplates = {
+    editTag : JsT.loadById("edit-tag-template")
+}
 
 function showLogin() {
     $viewSpace.empty().append(templates.login.render());
 }
 
+let state = {
+
+};
+function getMaterialIcon(input) {
+    switch (input) {
+        case "GPS":
+            return "gps_fixed";
+        default:
+            return input.toLowerCase();
+    }
+}
+
 function showTagList(tags) {
     let l = "";
+    state = { tags: [] };
     for (let i = 0; i < tags.length; i++){
+        tags[i].TagTypeLC = getMaterialIcon(tags[i].TagType);
         l += templates.tag.render(tags[i]);
+        state.tags[tags[i].TagId] = tags[i];
     }
     $viewSpace.empty().append(templates.list.render({
         title: "All tags",
@@ -51,36 +69,66 @@ function showSaveEditTag(tag) {
     initMapPicker();
 }
 
-function initMapPicker() {
-    $("#mapPicker").locationpicker({
+function initMapPicker(lat, lon, radius) {
+    if (lat === undefined)
+        lat = 57.012392;
+    if (lon === undefined)
+        lon = 9.991556;
+    if (radius === undefined)
+        radius = 50;
+    let zoom = radius < 25 ? 20 : radius < 500 ? 15 : 10;
+    $(".mapPicker").locationpicker({
         location: {
-            latitude: 57.012392,
-            longitude: 9.991556
+            latitude: lat,
+            longitude: lon
         },
-        radius: 200,
+        radius: radius,
         enableAutocomplete: true,
         inputBinding: {
-            latitudeInput: $("#latitudeInput"),
-            longitudeInput: $("#longitudeInput"),
-            radiusInput: $("#radiusInput"),
-            locationNameInput: $("#locationNameInput")
-        }
+            latitudeInput: $(".latitudeInput"),
+            longitudeInput: $(".longitudeInput"),
+            radiusInput: $(".radiusInput"),
+            locationNameInput: $(".locationNameInput")
+        },
+        zoom: zoom,
     });
-    $("#mapPicker").locationpicker("autosize");
+    $(".mapPicker").locationpicker("autosize");
 }
 
-// showLogin();
-// showTagList([
-//     {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth"},
-//     {Name: "Test tag navn 2",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Bluetooth"},
-//     {                  TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
-// ]);
-showSaveEditTag();
-showSaveEditTag({
-    TagId: "FC:C4:D1:03:8D:3D",
-    Name: "Test tag",
-    TagType: "ble",
-    Latitude: 9.484,
-    Longitude: 47.45,
-    Radius: 250
+function showPopup(html) {
+    $.magnificPopup.open({
+        items: {
+            type: 'inline',
+            src: "<div class='modal-popup'>" + html +"</div>"
+        }
+    });
+}
+$viewSpace.on("click", ".tag", function () {
+    let id = $(this).data("id");
+    let tag = state.tags[id];
+
+    console.log(tag);
+    showPopup(modalTemplates.editTag.render(tag));
+    initMapPicker(tag.Latitude, tag.Longitude, tag.Radius);
 });
+
+// showLogin();
+showTagList([
+    {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth", Latitude: "56.9385382", Longitude: "9.7409053", Radius: 5000},
+    {Name: "Henne på havnen",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Wifi", Radius: 900},
+    {Name: "Skolevej 14",   TagId: "FB:C4:D1:03:8D:3D", TagType: "GPS"},
+    {Name: "Test tag navn 2",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Bluetooth"},
+    {                           TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
+]);
+
+// showSaveEditTag();
+// showSaveEditTag({
+//     TagId: "FC:C4:D1:03:8D:3D",
+//     Name: "Test tag",
+//     TagType: "ble",
+//     Latitude: 9.484,
+//     Longitude: 47.45,
+//     Radius: 250
+// });
+
+// $viewSpace.empty().append(modalTemplates.editTag.render());

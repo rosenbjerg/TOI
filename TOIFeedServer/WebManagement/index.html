@@ -63,28 +63,28 @@
             </div>
 
             <div class="row">
-                <label for="locationNameInput">Location name (optional)</label>
-                <input class="u-full-width" type="text" id="locationNameInput" name="locationNameInput" placeholder="Location name" />
+                <label>Location name (optional)</label>
+                <input class="u-full-width locationNameInput" type="text"/>
             </div>
 
             <div class="row">
                 <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
-                <label for="mapPicker">Pick location or type in coordinates</label>
-                <div class="map-picker u-full-width" id="mapPicker"></div>
+                <label>Pick location or type in coordinates</label>
+                <div class="mapPicker u-full-width"></div>
             </div>
 
             <div class="row">
                 <div class="four columns">
-                    <label for="latitudeInput">Latitude</label>
-                    <input required="required" class="u-full-width" value="{{lat}}" type="text" id="latitudeInput" placeholder="57.012301" />
+                    <label>Latitude</label>
+                    <input required="required" class="u-full-width" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
-                    <label for="longitudeInput">Longitude</label>
-                    <input required="required" class="u-full-width" value="{{lon}}" type="text" id="longitudeInput" placeholder="9.991118"/>
+                    <label>Longitude</label>
+                    <input required="required" class="u-full-width" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
-                    <label for="radiusInput">Radius</label>
-                    <input required="required" class="u-full-width" value="{{radius}}" type="number" id="radiusInput"/>
+                    <label>Radius</label>
+                    <input required="required" class="u-full-width" value="{{Radius}}" type="number" pattern="\d+"/>
                 </div>
             </div>
 
@@ -134,11 +134,41 @@
 </template>
 
 <template id="tag-template">
-    <li class="u-full-width tag">
-        <p>{{Name = Unnamed tag}}</p>
-        <pre title="Hardware id">{{TagId}}</pre>
-        <p>Type: {{TagType}}</p>
+    <li class="tag" data-id="{{TagId}}">
+        <table>
+            <tbody>
+                <tr>
+                    <td title="{{TagType}}"><i class="material-icons">{{TagTypeLC}}</i></td>
+                    <td>{{Name}}</td>
+                </tr>
+            </tbody>
+        </table>
     </li>
+</template>
+<template id="edit-tag-template">
+    <form id="edit-tag-form">
+        <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text" placeholder="Tag name">
+
+        <label>Location</label>
+        <input class="u-full-width locationNameInput" type="text" placeholder="Location name"/>
+        <div class="mapPicker u-full-width"></div>
+
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" class="u-full-width" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" class="u-full-width" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" class="u-full-width" value="{{Radius}}" type="number" pattern="\d+"/>
+            </div>
+        </div>
+        <input class="u-full-width" value="Save changes" type="submit"/>
+    </form>
 </template>
 
 <template id="toi-template">

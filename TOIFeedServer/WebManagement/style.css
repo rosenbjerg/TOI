@@ -2,7 +2,7 @@ html, body {
     background-color: #FAFAFA;
 }
 
-.map-picker {
+.mapPicker {
     /*width: 500px; */
     height: 400px;
 }
@@ -72,24 +72,39 @@ ul, li {
 }
 
 .tag {
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 12px 8px;
     border-radius: 2px;
     background-color: #EEEEEE;
+    display: inline-block;
     transition: background-color 50ms;
     cursor: pointer;
+    /*min-width: 55px;*/
+    margin: 8px;
 }
 .tag:hover {
     background-color: #E0E0E0;
     transition: background-color 150ms;
 }
 .tag * {
-    width: 100%;
-    text-align: center;
     padding: 0;
     margin: 0;
 }
-.tag pre {
-    color: #424242;
+.tag table, .tag tr {
+    table-layout: fixed;
+    border: hidden;
+    border-collapse: collapse;
 }
-
+.tag i {
+    text-align: center;
+    min-width: 35px;
+    line-height: unset;
+}
+.modal-popup {
+    max-width: 500px;
+    background: #FAFAFA;
+    padding: 20px;
+    margin: 40px auto;
+    position: relative;
+    width: auto;
+    border-radius: 3px;
+}
