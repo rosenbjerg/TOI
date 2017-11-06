@@ -2,3 +2,22 @@
     /*width: 500px; */
     height: 400px;
 }
+
+
+
+
+
+.empty-placeholder:empty::after{
+    content: attr(data-empty-message);
+    font-size: 10pt;
+    height: 20px;
+    color: #818181;
+    white-space: nowrap;
+}
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
+}

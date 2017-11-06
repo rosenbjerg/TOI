@@ -26,14 +26,13 @@
 
 </div>
 
-<template id="saveEditTag">
+<template id="save-edit-template">
         <h1>{{action}} tag</h1>
 
         <form>
             <div class="row">
                 <label for="titleInput">Title</label>
-                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title"
-                       id="titleInput" />
+                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title" id="titleInput" />
             </div>
 
             <div class="row">
@@ -89,7 +88,7 @@
         </form>
 </template>
 
-<template id="login">
+<template id="login-template">
         <h1>Login</h1>
 
         <div class="row">
@@ -109,7 +108,7 @@
         </div>
 </template>
 
-<template id="createTOI">
+<template id="create-toi-template">
         <div>
             <h1>Create Thing of Interest</h1>
 
@@ -125,6 +124,13 @@
             </div>
         </div>
 </template>
+
+<template id="list-template">
+    <h4>{{title}}</h4>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{list}}</ul>
+</template>
+
+<template id="toi-template"></template>
 
 <script src="main.js"></script>
 </body>
