@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
-using TOIFeedServer;
+using TOIFeedServer.Database;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171106130350_toi")]
+    [Migration("20171106143736_toi")]
     partial class toi
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
