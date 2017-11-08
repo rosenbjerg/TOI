@@ -72,7 +72,8 @@ namespace TOIFeedServer
                     await res.SendString("The tag could not be found.", status: 404);
             });
 
-            _server.Post("/createtag", async (req, res) =>
+            //TODO implement method for getting a single ToiModel
+            _server.Post("/toi", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var toiId = await toiMan.CreateToi(form);
@@ -81,7 +82,7 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The TOI could not be created.", status: 400);
             });
-            _server.Put("/updatetag", async (req, res) =>
+            _server.Put("/toi", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 if (await toiMan.UpdateToi(form))
