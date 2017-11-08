@@ -3,9 +3,9 @@
 // let $container = $(".container");
 let $viewSpace = $("#viewSpace");
 let templates = {
-    createTag : JsT.loadById("create-tag-template"),
     login : JsT.loadById("login-template"),
-    createEditTag : JsT.loadById("save-edit-toi-template"),
+    createTag : JsT.loadById("create-tag-template"),
+    saveEditToi : JsT.loadById("save-edit-toi-template"),
     list : JsT.loadById("list-template"),
     tag : JsT.loadById("tag-template"),
     toi : JsT.loadById("toi-template"),
@@ -31,18 +31,7 @@ function post(url, data, success, error) {
     });
 }
 
-$("#saveEditTagForm").submit(function (ev) {
-    ev.preventDefault();
-    var form = new FormData(this);
-    post("/createtag",
-        form,
-        function (data) {
-            console.log(data);
-        },
-        function (data) {
-            console.log(data);
-        });
-});
+
 
 
 function getMaterialIcon(input) {
@@ -58,19 +47,26 @@ function showLogin() {
     $viewSpace.empty().append(templates.login.render());
 }
 
-function showTagList(tags) {
-    let l = "";
-    state = { tags: [] };
-    for (let i = 0; i < tags.length; i++){
-        tags[i].Icon = getMaterialIcon(tags[i].TagType);
-        l += templates.tag.render(tags[i]);
-        state.tags[tags[i].TagId] = tags[i];
-    }
-    $viewSpace.empty().append(templates.list.render({
-        title: "All tags",
-        list: l,
-        thing: "tag"
-    }));
+function showSaveEditToi(toi) {
+    console.log(toi);
+    $viewSpace.empty().append(templates.saveEditToi.render(toi));
+}
+
+function showTagList() {
+    $.get("/tags", function (tags) {
+        let l = "";
+        state = { tags: [] };
+        for (let i = 0; i < tags.length; i++){
+            tags[i].Icon = getMaterialIcon(tags[i].TagType);
+            l += templates.tag.render(tags[i]);
+            state.tags[tags[i].TagId] = tags[i];
+        }
+        $viewSpace.empty().append(templates.list.render({
+            title: "All tags",
+            list: l,
+            thing: "tag"
+        }));
+    });
 }
 
 
@@ -120,18 +116,21 @@ function initMapPicker(lat, lon, radius) {
     $(".mapPicker").locationpicker("autosize");
 }
 
-function showToiList(tois) {
-    let l = "";
-    state = { tois: [] };
-    for (let i = 0; i < tois.length; i++){
-        l += templates.toi.render(tois[i]);
-        state.tois[tois[i].Id] = tois[i];
-    }
-    $viewSpace.empty().append(templates.list.render({
-        title: "All tois",
-        list: l,
-        thing: "TOI"
-    }));
+function showToiList() {
+    $.get("/tois", function (tags) {
+        let l = "";
+        state = { tags: [] };
+        for (let i = 0; i < tags.length; i++){
+            tags[i].Icon = getMaterialIcon(tags[i].TagType);
+            l += templates.tag.render(tags[i]);
+            state.tags[tags[i].TagId] = tags[i];
+        }
+        $viewSpace.empty().append(templates.list.render({
+            title: "All tois",
+            list: l,
+            thing: "TOI"
+        }));
+    });
 }
 
 function showPopup(html) {
@@ -142,29 +141,66 @@ function showPopup(html) {
         }
     });
 }
+
+// showLogin();
+// showTagList([
+//     {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth", Latitude: "56.9385382", Longitude: "9.7409053", Radius: 5000},
+//     {Name: "Henne på havnen",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Wifi", Radius: 900},
+//     {Name: "Skolevej 14",   TagId: "FB:C4:D1:03:8D:3D", TagType: "GPS"},
+//     {Name: "Test tag navn 2",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Bluetooth"},
+//     {                           TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
+// ]);
+
+$("#show-tags").click(showTagList);
+$("#create-tag").click(showCreateTag);
+$("#show-tois").click(showToiList);
+$("#create-toi").click(showSaveEditToi);
+
+
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
     let tag = state.tags[id];
-
-    console.log(tag);
     showPopup(modalTemplates.editTag.render(tag));
     initMapPicker(tag.Latitude, tag.Longitude, tag.Radius);
+});
+$viewSpace.on("click", ".toi", function () {
+    let id = $(this).data("id");
+    let toi = state.tois[id];
+    showSaveEditToi(toi);
+});
+$viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
+    ev.preventDefault();
+    var form = new FormData(this);
+    post("/createtoi", form, function (data) {
+        console.log(data);
+    }, function (data) {
+        console.log(data);
+    });
 });
 $viewSpace.on("submit", "create-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
+    if (form.get("typeInput") === "none"){
+        showPopup()
+        return;
+    }
+    post("/createtag", form, function () {
+
+    })
     // aja
 });
-// showLogin();
-showTagList([
-    {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth", Latitude: "56.9385382", Longitude: "9.7409053", Radius: 5000},
-    {Name: "Henne på havnen",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Wifi", Radius: 900},
-    {Name: "Skolevej 14",   TagId: "FB:C4:D1:03:8D:3D", TagType: "GPS"},
-    {Name: "Test tag navn 2",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Bluetooth"},
-    {                           TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
-]);
+$viewSpace.on("submit", "#edit-tag-form", function (ev) {
+    ev.preventDefault();
+    var form = new FormData(this);
+    post("/edittag", form, function (data) {
+        console.log(data);
+    }, function (data) {
+        console.log(data);
+    });
+});
 
-// showCreateTag();
+
+showLogin();
 
 // showToiList([
 //     {
@@ -177,4 +213,3 @@ showTagList([
 //         Context: "Marabou ruten"
 //     }
 // ]);
-// $viewSpace.empty().append(modalTemplates.editTag.render());

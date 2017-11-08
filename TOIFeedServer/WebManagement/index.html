@@ -27,14 +27,27 @@
     <div class="header">
         <h3>TOI Manager</h3>
         <div class="header-menu">
-            <div class="header-menu-button">Test1</div>
-            <div class="header-menu-button">Test2</div>
-            <div class="header-menu-button">Test3</div>
-            <div class="header-menu-button">Test4</div>
+            <div class="header-menu-button" id="show-tois">Tois</div>
+            <div class="header-menu-button" id="create-toi">Create toi</div>
+            <div class="header-menu-button" id="show-tags">Tags</div>
+            <div class="header-menu-button" id="create-tag">Create tag</div>
         </div>
     </div>
     <div id="viewSpace"></div>
 </div>
+
+<template id="login-template">
+    <h3 class="u-full-width" style="text-align: center">Login</h3>
+
+    <form id="login-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <input class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
+</template>
+
 
 <template id="create-tag-template">
         <h1>Create new tag</h1>
@@ -90,53 +103,6 @@
         </form>
 </template>
 
-<template id="login-template">
-    <h3 class="u-full-width" style="text-align: center">Login</h3>
-
-    <form id="login-form">
-        <label>Username</label>
-        <input class="u-full-width" required="required" name="username" type="text">
-        <label>Password</label>
-        <input class="u-full-width" required="required" name="password" type="password">
-        <input class="button-primary" type="submit" value="Login" style="float:right;">
-    </form>
-</template>
-
-<template id="save-edit-toi-template">
-        <div>
-            <h1>Create Thing of Interest</h1>
-
-            <div class="row">
-                <div class="six columns">
-                    <input placeholder="Title" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
-                </div>
-                <div class="six columns">
-                    <select name="type" class="u-full-width" id="createTypeInput">
-                        <option value="image">Picture</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-</template>
-
-<template id="list-template">
-    <h4>{{title}}</h4>
-    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{list}}</ul>
-</template>
-
-<template id="tag-template">
-    <li class="tag" data-id="{{TagId}}">
-        <table>
-            <tbody>
-                <tr>
-                    <td title="{{TagType}}"><i class="material-icons">{{Icon}}</i></td>
-                    <td>{{Name}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </li>
-</template>
-
 <template id="edit-tag-template">
     <form id="edit-tag-form">
         <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text" placeholder="Tag name">
@@ -163,37 +129,73 @@
     </form>
 </template>
 
-<template id="toi-template">
-    <li class="toi" data-id="{{Id}}">
+
+<template id="save-edit-toi-template">
+        <form id="save-edit-toi-form">
+            <h1>Create Thing of Interest</h1>
+
+            <div class="row">
+                <div class="six columns">
+                    <input placeholder="Title" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
+                </div>
+                <div class="six columns">
+                    <select name="type" class="u-full-width" id="createTypeInput">
+                        <option value="image">Picture</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+</template>
+
+
+<template id="list-template">
+    <h4>{{title}}</h4>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{list}}</ul>
+</template>
+
+<template id="tag-template">
+    <li class="tag" data-id="{{TagId}}">
         <table>
             <tbody>
                 <tr>
-                    <td>
-                        <strong>{{Title}}</strong>
-                    </td>
-                    <td rowspan="4">
-                        <img src="{{Image}}" alt="{{Title}}">
-                    </td>
-                </tr>
-                <tr>
-                    <td>{{Description}}</td>
-                </tr>
-                <tr>
-                    <td>
-                        <i>Context: {{Context}}</i>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <i>Tags: {{TagAmount = 0}}</i>
-                    </td>
+                    <td title="{{TagType}}"><i class="material-icons">{{Icon}}</i></td>
+                    <td>{{Name}}</td>
                 </tr>
             </tbody>
         </table>
     </li>
 </template>
 
-<template id="create-toi-template"></template>
+<template id="toi-template">
+    <li class="toi" data-id="{{Id}}">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <strong>{{Title}}</strong>
+                </td>
+                <td rowspan="4">
+                    <img src="{{Image}}" alt="{{Title}}">
+                </td>
+            </tr>
+            <tr>
+                <td>{{Description}}</td>
+            </tr>
+            <tr>
+                <td>
+                    <i>Context: {{Context}}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <i>Tags: {{TagAmount = 0}}</i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
 
 <script src="main.js"></script>
 </body>
