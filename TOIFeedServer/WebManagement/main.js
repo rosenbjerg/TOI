@@ -3,9 +3,9 @@
 // let $container = $(".container");
 let $viewSpace = $("#viewSpace");
 let templates = {
-    saveEditTag : JsT.loadById("save-edit-tag-template"),
+    createTag : JsT.loadById("create-tag-template"),
     login : JsT.loadById("login-template"),
-    saveEditToi : JsT.loadById("save-edit-toi-template"),
+    createEditTag : JsT.loadById("save-edit-toi-template"),
     list : JsT.loadById("list-template"),
     tag : JsT.loadById("tag-template"),
     toi : JsT.loadById("toi-template"),
@@ -13,15 +13,38 @@ let templates = {
 };
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template")
-}
-
-function showLogin() {
-    $viewSpace.empty().append(templates.login.render());
-}
-
+};
 let state = {
 
 };
+
+function post(url, data, success, error) {
+    $.ajax({
+        url: url,
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: "POST",
+        success: success,
+        error: error
+    });
+}
+
+$("#saveEditTagForm").submit(function (ev) {
+    ev.preventDefault();
+    var form = new FormData(this);
+    post("/createtag",
+        form,
+        function (data) {
+            console.log(data);
+        },
+        function (data) {
+            console.log(data);
+        });
+});
+
+
 function getMaterialIcon(input) {
     switch (input) {
         case "GPS":
@@ -31,11 +54,15 @@ function getMaterialIcon(input) {
     }
 }
 
+function showLogin() {
+    $viewSpace.empty().append(templates.login.render());
+}
+
 function showTagList(tags) {
     let l = "";
     state = { tags: [] };
     for (let i = 0; i < tags.length; i++){
-        tags[i].TagTypeLC = getMaterialIcon(tags[i].TagType);
+        tags[i].Icon = getMaterialIcon(tags[i].TagType);
         l += templates.tag.render(tags[i]);
         state.tags[tags[i].TagId] = tags[i];
     }
@@ -48,25 +75,23 @@ function showTagList(tags) {
 
 
 
-function showSaveEditTag(tag) {
-    if (tag === undefined){
-        $viewSpace.empty().append(templates.saveEditTag.render({
-            action: "Create"
-        }));
-    }
-    else {
-        $viewSpace.empty().append(templates.saveEditTag.render({
-            action: "Edit",
-            hideDelete: "",
-            id: tag.TagId,
-            type: tag.TagType,
-            title: tag.Name,
-            lat: tag.Latitude,
-            lon: tag.Longitude,
-            radius: tag.Radius
-        }));
-    }
-    initMapPicker();
+function showCreateTag() {
+    let defaults = {
+        radius: 50,
+        latitude: 56.9385382,
+        longitude: 9.7409053
+    };
+    navigator.geolocation.getCurrentPosition(function (pos) {
+        console.log("got real coordinates");
+        defaults.latitude = pos.coords.latitude;
+        defaults.longitude = pos.coords.longitude;
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, function (err) {
+        console.log(err);
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, {timeout: 500});
 }
 
 function initMapPicker(lat, lon, radius) {
@@ -90,9 +115,23 @@ function initMapPicker(lat, lon, radius) {
             radiusInput: $(".radiusInput"),
             locationNameInput: $(".locationNameInput")
         },
-        zoom: zoom,
+        zoom: zoom
     });
     $(".mapPicker").locationpicker("autosize");
+}
+
+function showToiList(tois) {
+    let l = "";
+    state = { tois: [] };
+    for (let i = 0; i < tois.length; i++){
+        l += templates.toi.render(tois[i]);
+        state.tois[tois[i].Id] = tois[i];
+    }
+    $viewSpace.empty().append(templates.list.render({
+        title: "All tois",
+        list: l,
+        thing: "TOI"
+    }));
 }
 
 function showPopup(html) {
@@ -111,7 +150,11 @@ $viewSpace.on("click", ".tag", function () {
     showPopup(modalTemplates.editTag.render(tag));
     initMapPicker(tag.Latitude, tag.Longitude, tag.Radius);
 });
-
+$viewSpace.on("submit", "create-tag-form", function (ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    // aja
+});
 // showLogin();
 showTagList([
     {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth", Latitude: "56.9385382", Longitude: "9.7409053", Radius: 5000},
@@ -121,14 +164,17 @@ showTagList([
     {                           TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
 ]);
 
-// showSaveEditTag();
-// showSaveEditTag({
-//     TagId: "FC:C4:D1:03:8D:3D",
-//     Name: "Test tag",
-//     TagType: "ble",
-//     Latitude: 9.484,
-//     Longitude: 47.45,
-//     Radius: 250
-// });
+// showCreateTag();
 
+// showToiList([
+//     {
+//         Id: "FA:C4:D1:03:8D:3D",
+//         Description: "This is a very descriptive description and it describes how to describe descriptions",
+//         Title: "Tag 1",
+//         Image: "https://i.imgur.com/gCTCL7z.jpg",
+//         Url: "https://imgur.com/gallery/yWoZC",
+//         TagAmount: Math.floor(Math.random() * 67),
+//         Context: "Marabou ruten"
+//     }
+// ]);
 // $viewSpace.empty().append(modalTemplates.editTag.render());

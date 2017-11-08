@@ -36,25 +36,20 @@
     <div id="viewSpace"></div>
 </div>
 
-<template id="save-edit-tag-template">
-        <h1>{{action}} tag</h1>
+<template id="create-tag-template">
+        <h1>Create new tag</h1>
+        <form id="create-tag-form">
+            <label for="titleInput">Title</label>
+            <input required="required" name="titleInput" class="u-full-width" type="text" placeholder="Title" id="titleInput" />
 
-        <form>
-            <div class="row">
-                <label for="titleInput">Title</label>
-                <input required="required" name="titleInput" class="u-full-width" type="text" value="{{title}}" placeholder="Title" id="titleInput" />
-            </div>
-
-            <div class="row">
-                <label for="idInput">Hardware ID</label>
-                <input required="required" name="idInput" class="u-full-width" type="text" value="{{id}}" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="FA:C4:D1:03:8D:3D"
-                       id="idInput"/>
-            </div>
+            <label for="idInput">Hardware ID</label>
+            <input required="required" name="idInput" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"
+                   id="idInput"/>
 
             <div class="row">
                 <label for="typeInput">Type</label>
-                <select name="typeInput" class="u-full-width" value="{{type = none}}" id="typeInput">
-                    <option value="none">- Please select</option>
+                <select name="typeInput" class="u-full-width" id="typeInput">
+                    <option value="none" >- Please select</option>
                     <option value="nfc">NFC</option>
                     <option value="ble">Bluetooth Low Energy</option>
                     <option value="wifi">Wi-Fi</option>
@@ -62,29 +57,25 @@
                 </select>
             </div>
 
-            <div class="row">
-                <label>Location name (optional)</label>
-                <input class="u-full-width locationNameInput" type="text"/>
-            </div>
+            <label>Location name (optional)</label>
+            <input class="u-full-width locationNameInput" type="text"/>
 
-            <div class="row">
-                <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
-                <label>Pick location or type in coordinates</label>
-                <div class="mapPicker u-full-width"></div>
-            </div>
+            <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
+            <label>Pick location or type in coordinates</label>
+            <div class="mapPicker u-full-width"></div>
 
             <div class="row">
                 <div class="four columns">
                     <label>Latitude</label>
-                    <input required="required" class="u-full-width" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                    <input required="required" class="u-full-width" value="{{latitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
                     <label>Longitude</label>
-                    <input required="required" class="u-full-width" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                    <input required="required" class="u-full-width" value="{{longitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
                     <label>Radius</label>
-                    <input required="required" class="u-full-width" value="{{Radius}}" type="number" pattern="\d+"/>
+                    <input required="required" class="u-full-width" value="{{radius}}" type="number" pattern="\d+"/>
                 </div>
             </div>
 
@@ -138,13 +129,14 @@
         <table>
             <tbody>
                 <tr>
-                    <td title="{{TagType}}"><i class="material-icons">{{TagTypeLC}}</i></td>
+                    <td title="{{TagType}}"><i class="material-icons">{{Icon}}</i></td>
                     <td>{{Name}}</td>
                 </tr>
             </tbody>
         </table>
     </li>
 </template>
+
 <template id="edit-tag-template">
     <form id="edit-tag-form">
         <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text" placeholder="Tag name">
@@ -172,8 +164,36 @@
 </template>
 
 <template id="toi-template">
-
+    <li class="toi" data-id="{{Id}}">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong>{{Title}}</strong>
+                    </td>
+                    <td rowspan="4">
+                        <img src="{{Image}}" alt="{{Title}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{Description}}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <i>Context: {{Context}}</i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <i>Tags: {{TagAmount = 0}}</i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
 </template>
+
+<template id="create-toi-template"></template>
 
 <script src="main.js"></script>
 </body>

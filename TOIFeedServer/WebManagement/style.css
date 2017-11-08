@@ -71,6 +71,12 @@ ul, li {
     list-style: none;
 }
 
+.tag, .toi {
+    -webkit-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+    -moz-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+    box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+}
+
 .tag {
     padding: 12px 8px;
     border-radius: 2px;
@@ -81,18 +87,19 @@ ul, li {
     /*min-width: 55px;*/
     margin: 8px;
 }
-.tag:hover {
+.tag:hover, .toi:hover {
     background-color: #E0E0E0;
     transition: background-color 150ms;
 }
-.tag * {
+.tag *, .toi * {
     padding: 0;
     margin: 0;
 }
-.tag table, .tag tr {
+.tag table, .tag tr, .toi table, .toi tr {
     table-layout: fixed;
     border: hidden;
     border-collapse: collapse;
+    height: 100%;
 }
 .tag i {
     text-align: center;
@@ -107,4 +114,21 @@ ul, li {
     position: relative;
     width: auto;
     border-radius: 3px;
+}
+
+.toi {
+    padding: 12px 8px;
+    border-radius: 2px;
+    width: 350px;
+    max-height:200px;
+    background-color: #EEEEEE;
+    display: inline-block;
+
+    transition: background-color 50ms;
+    cursor: pointer;
+
+    margin: 8px;
+}
+.toi img {
+    max-height: 80px;
 }
