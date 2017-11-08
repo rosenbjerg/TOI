@@ -10,6 +10,7 @@ using RedHttpServerCore.Response;
 using TOIClasses;
 using TOIFeedServer.Database;
 using TOIFeedServer.Models;
+using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Managers
 {
@@ -95,25 +96,25 @@ namespace TOIFeedServer.Managers
             return await _dbService.UpdateTag(tag) == DatabaseStatusCode.Updated;
         }
 
-        public async Task GetTag(RRequest req, RResponse res)
+        public async Task<TagModel> GetTag(IQueryCollection queries)
         {
             try
             {
                 //trim query så den er ROBUST!    
-                var guid = Guid.ParseExact(req.Queries["id"][0].PadLeft(32, '0'), "N");
-                var result = await res.ServerPlugins.Use<DatabaseService>().GetTagFromId(guid);
-                await res.SendJson(result);
+                var guid = GuidParse(queries["id"][0]);
+                var dbRes = await _dbService.GetTagFromId(guid);
+                return dbRes.Result;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message + " " + e.StackTrace);
-                throw;
+                return null;
             }
         }
 
         public static Guid CreateTagGuid(string bdAddr)
         {
-            return Guid.ParseExact(bdAddr.Replace(":", string.Empty).PadLeft(32, '0'), "N");
+            return GuidParse(bdAddr.Replace(":", string.Empty));
         }
     }
 }

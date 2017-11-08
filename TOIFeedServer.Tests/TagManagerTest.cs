@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RedHttpServerCore.Request;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
 using TOIFeedServer.Models;
@@ -44,12 +47,35 @@ namespace TOIFeedServer.Tests
         }
 
         [TestMethod]
-        public void GetTags_NotNull_Valid()
+        public void GetTags_ValidId_ValidTagInfo()
         {
-            
-           
+            var tagNo = 3;
+            var q = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                {"id", $"F4B41505420{tagNo}"}
+            });
+            var tTask = _manager.GetTag(q);
+            tTask.Wait();
+
+            var tag = tTask.Result;
+            Assert.IsNotNull(tag);
+            Assert.AreEqual($"Bluetooth Tag {tagNo}", tag.Name);
         }
 
+        [TestMethod]
+        public void GetTags_InvalidId_Null()
+        {
+            var tagNo = 999;
+            var q = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                {"id", $"F4:B4:15:05:42:0{tagNo}"}
+            });
+            var tTask = _manager.GetTag(q);
+            tTask.Wait();
+
+            var tag = tTask.Result;
+            Assert.IsNull(tag);
+        }
 
         [TestMethod]
         public void CreateTag_AllInput_Valid()
@@ -57,7 +83,7 @@ namespace TOIFeedServer.Tests
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
                 {"title", "Bluetooth Tag"},
-                {"id", "F4:B4:15:05:42:05"},
+                {"id", "F4:B4:15:05:43:05"},
                 {"type", "0"},
                 {"radius", "300"},
                 {"latitude", "57.0123920"},
