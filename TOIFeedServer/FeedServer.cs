@@ -23,6 +23,7 @@ namespace TOIFeedServer
             var dbService = new DatabaseService(testDb);
             _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
             var tagMan = new TagManager(dbService);
+            var toiMan = new ToiManager(dbService);
 
             _server.Post("/tags", async (req, res) =>
             {
@@ -71,7 +72,24 @@ namespace TOIFeedServer
                     await res.SendString("The tag could not be found.", status: 404);
             });
 
-
+            _server.Post("/createtag", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var toiId = await toiMan.CreateToi(form);
+                if (toiId != Guid.Empty)
+                    await res.SendString(toiId.ToString("N"));
+                else
+                    await res.SendString("The TOI could not be created.", status: 400);
+            });
+            _server.Put("/updatetag", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await toiMan.UpdateToi(form))
+                    await res.SendString("OK");
+                else
+                    await res.SendString("The tag could not be updated.", status: 400);
+            });
+            
             if (sampleData)
             {
                 FillMockDatabase();
