@@ -138,9 +138,10 @@ namespace TOIFeedServer.Tests
             //Act
             await _dbs.InsertTags(collection);
             var res = _dbs.GetTagsFromType(TagType.Bluetooth);
+            res.Wait();
 
             //Assert
-            Assert.AreEqual(2, res.Result.Count());
+            Assert.AreEqual(2, res.Result.Result.Count());
         }
 
         [TestMethod]

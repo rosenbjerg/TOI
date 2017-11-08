@@ -63,10 +63,17 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Created;
         }
 
-        public DbResult<IEnumerable<TagModel>> GetTagsFromType(TagType type)
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromType(TagType type)
         {
             var tags = _db.Tags.Where(tag => tag.TagType == type);
-            var statsCode = tags.Any() ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
+            var statsCode = await tags.AnyAsync() ?  DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
+        }
+
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromId(List<Guid> ids)
+        {
+            var tags = _db.Tags.Where(t => ids.Contains(t.TagId));
+            var statsCode = await tags.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
         }
     }

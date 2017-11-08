@@ -62,7 +62,14 @@ namespace TOIFeedServer
                     await res.SendString("ERROR", status: 400);
                 }
             });
-            _server.Get("/getTag", tagMan.GetTag);
+            _server.Get("/getTag", async (req, res) =>
+            {
+                var tag = await tagMan.GetTag(req.Queries);
+                if (tag != null)
+                    await res.SendJson(tag);
+                else
+                    await res.SendString("The tag could not be found.", status: 404);
+            });
 
 
             if (sampleData)
