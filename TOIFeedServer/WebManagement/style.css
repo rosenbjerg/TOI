@@ -1,7 +1,10 @@
 html, body {
     background-color: #FAFAFA;
 }
-
+textarea {
+    max-width: 100%;
+    min-width: 100%;
+}
 .mapPicker {
     /*width: 500px; */
     height: 400px;
@@ -132,3 +135,16 @@ ul, li {
 .toi img {
     max-height: 80px;
 }
+#add-toi-tag-search button {
+    padding: 0;
+}
+#add-toi-tag-search > span{
+    margin-left:0;
+}
+
+input:invalid {
+    outline: 1px #ef9a9a;
+}
+/*#add-toi-tag-search > div:last-child{*/
+    /*float: right;*/
+/*}*/

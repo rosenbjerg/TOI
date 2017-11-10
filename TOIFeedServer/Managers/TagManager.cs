@@ -23,42 +23,15 @@ namespace TOIFeedServer.Managers
             _dbService = dbService;
         }
 
-        public async Task<List<TagModel>> GetTags(HashSet<Guid> ids = null)
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTags(HashSet<Guid> ids = null)
         {
-            var tois = await _dbService.GetAllToiModels();
-//            var tags = await _dbService.GetAllToiModels()
-            var tagInfos = await _dbService.GetToisByTagIds(ids);
-
-
-
-//            var tags = tois.Result.
-
-
-
-            return null;
+            if (ids == null)
+                return await _dbService.GetAllTags();
+            else
+                return await _dbService.GetTagsFromId(ids);
         }
 
-        public async Task AllTags(RRequest req, RResponse res)
-        {
-            try
-            {
-                var tags = (await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result;
-                foreach (var tag in tags)
-                {
-                    Console.WriteLine(tag.Id);
-                }
-                var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-                var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
-                    .Select(x => x.GetToiInfo()).ToList();
-                Console.WriteLine(
-                    $"Received request. Sending {tagInfo.Count} tags.");
-                await res.SendJson(tagInfo);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message + " " + e.StackTrace);
-            }
-        }
+        
 
         private static TagModel ValidateTagForm(IFormCollection form)
         {

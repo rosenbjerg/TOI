@@ -132,16 +132,43 @@
 
 <template id="save-edit-toi-template">
         <form id="save-edit-toi-form">
-            <h1>Create Thing of Interest</h1>
-
+            <h1 class="u-full-width">Create Thing of Interest</h1>
             <div class="row">
                 <div class="six columns">
-                    <input placeholder="Title" required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
+                    <label>Title</label>
+                    <input required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
                 </div>
                 <div class="six columns">
+                    <label>Information</label>
                     <select name="type" class="u-full-width" id="createTypeInput">
                         <option value="image">Picture</option>
                     </select>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="six columns">
+                    <label>Tags</label>
+                    <table class="u-full-width">
+                        <tbody class="empty-placeholder u-full-width" data-empty-message="No tags added to TOI"></tbody>
+                    </table>
+                    <div id="add-toi-tag-search">
+                        <label>Find tags</label>
+                        <span class="ten columns">
+                            <input class="u-full-width" type="search">
+                        </span>
+                        <div class="two columns">
+                            <button class="material-icons u-full-width">search</button>
+                        </div>
+                        <ul id="tag-search-result" class="empty-placeholder u-full-width" data-empty-message="Find tags to add using the search bar right above"></ul>
+                    </div>
+                </div>
+                <div class="six columns">
+                    <label>Url</label>
+                    <input class="u-full-width" type="url">
+
+                    <label>Short description</label>
+                    <textarea class="u-full-width" name="desc" rows="10"></textarea>
                 </div>
             </div>
         </form>

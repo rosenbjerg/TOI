@@ -27,10 +27,10 @@ namespace TOIFeedServer.Managers
 
             if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
             if (!Guid.TryParseExact(form["context"].ToString().PadLeft(32, '0'), "N", out var contextId)) return null;
-            List<Guid> toiTags;
+            HashSet<Guid> toiTags;
             try
             {
-                toiTags = JsonConvert.DeserializeObject<List<string>>(form["tags"]).Select(GuidParse).ToList();
+                toiTags = JsonConvert.DeserializeObject<List<string>>(form["tags"]).Select(GuidParse).ToHashSet();
             }
             catch (Exception e)
             {
@@ -66,5 +66,27 @@ namespace TOIFeedServer.Managers
             if (toi == null) return false;
             return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated;
         }
+        
+//        public async Task AllTags(RRequest req, RResponse res)
+//        {
+//            try
+//            {
+//                var tags = (await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result;
+//                foreach (var tag in tags)
+//                {
+//                    Console.WriteLine(tag.Id);
+//                }
+//                var guids = await req.ParseBodyAsync<HashSet<Guid>>();
+//                var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
+//                    .Select(x => x.GetToiInfo()).ToList();
+//                Console.WriteLine(
+//                    $"Received request. Sending {tagInfo.Count} tags.");
+//                await res.SendJson(tagInfo);
+//            }
+//            catch (Exception e)
+//            {
+//                Console.WriteLine(e.Message + " " + e.StackTrace);
+//            }
+//        }
     }
 }

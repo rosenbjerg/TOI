@@ -48,18 +48,28 @@ function showLogin() {
 }
 
 function showSaveEditToi(toi) {
-    console.log(toi);
-    $viewSpace.empty().append(templates.saveEditToi.render(toi));
+    loadTags(function () {
+        $viewSpace.empty().append(templates.saveEditToi.render(toi));
+    });
+}
+
+function loadTags(callback) {
+    $.get("/tags", function (tags) {
+        state = { tags: [] };
+        for (let i = 0, max = tags.length; i < max; i++){
+            let tag = tags[i];
+            tag.Icon = getMaterialIcon(tag.TagType);
+            state.tags.push(tag);
+        }
+        callback();
+    });
 }
 
 function showTagList() {
-    $.get("/tags", function (tags) {
+    loadTags(function () {
         let l = "";
-        state = { tags: [] };
-        for (let i = 0; i < tags.length; i++){
-            tags[i].Icon = getMaterialIcon(tags[i].TagType);
-            l += templates.tag.render(tags[i]);
-            state.tags[tags[i].TagId] = tags[i];
+        for (let i = 0, max = state.tags.length; i < max; i++){
+            l += templates.tag.render(state.tags[i]);
         }
         $viewSpace.empty().append(templates.list.render({
             title: "All tags",
@@ -191,14 +201,22 @@ $viewSpace.on("submit", "create-tag-form", function (ev) {
 });
 $viewSpace.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
-    var form = new FormData(this);
+    let form = new FormData(this);
     post("/edittag", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
     });
 });
+$("#add-toi-tag-search button").click(function () {
+    let searchTerm = $("#add-toi-tag-search input").val();
+    if (searchTerm === "")
+        return;
+    let result = state.tags.filter(function (t) { t.Name.contains(searchTerm) || t.TagId.contains(searchTerm) });
+    for (let i = 0, max = result.length; i < max; i++) {
 
+    }
+});
 
 showLogin();
 

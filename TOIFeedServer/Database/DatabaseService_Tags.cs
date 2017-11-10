@@ -70,10 +70,17 @@ namespace TOIFeedServer.Database
             return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
         }
 
-        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromId(List<Guid> ids)
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromId(HashSet<Guid> ids)
         {
             var tags = _db.Tags.Where(t => ids.Contains(t.TagId));
             var statsCode = await tags.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
+        }
+
+        public async Task<DbResult<IEnumerable<TagModel>>> GetAllTags()
+        {
+            var tags = await _db.Tags.ToListAsync();
+            var statsCode = tags.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
         }
     }
