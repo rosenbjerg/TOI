@@ -49,7 +49,7 @@ namespace TOIFeedServer.Managers
                 Name = form["title"][0],
                 TagId = CreateTagGuid(form["id"][0]),
                 Radius = radius,
-                Longtitude = longitude,
+                Longitude = longitude,
                 Latitude = latitude,
                 TagType = (TagType)type
             };

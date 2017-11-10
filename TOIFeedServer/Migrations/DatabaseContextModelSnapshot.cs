@@ -43,7 +43,7 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<double>("Latitude");
 
-                    b.Property<double>("Longtitude");
+                    b.Property<double>("Longitude");
 
                     b.Property<string>("Name");
 

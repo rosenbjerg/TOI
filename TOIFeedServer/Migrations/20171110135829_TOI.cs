@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TOIFeedServer.Migrations
 {
-    public partial class toi : Migration
+    public partial class TOI : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,7 @@ namespace TOIFeedServer.Migrations
                 {
                     TagId = table.Column<Guid>(type: "BLOB", nullable: false),
                     Latitude = table.Column<double>(type: "REAL", nullable: false),
-                    Longtitude = table.Column<double>(type: "REAL", nullable: false),
+                    Longitude = table.Column<double>(type: "REAL", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
                     Radius = table.Column<int>(type: "INTEGER", nullable: false),
                     TagType = table.Column<int>(type: "INTEGER", nullable: false),

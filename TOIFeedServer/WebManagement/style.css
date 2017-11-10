@@ -135,6 +135,10 @@ ul, li {
 .toi img {
     max-height: 80px;
 }
+#add-toi-tag-search {
+    border: 1px lightgrey;
+    border-radius: 2px;
+}
 #add-toi-tag-search button {
     padding: 0;
 }

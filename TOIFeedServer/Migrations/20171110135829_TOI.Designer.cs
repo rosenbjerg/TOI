@@ -12,8 +12,8 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171106143736_toi")]
-    partial class toi
+    [Migration("20171110135829_TOI")]
+    partial class TOI
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -44,7 +44,7 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<double>("Latitude");
 
-                    b.Property<double>("Longtitude");
+                    b.Property<double>("Longitude");
 
                     b.Property<string>("Name");
 

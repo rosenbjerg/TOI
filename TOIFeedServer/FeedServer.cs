@@ -118,6 +118,7 @@ namespace TOIFeedServer
                     {
                         new TagModel
                         {
+                            Name = "F-Klubben",
                             TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
                             TagType = TagType.Bluetooth
                         }
@@ -134,6 +135,7 @@ namespace TOIFeedServer
                     {
                         new TagModel
                         {
+                            Name = "Cassiopeia",
                             TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
                             TagType = TagType.Bluetooth
                         }
@@ -151,6 +153,7 @@ namespace TOIFeedServer
                     {
                         new TagModel
                         {
+                            Name = "At Marius place",
                             TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
                             TagType = TagType.Bluetooth
                         }
@@ -168,6 +171,7 @@ namespace TOIFeedServer
                     {
                         new TagModel
                         {
+                            Name = "By the bin",
                             TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
                             TagType = TagType.Bluetooth
                         }

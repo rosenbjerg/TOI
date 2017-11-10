@@ -9,13 +9,14 @@ let templates = {
     list : JsT.loadById("list-template"),
     tag : JsT.loadById("tag-template"),
     toi : JsT.loadById("toi-template"),
+    tagCell : JsT.loadById("tag-table-cell"),
 
 };
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template")
 };
 let state = {
-
+    tags: {}
 };
 
 function post(url, data, success, error) {
@@ -54,13 +55,22 @@ function showSaveEditToi(toi) {
 }
 
 function loadTags(callback) {
-    $.get("/tags", function (tags) {
-        state = { tags: [] };
-        for (let i = 0, max = tags.length; i < max; i++){
-            let tag = tags[i];
-            tag.Icon = getMaterialIcon(tag.TagType);
-            state.tags.push(tag);
+    $.post("/tags", function (result) {
+        console.log(result);
+        if (result.Status !== "Ok")
+        {
+            console.log("/tags error");
+            return;
         }
+
+        state.tags = {};
+        state.tagsUpdated = new Date();
+        for (let i = 0, max = result.Result.length; i < max; i++){
+            let tag = result.Result[i];
+            tag.Icon = getMaterialIcon(tag.TagType);
+            state.tags[tag.TagId] = tag;
+        }
+        console.log(state.tags);
         callback();
     });
 }
@@ -68,8 +78,9 @@ function loadTags(callback) {
 function showTagList() {
     loadTags(function () {
         let l = "";
-        for (let i = 0, max = state.tags.length; i < max; i++){
-            l += templates.tag.render(state.tags[i]);
+        for (let x in state.tags){
+            if (state.tags.hasOwnProperty(x))
+                l += templates.tag.render(state.tags[x]);
         }
         $viewSpace.empty().append(templates.list.render({
             title: "All tags",
@@ -100,20 +111,21 @@ function showCreateTag() {
     }, {timeout: 500});
 }
 
-function initMapPicker(lat, lon, radius) {
-    if (lat === undefined)
-        lat = 57.012392;
-    if (lon === undefined)
-        lon = 9.991556;
-    if (radius === undefined)
-        radius = 50;
-    let zoom = radius < 25 ? 20 : radius < 500 ? 15 : 10;
+function initMapPicker(pos) {
+    if (pos === undefined || !pos.Latitude || !pos.Longitude || !pos.Radius) {
+        pos = {
+            Latitude: 57.012392,
+            Longitude: 9.991556,
+            Radius: 50
+        };
+    }
+    let zoom = pos.Radius < 25 ? 20 : pos.Radius < 500 ? 15 : 10;
     $(".mapPicker").locationpicker({
         location: {
-            latitude: lat,
-            longitude: lon
+            latitude: pos.Latitude,
+            longitude: pos.Longitude
         },
-        radius: radius,
+        radius: pos.Radius,
         enableAutocomplete: true,
         inputBinding: {
             latitudeInput: $(".latitudeInput"),
@@ -170,8 +182,9 @@ $("#create-toi").click(showSaveEditToi);
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
     let tag = state.tags[id];
+    console.log(tag);
     showPopup(modalTemplates.editTag.render(tag));
-    initMapPicker(tag.Latitude, tag.Longitude, tag.Radius);
+    initMapPicker(tag);
 });
 $viewSpace.on("click", ".toi", function () {
     let id = $(this).data("id");
@@ -202,20 +215,34 @@ $viewSpace.on("submit", "create-tag-form", function (ev) {
 $viewSpace.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
+    form.append("id", $(this).data("tag-id"));
+    form.append("type", $(this).data("tag-type"));
     post("/edittag", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
     });
 });
-$("#add-toi-tag-search button").click(function () {
+$viewSpace.on("click", "#add-toi-tag-search button", function () {
     let searchTerm = $("#add-toi-tag-search input").val();
-    if (searchTerm === "")
-        return;
-    let result = state.tags.filter(function (t) { t.Name.contains(searchTerm) || t.TagId.contains(searchTerm) });
-    for (let i = 0, max = result.length; i < max; i++) {
-
+    let result = [];
+    if (searchTerm === ""){
+        for (let x in state.tags){
+            if (state.tags.hasOwnProperty(x))
+                result.push(state.tags[x]);
+        }
     }
+    else {
+        for (let x in state.tags){
+            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].TagId.contains(searchTerm)))
+                result.push(state.tags[x]);
+        }
+    }
+    let str = "";
+    for (let i = 0, max = result.length; i < max; i++) {
+        str += templates.tagCell.render(result[i]);
+    }
+    $("#tag-search-result").empty().append(str);
 });
 
 showLogin();

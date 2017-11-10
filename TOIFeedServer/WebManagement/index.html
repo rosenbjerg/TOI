@@ -80,15 +80,15 @@
             <div class="row">
                 <div class="four columns">
                     <label>Latitude</label>
-                    <input required="required" class="u-full-width" value="{{latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                    <input required="required" class="u-full-width latitudeInput" value="{{latitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
                     <label>Longitude</label>
-                    <input required="required" class="u-full-width" value="{{longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                    <input required="required" class="u-full-width longitudeInput" value="{{longitude}}" type="number" pattern="\d+[,.]\d+"/>
                 </div>
                 <div class="four columns">
                     <label>Radius</label>
-                    <input required="required" class="u-full-width" value="{{radius}}" type="number" pattern="\d+"/>
+                    <input required="required" class="u-full-width radiusInput" value="{{radius}}" type="number" pattern="\d+"/>
                 </div>
             </div>
 
@@ -104,25 +104,26 @@
 </template>
 
 <template id="edit-tag-template">
-    <form id="edit-tag-form">
-        <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text" placeholder="Tag name">
+    <form id="edit-tag-form" data-tag-id="{{TagId}}">
+        <label>Tag name</label>
+        <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text">
 
         <label>Location</label>
-        <input class="u-full-width locationNameInput" type="text" placeholder="Location name"/>
+        <input class="u-full-width locationNameInput" type="text"/>
         <div class="mapPicker u-full-width"></div>
 
         <div class="row">
             <div class="four columns">
                 <label>Latitude</label>
-                <input required="required" class="u-full-width" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
             </div>
             <div class="four columns">
                 <label>Longitude</label>
-                <input required="required" class="u-full-width" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
             </div>
             <div class="four columns">
                 <label>Radius</label>
-                <input required="required" class="u-full-width" value="{{Radius}}" type="number" pattern="\d+"/>
+                <input required="required" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
             </div>
         </div>
         <input class="u-full-width" value="Save changes" type="submit"/>
@@ -158,9 +159,11 @@
                             <input class="u-full-width" type="search">
                         </span>
                         <div class="two columns">
-                            <button class="material-icons u-full-width">search</button>
+                            <button class="material-icons u-full-width" type="button">search</button>
                         </div>
-                        <ul id="tag-search-result" class="empty-placeholder u-full-width" data-empty-message="Find tags to add using the search bar right above"></ul>
+                        <table class="u-full-width">
+                            <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="Find tags to add using the search bar right above"></tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="six columns">
@@ -174,6 +177,14 @@
         </form>
 </template>
 
+<template id="tag-table-cell">
+    <tr>
+        <td>{{Name = Unnamed}}</td>
+    </tr>
+    <tr>
+        <td>{{TagId}}</td>
+    </tr>
+</template>
 
 <template id="list-template">
     <h4>{{title}}</h4>

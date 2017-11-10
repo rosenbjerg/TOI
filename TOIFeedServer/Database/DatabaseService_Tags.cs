@@ -32,7 +32,7 @@ namespace TOIFeedServer.Database
 
             tag.Name = tagModel.Name;
             tag.Latitude = tagModel.Latitude;
-            tag.Longtitude = tagModel.Longtitude;
+            tag.Longitude = tagModel.Longitude;
             tag.Radius = tagModel.Radius;
             tag.TagType = tagModel.TagType;
 
