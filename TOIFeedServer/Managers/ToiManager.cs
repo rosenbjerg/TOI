@@ -53,11 +53,14 @@ namespace TOIFeedServer.Managers
             };
         }
 
-        public async Task<bool> CreateToi(IFormCollection form)
+        public async Task<Guid> CreateToi(IFormCollection form)
         {
             var toi = await ValidateToiForm(form);
-            if (toi == null) return false;
-            return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created;
+            if (toi == null) return Guid.Empty;
+            else if (await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created)
+                return toi.Id;
+            else
+                return Guid.Empty;
         }
 
         public async Task<bool> UpdateToi(IFormCollection form)

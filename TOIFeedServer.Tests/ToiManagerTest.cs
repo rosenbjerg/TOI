@@ -81,7 +81,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.IsTrue(task.Result);
+            Assert.AreNotEqual(task.Result, Guid.Empty);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.IsTrue(task.Result);
+            Assert.AreNotEqual(task.Result, Guid.Empty);
         }
 
         [DataTestMethod]
@@ -123,7 +123,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.IsFalse(task.Result);
+            Assert.AreEqual(task.Result, Guid.Empty);
         }
 
         [DataTestMethod]
