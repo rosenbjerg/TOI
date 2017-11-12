@@ -120,20 +120,23 @@ ul, li {
 }
 
 .toi {
-    padding: 12px 8px;
+    padding: 12px 12px;
     border-radius: 2px;
     width: 350px;
     max-height:200px;
     background-color: #EEEEEE;
     display: inline-block;
-
     transition: background-color 50ms;
     cursor: pointer;
-
     margin: 8px;
 }
 .toi img {
-    max-height: 80px;
+    max-height: 90px;
+    float: right;
+    border-radius: 2px;
+}
+.toi table {
+    width: 100%;
 }
 #add-toi-tag-search {
     border: 1px lightgrey;

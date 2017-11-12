@@ -1,6 +1,5 @@
 "use strict";
 
-// let $container = $(".container");
 let $viewSpace = $("#viewSpace");
 let templates = {
     login : JsT.loadById("login-template"),
@@ -32,85 +31,6 @@ function post(url, data, success, error) {
     });
 }
 
-
-
-
-function getMaterialIcon(input) {
-    switch (input) {
-        case "GPS":
-            return "gps_fixed";
-        default:
-            return input.toLowerCase();
-    }
-}
-
-function showLogin() {
-    $viewSpace.empty().append(templates.login.render());
-}
-
-function showSaveEditToi(toi) {
-    loadTags(function () {
-        $viewSpace.empty().append(templates.saveEditToi.render(toi));
-    });
-}
-
-function loadTags(callback) {
-    $.post("/tags", function (result) {
-        console.log(result);
-        if (result.Status !== "Ok")
-        {
-            console.log("/tags error");
-            return;
-        }
-
-        state.tags = {};
-        state.tagsUpdated = new Date();
-        for (let i = 0, max = result.Result.length; i < max; i++){
-            let tag = result.Result[i];
-            tag.Icon = getMaterialIcon(tag.TagType);
-            state.tags[tag.TagId] = tag;
-        }
-        console.log(state.tags);
-        callback();
-    });
-}
-
-function showTagList() {
-    loadTags(function () {
-        let l = "";
-        for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x))
-                l += templates.tag.render(state.tags[x]);
-        }
-        $viewSpace.empty().append(templates.list.render({
-            title: "All tags",
-            list: l,
-            thing: "tag"
-        }));
-    });
-}
-
-
-
-function showCreateTag() {
-    let defaults = {
-        radius: 50,
-        latitude: 56.9385382,
-        longitude: 9.7409053
-    };
-    navigator.geolocation.getCurrentPosition(function (pos) {
-        console.log("got real coordinates");
-        defaults.latitude = pos.coords.latitude;
-        defaults.longitude = pos.coords.longitude;
-        $viewSpace.empty().append(templates.createTag.render(defaults));
-        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
-    }, function (err) {
-        console.log(err);
-        $viewSpace.empty().append(templates.createTag.render(defaults));
-        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
-    }, {timeout: 500});
-}
-
 function initMapPicker(pos) {
     if (pos === undefined || !pos.Latitude || !pos.Longitude || !pos.Radius) {
         pos = {
@@ -137,15 +57,122 @@ function initMapPicker(pos) {
     });
     $(".mapPicker").locationpicker("autosize");
 }
+function diffMinutes(dt2, dt1)
+{
+    let diff =(dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= 60;
+    return Math.abs(Math.round(diff));
+}
+function loadTags(callback) {
+
+    if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
+        $.post("/tags", function (tagResult) {
+            if (tagResult.Status !== "Ok")
+            {
+                console.log("/tags error");
+                return;
+            }
+            state.tags = {};
+            state.tagsUpdated = new Date();
+            for (let i = 0, max = tagResult.Result.length; i < max; i++){
+                let tag = tagResult.Result[i];
+                tag.Icon = getMaterialIcon(tag.TagType);
+                state.tags[tag.TagId] = tag;
+            }
+            callback();
+        });
+    }
+    else {
+        callback();
+    }
+}
+function loadTois(callback) {
+    console.log(state);
+    if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
+        $.get("/tois", function (toiResult) {
+            console.log(toiResult);
+            if (toiResult.Status !== "Ok")
+            {
+                console.log("/tois error");
+                return;
+            }
+            state.tois = {};
+            state.toisUpdated = new Date();
+            console.log(toiResult);
+            for (let i = 0, max = toiResult.Result.length; i < max; i++){
+                let toi = toiResult.Result[i];
+                state.tois[toi.Id] = toi;
+            }
+            callback();
+        });
+    }
+    else {
+        callback();
+    }
+}
+
+
+function getMaterialIcon(input) {
+    switch (input) {
+        case "GPS":
+            return "gps_fixed";
+        default:
+            return input.toLowerCase();
+    }
+}
+
+
+function showLogin() {
+    $viewSpace.empty().append(templates.login.render());
+}
+
+function showSaveEditToi(toi) {
+    loadTags(function () {
+        $viewSpace.empty().append(templates.saveEditToi.render(toi));
+    });
+}
+
+function showTagList() {
+    loadTags(function () {
+        let l = "";
+        for (let x in state.tags){
+            if (state.tags.hasOwnProperty(x))
+                l += templates.tag.render(state.tags[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            title: "All tags",
+            list: l,
+            thing: "tag"
+        }));
+    });
+}
+
+function showCreateTag() {
+    let defaults = {
+        radius: 50,
+        latitude: 56.9385382,
+        longitude: 9.7409053
+    };
+    navigator.geolocation.getCurrentPosition(function (pos) {
+        console.log("got real coordinates");
+        defaults.latitude = pos.coords.latitude;
+        defaults.longitude = pos.coords.longitude;
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, function (err) {
+        console.log(err);
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, {timeout: 500});
+}
 
 function showToiList() {
-    $.get("/tois", function (tags) {
+    loadTois(function () {
         let l = "";
-        state = { tags: [] };
-        for (let i = 0; i < tags.length; i++){
-            tags[i].Icon = getMaterialIcon(tags[i].TagType);
-            l += templates.tag.render(tags[i]);
-            state.tags[tags[i].TagId] = tags[i];
+        console.log(state);
+        for (let x in state.tois) {
+            if (state.tois.hasOwnProperty(x))
+                l += templates.toi.render(state.tois[x]);
         }
         $viewSpace.empty().append(templates.list.render({
             title: "All tois",

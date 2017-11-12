@@ -70,26 +70,21 @@ namespace TOIFeedServer.Managers
             return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated;
         }
         
-//        public async Task AllTags(RRequest req, RResponse res)
-//        {
-//            try
-//            {
-//                var tags = (await req.ServerPlugins.Use<DatabaseService>().GetAllToiModels()).Result;
-//                foreach (var tag in tags)
-//                {
-//                    Console.WriteLine(tag.Id);
-//                }
-//                var guids = await req.ParseBodyAsync<HashSet<Guid>>();
-//                var tagInfo = (await res.ServerPlugins.Use<DatabaseService>().GetToisByTagIds(guids)).Result
-//                    .Select(x => x.GetToiInfo()).ToList();
-//                Console.WriteLine(
-//                    $"Received request. Sending {tagInfo.Count} tags.");
-//                await res.SendJson(tagInfo);
-//            }
-//            catch (Exception e)
-//            {
-//                Console.WriteLine(e.Message + " " + e.StackTrace);
-//            }
-//        }
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
+        {
+            DbResult<IEnumerable<ToiModel>> result;
+            if (context == "")
+            {
+                result = await _dbService.GetAllToiModels();
+            }
+            else
+            {
+                var ids = context.Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(GuidParse)
+                    .ToHashSet();
+                result = await _dbService.GetToisByContext(ids);
+            }
+            return result;
+        }
     }
 }

@@ -72,6 +72,15 @@ namespace TOIFeedServer
                     await res.SendString("The tag could not be found.", status: 404);
             });
 
+            _server.Get("/tois", async (req, res) =>
+            {
+                var contextString = "";
+                if (req.Queries.ContainsKey("contexts"))
+                    contextString = req.Queries["contexts"][0];
+                var tois = await toiMan.GetToisByContext(contextString);
+                await res.SendJson(tois);
+            });
+            
             //TODO implement method for getting a single ToiModel
             _server.Post("/toi", async (req, res) =>
             {

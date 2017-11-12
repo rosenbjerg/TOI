@@ -85,5 +85,13 @@ namespace TOIFeedServer.Database
             var statusCode = result == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
             return new DbResult<ToiModel>(result, statusCode);
         }
+
+        // TODO Create test for this method 
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<Guid> contexts)
+        {
+            var result = _db.Tois.Include(t => t.ContextModel).Where(t => contexts.Contains(t.ContextModel.Id));
+            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
+        }
     }
 }
