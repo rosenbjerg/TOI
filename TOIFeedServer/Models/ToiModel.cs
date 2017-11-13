@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using TOIClasses;
 
 namespace TOIFeedServer.Models
@@ -10,8 +11,8 @@ namespace TOIFeedServer.Models
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public List<TagModel> TagModels { get; set; } = new List<TagModel>();
-        public List<ContextModel> ContextModels { get; set; } = new List<ContextModel>();
+        public List<ToiTagModel> TagModels { get; set; } = new List<ToiTagModel>();
+        public List<ToiContextModel> ContextModels { get; set; } = new List<ToiContextModel>();
 
         public object GetToiInfo()
         {
@@ -32,5 +33,16 @@ namespace TOIFeedServer.Models
         {
             return Id.GetHashCode();
         }
+
+        public ToiModel(){}
+
+        public ToiModel(List<ContextModel> ctx, List<TagModel> tags)
+        {
+            TagModels = tags.Select(t => new ToiTagModel(this, t)).ToList();
+            ContextModels = ctx.Select(c => new ToiContextModel(this, c)).ToList();
+        }
+
+        public void AddTag(TagModel tag) => TagModels.Add(new ToiTagModel(this, tag));
+        public void AddContext(ContextModel ctx) => ContextModels.Add(new ToiContextModel(this, ctx));
     }
 }

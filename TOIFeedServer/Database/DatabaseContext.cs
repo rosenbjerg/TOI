@@ -30,9 +30,17 @@ namespace TOIFeedServer.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ToiModel>().HasMany(t => t.ContextModels);
-            modelBuilder.Entity<ToiModel>().HasMany(t => t.TagModels).
-            modelBuilder.Entity<ToiModel>().HasMany(t => t.TagModels).WithOne();
+            //Setup keys for the two relationship entities
+            modelBuilder.Entity<ToiContextModel>().HasKey(tcm => new {tcm.ToiId, tcm.ContextId});
+            modelBuilder.Entity<ToiTagModel>().HasKey(ttm => new {ttm.ToiId, ttm.TagId});
+            
+            //Configure many-to-many between TOI and Context
+            modelBuilder.Entity<ToiModel>().HasMany(t => t.ContextModels).WithOne(tcm => tcm.Toi);
+            modelBuilder.Entity<ContextModel>().HasMany(cm => cm.Tois).WithOne(tcm => tcm.Context);
+            
+            //Configure many-to-many between TOI and Tag
+            modelBuilder.Entity<ToiModel>().HasMany(t => t.TagModels).WithOne(ttm => ttm.Toi);
+            modelBuilder.Entity<TagModel>().HasMany(t => t.Tois).WithOne(ttm => ttm.Tag);
         }
     }
 }

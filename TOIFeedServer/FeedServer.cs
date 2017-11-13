@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RedHttpServerCore;
@@ -25,7 +26,7 @@ namespace TOIFeedServer
             var tagMan = new TagManager(dbService);
             var toiMan = new ToiManager(dbService);
 
-            _server.Post("/tags", async (req, res) =>
+            _server.Post("/tag", async (req, res) =>
             {
                 var ids = await req.ParseBodyAsync<HashSet<Guid>>();
                 var tags = await tagMan.GetTags(ids);
@@ -39,7 +40,7 @@ namespace TOIFeedServer
                     await res.SendString("ERROR", status: 400);
                 }
             });
-            _server.Post("/createtag", async (req, res) =>
+            _server.Post("/tag", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 if (await tagMan.CreateTag(form))
@@ -51,7 +52,7 @@ namespace TOIFeedServer
                     await res.SendString("ERROR", status: 400);
                 }
             });
-            _server.Post("/updatetag", async (req, res) =>
+            _server.Put("/tag", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 if (await tagMan.UpdateTag(form))
@@ -63,16 +64,25 @@ namespace TOIFeedServer
                     await res.SendString("ERROR", status: 400);
                 }
             });
-            _server.Get("/getTag", async (req, res) =>
+            _server.Get("/tag", async (req, res) =>
             {
                 var tag = await tagMan.GetTag(req.Queries);
                 if (tag != null)
                     await res.SendJson(tag);
                 else
-                    await res.SendString("The tag could not be found.", status: 404);
+                    await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
+            });
+            _server.Get("/tag/all", async (req, res) =>
+            {
+                //TODO figure out where to place the filter in the request.
+                var tags = await tagMan.GetTags();
+                if (tags != null)
+                    await res.SendJson(tags);
+                else
+                    await res.SendString("There are no tags yet.", status: StatusCodes.Status404NotFound);
             });
 
-            _server.Get("/tois", async (req, res) =>
+            _server.Get("/toi/all", async (req, res) =>
             {
                 var contextString = "";
                 if (req.Queries.ContainsKey("contexts"))
@@ -80,8 +90,10 @@ namespace TOIFeedServer
                 var tois = await toiMan.GetToisByContext(contextString);
                 await res.SendJson(tois);
             });
-            
-            //TODO implement method for getting a single ToiModel
+            _server.Get("/toi", async (req, res) =>
+            {
+                //TODO implement method for getting a single ToiModel
+            });
             _server.Post("/toi", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
@@ -150,60 +162,37 @@ namespace TOIFeedServer
             
             var modelList = new List<ToiModel>
             {
-                new ToiModel
+                new ToiModel (new List<ContextModel> {testContext1}, new List<TagModel>{tag1, tag2})
                 {
                     Id = Guid.NewGuid(),
                     Description = "FA:C4:D1:03:8D:3D",
                     Title = "Tag 1",
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
-                    Url = "https://imgur.com/gallery/yWoZC",
-                    ContextModels = { testContext1 },
-                    
-                    TagModels = new List<TagModel>
-                    {
-                        tag1, tag2
-                    }
+                    Url = "https://imgur.com/gallery/yWoZC"
                 },
-                new ToiModel
+                new ToiModel (new List<ContextModel> {testContext1}, new List<TagModel>{tag2})
                 {
                     Id = Guid.NewGuid(),
                     Description = "CC:14:54:01:52:82",
                     Title = "Tag 2",
                     Image = "https://i.imgur.com/6UwO2nF.mp4",
-                    Url = "https://imgur.com/gallery/6UwO2nF",
-                    ContextModels = { testContext1 },
-                    TagModels = new List<TagModel>
-                    {
-                        tag2
-                    }
+                    Url = "https://imgur.com/gallery/6UwO2nF"
                 },
-                new ToiModel
+                new ToiModel (new List<ContextModel> {testContext2}, new List<TagModel>{tag3})
                 {
                     Id = Guid.NewGuid(),
                     Description = "CB:FF:B9:6C:A4:7D",
                     Title = "Tag 3",
                     Image = "https://i.imgur.com/aNV3gzq.png",
-                    Url = "https://imgur.com/gallery/aNV3gzq",
-                    ContextModels = { testContext2 },
-
-                    TagModels = new List<TagModel>
-                    {
-                        tag3
-                    }
+                    Url = "https://imgur.com/gallery/aNV3gzq"
                 },
-                new ToiModel
+                new ToiModel (new List<ContextModel> {testContext1, testContext2}, new List<TagModel>{tag4})
                 {
                     Id = Guid.NewGuid(),
                     Description = "F4:B4:15:05:42:05",
                     Title = "Tag 4",
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",
-                    Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59",
-                    ContextModels = { testContext1, testContext2 },
-
-                    TagModels = new List<TagModel>
-                    {
-                        tag4
-                    }
+                    Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59"
                 }
             };
             await _server.Plugins.Use<DatabaseService>().InsertContexts(new List<ContextModel> {testContext1, testContext2});

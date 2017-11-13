@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -25,6 +26,8 @@ namespace TOIFeedServer.Models
         [StringLength(70)]
         [Required]
         public string Title { get; set; }
+        
+        public ICollection<ToiContextModel> Tois { get; set; }
 
         public override bool Equals(object obj)
         {

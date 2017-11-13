@@ -30,6 +30,18 @@ function post(url, data, success, error) {
         error: error
     });
 }
+function put(url, data, success, error) {
+    $.ajax({
+        url: url,
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: "PUT",
+        success: success,
+        error: error
+    });
+}
 
 function initMapPicker(pos) {
     if (pos === undefined || !pos.Latitude || !pos.Longitude || !pos.Radius) {
@@ -66,10 +78,10 @@ function diffMinutes(dt2, dt1)
 function loadTags(callback) {
 
     if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
-        $.post("/tags", function (tagResult) {
+        $.get("/tag/all", function (tagResult) {
             if (tagResult.Status !== "Ok")
             {
-                console.log("/tags error");
+                console.log("/tag error");
                 return;
             }
             state.tags = {};
@@ -88,7 +100,8 @@ function loadTags(callback) {
 }
 function loadTois(callback) {
     if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
-        $.get("/tois", function (toiResult) {
+        $.get("/toi/all", function (toiResult) {
+            console.log(toiResult);
             if (toiResult.Status !== "Ok")
             {
                 console.log("/tois error");
@@ -222,7 +235,7 @@ $viewSpace.on("click", ".toi", function () {
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     var form = new FormData(this);
-    post("/createtoi", form, function (data) {
+    post("/toi", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
@@ -235,7 +248,7 @@ $viewSpace.on("submit", "create-tag-form", function (ev) {
         showPopup()
         return;
     }
-    post("/createtag", form, function () {
+    post("/tag", form, function () {
 
     })
     // aja
@@ -245,7 +258,7 @@ $viewSpace.on("submit", "#edit-tag-form", function (ev) {
     let form = new FormData(this);
     form.append("id", $(this).data("tag-id"));
     form.append("type", $(this).data("tag-type"));
-    post("/edittag", form, function (data) {
+    put("/tag", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);

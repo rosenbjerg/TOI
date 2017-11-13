@@ -1,5 +1,6 @@
 ﻿    using System;
-using System.ComponentModel.DataAnnotations;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
 
 namespace TOIFeedServer.Models
 {
@@ -27,6 +28,8 @@ namespace TOIFeedServer.Models
         public double Longitude { get; set; }   
 
         public int Radius { get; set; }
+        
+        public ICollection<ToiTagModel> Tois { get; set; }
 
         public override bool Equals(object obj)
         {

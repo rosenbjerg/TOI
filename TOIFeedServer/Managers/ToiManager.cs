@@ -34,16 +34,19 @@ namespace TOIFeedServer.Managers
             var tags = await _dbService.GetTagsFromId(tagIds);
             if (contexts.Status != DatabaseStatusCode.Ok || tags.Status != DatabaseStatusCode.Ok)
                 return null;
-            return new ToiModel
+            
+            var tm = new ToiModel
             {
                 Id = Guid.NewGuid(),
-                ContextModels = contexts.Result.ToList(),
-                TagModels = tags.Result.ToList(),
                 Description = form["description"],
                 Title = form["title"],
                 Url = form["url"],
                 Image = form.ContainsKey("image") ? form["image"] : StringValues.Empty
             };
+            tm.ContextModels = contexts.Result.Select(c => new ToiContextModel(tm, c)).ToList();
+            tm.TagModels = tags.Result.Select(t => new ToiTagModel(tm, t)).ToList();
+
+            return tm;
         }
 
         public async Task<Guid> CreateToi(IFormCollection form)
