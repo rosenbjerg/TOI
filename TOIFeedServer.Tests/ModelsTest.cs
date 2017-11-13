@@ -51,22 +51,21 @@ namespace TOIFeedServer.Tests
                 new TagModel(_guids[0], TagType.Bluetooth)
                 {
                     Name = "test1",
-
-                    Longtitude = 45.00,
+                    Longitude = 45.00,
                     Latitude = 50.00
                 },
 
                 new TagModel(_guids[1], TagType.Bluetooth)
                 {
                     Name = "test2",
-                    Longtitude = 40,
+                    Longitude = 40,
                     Latitude = 45
                 },
 
                 new TagModel(_guids[2], TagType.Gps)
                 {
                     Name = "test3",
-                    Longtitude = 30,
+                    Longitude = 30,
                     Latitude = 20
                 }
             };
