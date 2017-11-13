@@ -9,6 +9,8 @@ let templates = {
     tag : JsT.loadById("tag-template"),
     toi : JsT.loadById("toi-template"),
     tagCell : JsT.loadById("tag-table-cell"),
+    saveEditContext : JsT.loadById("save-edit-context-template"),
+    context : JsT.loadById("context-template"),
 
 };
 let modalTemplates = {
@@ -31,6 +33,14 @@ function post(url, data, success, error) {
     });
 }
 
+function getMaterialIcon(input) {
+    switch (input) {
+        case "GPS":
+            return "gps_fixed";
+        default:
+            return input.toLowerCase();
+    }
+}
 function initMapPicker(pos) {
     if (pos === undefined || !pos.Latitude || !pos.Longitude || !pos.Radius) {
         pos = {
@@ -57,12 +67,12 @@ function initMapPicker(pos) {
     });
     $(".mapPicker").locationpicker("autosize");
 }
-function diffMinutes(dt2, dt1)
-{
+function diffMinutes(dt2, dt1) {
     let diff =(dt2.getTime() - dt1.getTime()) / 1000;
     diff /= 60;
     return Math.abs(Math.round(diff));
 }
+
 function loadTags(callback) {
 
     if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
@@ -112,43 +122,36 @@ function loadTois(callback) {
         callback();
     }
 }
-
-
-function getMaterialIcon(input) {
-    switch (input) {
-        case "GPS":
-            return "gps_fixed";
-        default:
-            return input.toLowerCase();
+function loadContexts(callback) {
+    if (!state.contextsUpdated || diffMinutes(new Date(), state.contextsUpdated) > 1){
+        $.get("/contexts", function (contextResult) {
+            if (contextResult.Status !== "Ok")
+            {
+                console.log("/contexts error");
+                return;
+            }
+            state.contexts = {};
+            state.contextsUpdated = new Date();
+            for (let i = 0, max = contextResult.Result.length; i < max; i++){
+                state.contexts[context.Id] = context;
+            }
+            callback();
+        });
+    }
+    else {
+        callback();
     }
 }
-
 
 function showLogin() {
     $viewSpace.empty().append(templates.login.render());
 }
-
 function showSaveEditToi(toi) {
-    loadTags(function () {
-        $viewSpace.empty().append(templates.saveEditToi.render(toi));
-    });
+    $viewSpace.empty().append(templates.saveEditToi.render(toi));
 }
-
-function showTagList() {
-    loadTags(function () {
-        let l = "";
-        for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x))
-                l += templates.tag.render(state.tags[x]);
-        }
-        $viewSpace.empty().append(templates.list.render({
-            title: "All tags",
-            list: l,
-            thing: "tag"
-        }));
-    });
+function showSaveEditContext(context) {
+    $viewSpace.empty().append(templates.saveEditContext.render(toi));
 }
-
 function showCreateTag() {
     let defaults = {
         radius: 50,
@@ -182,6 +185,34 @@ function showToiList() {
         }));
     });
 }
+function showTagList() {
+    loadTags(function () {
+        let l = "";
+        for (let x in state.tags){
+            if (state.tags.hasOwnProperty(x))
+                l += templates.tag.render(state.tags[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            title: "All tags",
+            list: l,
+            thing: "tag"
+        }));
+    });
+}
+function showContextList() {
+    loadContexts(function () {
+        let l = "";
+        for (let x in state.contexts) {
+            if (state.contexts.hasOwnProperty(x))
+                l += templates.context.render(state.contexts[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            title: "All Contexts",
+            list: l,
+            thing: "context"
+        }));
+    });
+}
 
 function showPopup(html) {
     $.magnificPopup.open({
@@ -205,6 +236,8 @@ $("#show-tags").click(showTagList);
 $("#create-tag").click(showCreateTag);
 $("#show-tois").click(showToiList);
 $("#create-toi").click(showSaveEditToi);
+$("#show-contexts").click(showContextList);
+$("#create-context").click(showSaveEditContext);
 
 
 $viewSpace.on("click", ".tag", function () {

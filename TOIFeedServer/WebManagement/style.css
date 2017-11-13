@@ -9,9 +9,14 @@ textarea {
     /*width: 500px; */
     height: 400px;
 }
-
+input[type=submit] {
+    float: right;
+}
+h3 {
+    font-family: 'Comfortaa', sans-serif;
+}
 #login-form {
-    width: 500px;
+    max-width: 500px;
     margin:auto;
 }
 
@@ -27,27 +32,36 @@ textarea {
 .header * {
     margin-top: 10px;
     color: #FAFAFA;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .header h3 {
-
-    font-family: Comfortaa, serif;
+    padding-left: 12px;
+    font-family: 'Comfortaa', serif;
     margin-bottom: 0;
 }
 .header-menu, .header-menu-button {
     margin: 0;
     padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13pt;
 }
 .header {
     background-color: rgba(21,101,192,1);
-    -webkit-box-shadow: 0px -2px 30px 22px rgba(21,101,192,1);
-    -moz-box-shadow: 0px -2px 30px 22px rgba(21,101,192,1);
-    box-shadow: 0px -2px 30px 22px rgba(21,101,192,1);
+    -webkit-box-shadow: 0 -2px 30px 22px rgba(21,101,192,1);
+    -moz-box-shadow: 0 -2px 30px 22px rgba(21,101,192,1);
+    box-shadow: 0 -2px 30px 22px rgba(21,101,192,1);
 }
 .header-menu-button {
     cursor: pointer;
     display: inline-block;
     padding: 1px 20px;
     transition: background-color 50ms;
+    border: solid 1px #64B5F6;
+    border-radius: 1px;
+    margin: 4px 1px 1px;
 }
 .header-menu-button:hover {
     transition: background-color 150ms;
