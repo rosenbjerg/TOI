@@ -7,20 +7,11 @@ namespace TOIFeedServer.Models
 {
     public class ToiModel : TagInfo
     {
-        public ToiModel()
-        {
-            
-        }
-        public ToiModel(Guid id)
-        {
-            Id = id;
-        }
-
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public List<TagModel> TagModels { get; set; }
-        public ContextModel ContextModel { get; set; }
+        public List<TagModel> TagModels { get; set; } = new List<TagModel>();
+        public List<ContextModel> ContextModels { get; set; } = new List<ContextModel>();
 
         public object GetToiInfo()
         {

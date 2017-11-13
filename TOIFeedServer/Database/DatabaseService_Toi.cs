@@ -28,7 +28,7 @@ namespace TOIFeedServer.Database
             {
                 return DatabaseStatusCode.AlreadyContainsElement;
             }
-            if (toiModelList.Count() != toiModelList.Distinct().Count())
+            if (toiModelList.Count != toiModelList.Distinct().Count())
             {
                 return DatabaseStatusCode.ListContainsDuplicate;
             }
@@ -47,8 +47,11 @@ namespace TOIFeedServer.Database
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetAllToiModels()
         {
-            var result = _db.Tois as IQueryable<ToiModel>;
-            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            var result = await _db.Tois
+                .Include(t => t.ContextModels)
+                .Include(t => t.TagModels)
+                .ToListAsync();
+            var statusCode = result.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
 
         }
@@ -60,18 +63,16 @@ namespace TOIFeedServer.Database
             {
                 return DatabaseStatusCode.NoElement;
             }
-            if (toi.ContextModel == null && fetched.ContextModel != null)
-                fetched.ContextModel = null;
-            else if (toi.ContextModel != null && fetched.ContextModel == null)
-                fetched.ContextModel = toi.ContextModel;
-            else if (toi.ContextModel != null && !toi.ContextModel.Equals(fetched.ContextModel))
-                fetched.ContextModel = (await GetContextFromId(toi.ContextModel.Id)).Result;
-
+            
+            
             fetched.Description = toi.Description;
             fetched.Image = toi.Image;
             fetched.Title = toi.Title;
             fetched.Url = toi.Url;
 
+            fetched.ContextModels.RemoveAll(t => !toi.ContextModels.Contains(t));
+            fetched.ContextModels.AddRange(toi.ContextModels.Intersect(fetched.ContextModels));
+            
             fetched.TagModels.RemoveAll(t => !toi.TagModels.Contains(t));
             fetched.TagModels.AddRange(toi.TagModels.Intersect(fetched.TagModels));
             _db.Tois.Update(fetched);
@@ -89,7 +90,10 @@ namespace TOIFeedServer.Database
         // TODO Create test for this method 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<Guid> contexts)
         {
-            var result = _db.Tois.Include(t => t.ContextModel).Where(t => contexts.Contains(t.ContextModel.Id));
+            var result = _db.Tois
+                .Include(t => t.ContextModels)
+                .Include(t => t.TagModels)
+                .Where(t => contexts.Contains(t.Id));
             var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
         }

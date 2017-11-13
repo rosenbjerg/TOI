@@ -12,7 +12,7 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20171110135829_TOI")]
+    [Migration("20171113085933_TOI")]
     partial class TOI
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,7 +32,11 @@ namespace TOIFeedServer.Migrations
                         .IsRequired()
                         .HasMaxLength(70);
 
+                    b.Property<Guid?>("ToiModelId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ToiModelId");
 
                     b.ToTable("Contexts");
                 });
@@ -66,8 +70,6 @@ namespace TOIFeedServer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("ContextModelId");
-
                     b.Property<string>("Description");
 
                     b.Property<string>("Image");
@@ -78,9 +80,14 @@ namespace TOIFeedServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContextModelId");
-
                     b.ToTable("Tois");
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ContextModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.ToiModel")
+                        .WithMany("ContextModels")
+                        .HasForeignKey("ToiModelId");
                 });
 
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
@@ -88,13 +95,6 @@ namespace TOIFeedServer.Migrations
                     b.HasOne("TOIFeedServer.Models.ToiModel")
                         .WithMany("TagModels")
                         .HasForeignKey("ToiModelId");
-                });
-
-            modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
-                {
-                    b.HasOne("TOIFeedServer.Models.ContextModel", "ContextModel")
-                        .WithMany()
-                        .HasForeignKey("ContextModelId");
                 });
 #pragma warning restore 612, 618
         }

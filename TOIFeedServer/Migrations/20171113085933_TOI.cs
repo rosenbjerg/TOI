@@ -9,24 +9,10 @@ namespace TOIFeedServer.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Contexts",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "BLOB", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 70, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Contexts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tois",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "BLOB", nullable: false),
-                    ContextModelId = table.Column<Guid>(type: "BLOB", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     Image = table.Column<string>(type: "TEXT", nullable: true),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
@@ -35,10 +21,24 @@ namespace TOIFeedServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tois", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Contexts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "BLOB", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Title = table.Column<string>(type: "TEXT", maxLength: 70, nullable: false),
+                    ToiModelId = table.Column<Guid>(type: "BLOB", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contexts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tois_Contexts_ContextModelId",
-                        column: x => x.ContextModelId,
-                        principalTable: "Contexts",
+                        name: "FK_Contexts_Tois_ToiModelId",
+                        column: x => x.ToiModelId,
+                        principalTable: "Tois",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -67,26 +67,26 @@ namespace TOIFeedServer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tags_ToiModelId",
-                table: "Tags",
+                name: "IX_Contexts_ToiModelId",
+                table: "Contexts",
                 column: "ToiModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tois_ContextModelId",
-                table: "Tois",
-                column: "ContextModelId");
+                name: "IX_Tags_ToiModelId",
+                table: "Tags",
+                column: "ToiModelId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Contexts");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "Tois");
-
-            migrationBuilder.DropTable(
-                name: "Contexts");
         }
     }
 }

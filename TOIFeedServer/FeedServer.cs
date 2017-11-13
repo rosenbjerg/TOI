@@ -113,6 +113,41 @@ namespace TOIFeedServer
             if (_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
                 return;
 
+            var testContext1 = new ContextModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "Grown-up stuff"
+            };
+            var testContext2 = new ContextModel
+            {
+                Id = Guid.NewGuid(),
+                Title = "For børn"
+            };
+            var tag1 = new TagModel
+            {
+                Name = "F-Klubben",
+                TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
+                TagType = TagType.Bluetooth
+            };
+            var tag2 = new TagModel
+            {
+                Name = "Cassiopeia",
+                TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
+                TagType = TagType.Bluetooth
+            };
+            var tag3 = new TagModel
+            {
+                Name = "At Marius place",
+                TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
+                TagType = TagType.Bluetooth
+            };
+            var tag4 = new TagModel
+            {
+                Name = "By the bin",
+                TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
+                TagType = TagType.Bluetooth
+            };
+            
             var modelList = new List<ToiModel>
             {
                 new ToiModel
@@ -122,15 +157,11 @@ namespace TOIFeedServer
                     Title = "Tag 1",
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
                     Url = "https://imgur.com/gallery/yWoZC",
-
+                    ContextModels = { testContext1 },
+                    
                     TagModels = new List<TagModel>
                     {
-                        new TagModel
-                        {
-                            Name = "F-Klubben",
-                            TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
-                            TagType = TagType.Bluetooth
-                        }
+                        tag1, tag2
                     }
                 },
                 new ToiModel
@@ -140,14 +171,10 @@ namespace TOIFeedServer
                     Title = "Tag 2",
                     Image = "https://i.imgur.com/6UwO2nF.mp4",
                     Url = "https://imgur.com/gallery/6UwO2nF",
+                    ContextModels = { testContext1 },
                     TagModels = new List<TagModel>
                     {
-                        new TagModel
-                        {
-                            Name = "Cassiopeia",
-                            TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
-                            TagType = TagType.Bluetooth
-                        }
+                        tag2
                     }
                 },
                 new ToiModel
@@ -157,15 +184,11 @@ namespace TOIFeedServer
                     Title = "Tag 3",
                     Image = "https://i.imgur.com/aNV3gzq.png",
                     Url = "https://imgur.com/gallery/aNV3gzq",
+                    ContextModels = { testContext2 },
 
                     TagModels = new List<TagModel>
                     {
-                        new TagModel
-                        {
-                            Name = "At Marius place",
-                            TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
-                            TagType = TagType.Bluetooth
-                        }
+                        tag3
                     }
                 },
                 new ToiModel
@@ -175,18 +198,15 @@ namespace TOIFeedServer
                     Title = "Tag 4",
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",
                     Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59",
+                    ContextModels = { testContext1, testContext2 },
 
                     TagModels = new List<TagModel>
                     {
-                        new TagModel
-                        {
-                            Name = "By the bin",
-                            TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
-                            TagType = TagType.Bluetooth
-                        }
+                        tag4
                     }
                 }
             };
+            await _server.Plugins.Use<DatabaseService>().InsertContexts(new List<ContextModel> {testContext1, testContext2});
             await _server.Plugins.Use<DatabaseService>().InsertToiModelList(modelList);
         }
 

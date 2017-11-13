@@ -130,6 +130,16 @@
     </form>
 </template>
 
+<template id="save-edit-context-context">
+    <h3>{{action}} context</h3>
+    <form id="save-edit-context-form">
+        <label>Context name</label>
+        <input class="u-full-width" type="text" required="required" value="{{Name}}" name="name">
+        <label>Description</label>
+        <textarea class="u-full-width" required="required" name="desc">{{Description}}</textarea>
+        <input type="submit" value="Save context">
+    </form>
+</template>
 
 <template id="save-edit-toi-template">
         <form id="save-edit-toi-form">
@@ -209,10 +219,10 @@
             <tbody>
             <tr>
                 <td>
-                    <strong>{{Title}}</strong>
+                    <strong class="truncate">{{Title}}</strong>
                 </td>
                 <td rowspan="4">
-                    <img src="{{Image}}" alt="{{Title}}">
+                    <img src="{{Image}}" alt="No image">
                 </td>
             </tr>
             <tr>
@@ -220,7 +230,7 @@
             </tr>
             <tr>
                 <td>
-                    <i>Context: {{Context}}</i>
+                    <i class="truncate">Contexts: {{Contexts}}</i>
                 </td>
             </tr>
             <tr>
@@ -231,6 +241,10 @@
             </tbody>
         </table>
     </li>
+</template>
+
+<template id="context-template">
+
 </template>
 
 

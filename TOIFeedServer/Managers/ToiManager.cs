@@ -23,28 +23,21 @@ namespace TOIFeedServer.Managers
 
         private async Task<ToiModel> ValidateToiForm(IFormCollection form)
         {
-            var fields = new List<string> { "context", "tags", "title", "url", "description" };
+            var fields = new List<string> { "contexts", "tags", "title", "url", "description" };
 
             if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
-            if (!Guid.TryParseExact(form["context"].ToString().PadLeft(32, '0'), "N", out var contextId)) return null;
-            HashSet<Guid> toiTags;
-            try
-            {
-                toiTags = JsonConvert.DeserializeObject<List<string>>(form["tags"]).Select(GuidParse).ToHashSet();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return null;
-            }
 
-            var ctx = await _dbService.GetContextFromId(contextId);
-            var tags = await _dbService.GetTagsFromId(toiTags);
-            
+            var contextIds = ParseGuids(form["contexts"][0]).ToHashSet();
+            var tagIds = ParseGuids(form["tags"][0]).ToHashSet();
+        
+            var contexts = await _dbService.GetContextsFromId(contextIds);
+            var tags = await _dbService.GetTagsFromId(tagIds);
+            if (contexts.Status != DatabaseStatusCode.Ok || tags.Status != DatabaseStatusCode.Ok)
+                return null;
             return new ToiModel
             {
                 Id = Guid.NewGuid(),
-                ContextModel = ctx.Result,
+                ContextModels = contexts.Result.ToList(),
                 TagModels = tags.Result.ToList(),
                 Description = form["description"],
                 Title = form["title"],
@@ -57,10 +50,7 @@ namespace TOIFeedServer.Managers
         {
             var toi = await ValidateToiForm(form);
             if (toi == null) return Guid.Empty;
-            else if (await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created)
-                return toi.Id;
-            else
-                return Guid.Empty;
+            return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi.Id : Guid.Empty;
         }
 
         public async Task<bool> UpdateToi(IFormCollection form)

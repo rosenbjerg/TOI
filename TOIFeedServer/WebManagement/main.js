@@ -87,10 +87,8 @@ function loadTags(callback) {
     }
 }
 function loadTois(callback) {
-    console.log(state);
     if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
         $.get("/tois", function (toiResult) {
-            console.log(toiResult);
             if (toiResult.Status !== "Ok")
             {
                 console.log("/tois error");
@@ -98,10 +96,14 @@ function loadTois(callback) {
             }
             state.tois = {};
             state.toisUpdated = new Date();
-            console.log(toiResult);
             for (let i = 0, max = toiResult.Result.length; i < max; i++){
                 let toi = toiResult.Result[i];
+                toi.TagAmount = toi.TagModels.length;
+                toi.Contexts = toi.ContextModels
+                    .map(function (t) { return t.Title })
+                    .join(', ');
                 state.tois[toi.Id] = toi;
+                console.log(toi);
             }
             callback();
         });
@@ -169,7 +171,6 @@ function showCreateTag() {
 function showToiList() {
     loadTois(function () {
         let l = "";
-        console.log(state);
         for (let x in state.tois) {
             if (state.tois.hasOwnProperty(x))
                 l += templates.toi.render(state.tois[x]);

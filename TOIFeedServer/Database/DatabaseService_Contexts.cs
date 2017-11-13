@@ -69,5 +69,12 @@ namespace TOIFeedServer.Database
             await _db.SaveChangesAsync();
             return DatabaseStatusCode.Ok;
         }
+
+        public async Task<DbResult<IEnumerable<ContextModel>>> GetContextsFromId(HashSet<Guid> contextIds)
+        {
+            var context = _db.Contexts.Where(c => contextIds.Contains(c.Id));
+            var status = await context.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return new DbResult<IEnumerable<ContextModel>>(context, status);
+        }
     }
 }

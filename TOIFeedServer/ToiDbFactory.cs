@@ -39,7 +39,6 @@ namespace TOIFeedServer
             {
                 context.Database.Migrate();
             }
-
             return new DatabaseContext(options);
         }
       

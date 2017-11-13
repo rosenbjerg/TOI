@@ -18,7 +18,6 @@ namespace TOIFeedServer.Database
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,6 +27,12 @@ namespace TOIFeedServer.Database
                 optionsBuilder.UseSqlite("Data Source=toi.db");
             }
         }
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ToiModel>().HasMany(t => t.ContextModels);
+            modelBuilder.Entity<ToiModel>().HasMany(t => t.TagModels).
+            modelBuilder.Entity<ToiModel>().HasMany(t => t.TagModels).WithOne();
+        }
     }
 }
