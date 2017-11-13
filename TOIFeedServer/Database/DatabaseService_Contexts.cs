@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
@@ -11,70 +8,37 @@ namespace TOIFeedServer.Database
 
     public partial class DatabaseService
     {
-        private DatabaseContext _db;
-        public DatabaseService(bool test = false)
+        public async Task<DatabaseStatusCode> InsertContext(params ContextModel[] contexts)
         {
-            var tdf = new ToiDbFactory();
-            _db = test ? tdf.CreateTestContext() : tdf.CreateContext();
-        }
-
-
-        public async Task<DatabaseStatusCode> InsertContext(ContextModel context)
-        {
-            if (await _db.Contexts.FindAsync(context.Id) != null)
-            {
-                return DatabaseStatusCode.AlreadyContainsElement;
-            }
-            await _db.Contexts.AddAsync(context);
-            await _db.SaveChangesAsync();
+            await _ctxs.InsertManyAsync(contexts);
             return DatabaseStatusCode.Created;
         }
 
         public async Task<DbResult<ContextModel>> GetContextFromId(string id)
         {
-            var context = await _db.Contexts.SingleOrDefaultAsync(t => t.Id == id);
+            var context = await _ctxs.FindAsync(id);
             var status = context == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
-            return new DbResult<ContextModel>(context, status);
+            return new DbResult<ContextModel>(await context.FirstOrDefaultAsync(), status);
         }
 
-        public async Task<DatabaseStatusCode> InsertContexts(List<ContextModel> contexts)
+        public async Task<DatabaseStatusCode> UpdateContext(ContextModel context)
         {
-            if (_db.Contexts.Any(t => contexts.Contains(t)))
-            {
-                return DatabaseStatusCode.AlreadyContainsElement;
-            }
-            if (contexts.Count() != contexts.Distinct().Count())
-            {
-                return DatabaseStatusCode.ListContainsDuplicate;
-            }
-            await _db.Contexts.AddRangeAsync(contexts);
-            await _db.SaveChangesAsync();
+            await _ctxs.FindOneAndReplaceAsync(c => c.Id == context.Id, context);
             return DatabaseStatusCode.Created;
         }
 
         public async Task<DbResult<IEnumerable<ContextModel>>> GetAllContexts()
         {
-            var list = await _db.Contexts.ToListAsync();
+            var list = await _ctxs.Find(c => true).ToListAsync();
             var statusCode = list.Count == 0 ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
             return new DbResult<IEnumerable<ContextModel>>(list, statusCode);
         }
 
-
-
-        public async Task<DatabaseStatusCode> TruncateDatabase()
-        {
-            _db.RemoveRange(_db.Tags);
-            _db.RemoveRange(_db.Tois);
-            _db.RemoveRange(_db.Contexts);
-            await _db.SaveChangesAsync();
-            return DatabaseStatusCode.Ok;
-        }
-
         public async Task<DbResult<IEnumerable<ContextModel>>> GetContextsFromId(HashSet<string> contextIds)
         {
-            var context = _db.Contexts.Where(c => contextIds.Contains(c.Id));
+            var context = await _ctxs.FindAsync(c => contextIds.Contains(c.Id));
             var status = await context.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
-            return new DbResult<IEnumerable<ContextModel>>(context, status);
+            return new DbResult<IEnumerable<ContextModel>>(context.Current, status);
         }
     }
 }

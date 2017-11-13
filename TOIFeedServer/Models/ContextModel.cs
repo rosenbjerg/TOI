@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 
 namespace TOIFeedServer.Models
@@ -18,13 +16,13 @@ namespace TOIFeedServer.Models
             Description = description;
         }
 
-        [Key]
+        [BsonId]
         public string Id { get; set; }
 
+        [BsonElement(nameof(Description))]
         public string Description { get; set; }
 
-        [StringLength(70)]
-        [Required]
+        [BsonElement(nameof(Title))]
         public string Title { get; set; }
 
         public override bool Equals(object obj)

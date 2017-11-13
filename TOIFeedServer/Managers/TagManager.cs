@@ -28,7 +28,7 @@ namespace TOIFeedServer.Managers
             if (ids == null)
                 return await _dbService.GetAllTags();
             else
-                return await _dbService.GetTagsFromId(ids);
+                return await _dbService.GetTagsFromIds(ids);
         }
 
         

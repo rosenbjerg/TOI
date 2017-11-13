@@ -121,25 +121,19 @@ namespace TOIFeedServer.Tests
             Assert.AreEqual(TagType.Bluetooth, res.Result.TagType);
         }
 
-        [TestMethod]
-        public async Task ReturnCorrectNumberTagType()
+        private async Task InsertTags(IEnumerable<TagModel> tags)
         {
-            //Arrange
-
-            var collection = new List<TagModel>()
+            foreach (var t in tags)
             {
-                _tags[0],
-                _tags[1],
-                _tags[2]
-            };
-
-            //Act
-            await _dbs.InsertTags(collection);
-            var res = _dbs.GetTagsFromType(TagType.Bluetooth);
-            res.Wait();
-
-            //Assert
-            Assert.AreEqual(2, res.Result.Result.Count());
+                await _dbs.InsertTag(t);
+            }
+        }
+        private async Task InsertContexts(IEnumerable<ContextModel> ctxts)
+        {
+            foreach (var t in ctxts)
+            {
+                await _dbs.InsertContext(t);
+            }
         }
 
         [TestMethod]
@@ -159,7 +153,7 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task SaveMultipleContexts_CorrectSavedModel_ModelSaved()
         {
-            var collection = new List<ContextModel>()
+            var collection = new[]
             {
                 _contexts[0],
                 _contexts[1],
@@ -167,7 +161,7 @@ namespace TOIFeedServer.Tests
             };
 
             // Act
-            await _dbs.InsertContexts(collection);
+            await _dbs.InsertContext(collection);
             var res = await _dbs.GetAllContexts();
 
             // Assert
@@ -193,13 +187,13 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task InsertToiModelListReturnDataBaseStatusCodeListContainsDuplicates()
         {
-            var toiModels = new List<ToiModel>
+            var toiModels = new []
             {
                 _tois[0],
                 _tois[0]
             };
 
-            var result = await _dbs.InsertToiModelList(toiModels);
+            var result = await _dbs.InsertToiModel(toiModels);
 
             Assert.AreEqual(DatabaseStatusCode.ListContainsDuplicate, result);
         }
@@ -207,25 +201,25 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task GetMultipleToisFromMultipleTags()
         {
-            var tags = new List<TagModel>()
+            var tags = new []
             {
                 _tags[0],
                 _tags[1]
             };
-            var tois = new List<ToiModel>()
+            var tois = new []
             {
                 _tois[0],
                 _tois[1]
             };
-            var tagsId = new List<string>()
+            var tagsId = new []
             {
                 _tags[0].TagId,
                 _tags[1].TagId
             };
 
 
-            await _dbs.InsertTags(tags);
-            await _dbs.InsertToiModelList(tois);
+            await _dbs.InsertTag(tags);
+            await _dbs.InsertToiModel(tois);
 
             var result = await _dbs.GetToisByTagIds(tagsId);
 

@@ -1,57 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using TOIClasses;
 
 namespace TOIFeedServer.Models
 {
     public class ToiModel : TagInfo
     {
-        public class StringId
-        {
-            [Key]
-            public Guid Key { get; set; }
-
-            public string Value { get; set; }
-
-            public StringId()
-            {
-                
-            }
-
-            public StringId(string value)
-            {
-                Key = Guid.NewGuid();
-                Value = value;
-            }
-
-            public static implicit operator string(StringId si)
-            {
-                return si.Value;
-            }
-
-            public static implicit operator StringId(string s)
-            {
-                return new StringId(s);
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is StringId si && si.Value == this.Value;
-            }
-
-            public override int GetHashCode()
-            {
-                return Value.GetHashCode();
-            }
-        }
-
-        [Key]
+        [BsonId]
         public string Id { get; set; }
 
-        public List<StringId> Tags { get; set; }
-        public List<StringId> Contexts { get; set; }
+        [BsonElement(nameof(Tags))]
+        public List<string> Tags { get; set; }
+        [BsonElement(nameof(Contexts))]
+        public List<string> Contexts { get; set; }
 
         public object GetToiInfo()
         {

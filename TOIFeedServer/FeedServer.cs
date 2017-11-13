@@ -109,8 +109,6 @@ namespace TOIFeedServer
             {
                 FillMockDatabase();
             }
-
-            _server.ConfigureServices = s => { s.AddDbContext<DatabaseContext>(); };
         }
 
         private async void FillMockDatabase()
@@ -188,8 +186,16 @@ namespace TOIFeedServer
                     Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59"
                 }
             };
-            await _server.Plugins.Use<DatabaseService>().InsertContexts(new List<ContextModel> {testContext1, testContext2});
-            await _server.Plugins.Use<DatabaseService>().InsertToiModelList(modelList);
+
+            var db = _server.Plugins.Use<DatabaseService>();
+            foreach (var cm in new List<ContextModel> {testContext1, testContext2})
+            {
+                await db.InsertContext(cm);
+            }
+            foreach (var m in modelList)
+            {
+                await db.InsertToiModel(m);
+            }
         }
 
         public void Start()

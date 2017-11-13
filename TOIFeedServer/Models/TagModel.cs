@@ -1,6 +1,6 @@
-﻿    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
+﻿
+
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace TOIFeedServer.Models
 {
@@ -16,17 +16,22 @@ namespace TOIFeedServer.Models
             TagType = type;
         }
 
-        [Key]
+        [BsonId]
         public string TagId { get; set; }
 
+        [BsonElement(nameof(Name))]
         public string Name { get; set; }
 
+        [BsonElement(nameof(TagType))]
         public TagType TagType { get; set; }
 
+        [BsonElement(nameof(Latitude))]
         public double Latitude { get; set; }
 
-        public double Longitude { get; set; }   
+        [BsonElement(nameof(Longitude))]
+        public double Longitude { get; set; }
 
+        [BsonElement(nameof(Radius))]
         public int Radius { get; set; }
 
         public override bool Equals(object obj)

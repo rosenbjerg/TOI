@@ -38,8 +38,8 @@ namespace TOIFeedServer.Managers
                 Title = form["title"],
                 Url = form["url"],
                 Image = form.ContainsKey("image") ? form["image"] : StringValues.Empty,
-                Contexts = contextIds.Select(s => new ToiModel.StringId(s)).ToList(),
-                Tags = tagIds.Select(s => new ToiModel.StringId(s)).ToList()
+                Contexts = contextIds,
+                Tags = tagIds
             };
 
             return tm;
