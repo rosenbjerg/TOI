@@ -26,7 +26,7 @@ namespace TOIFeedServer.Tests
         {
             var mockDbService = new DatabaseService(true);
             //Insert a mock context for the toi
-            var ctxTask = mockDbService.InsertContext(new ContextModel(GuidParse(_ctxGuid), "Mock Context",
+            var ctxTask = mockDbService.InsertContext(new ContextModel(_ctxGuid, "Mock Context",
                 "This is a mock context used for unit testing."));
             ctxTask.Wait();
 
@@ -34,7 +34,7 @@ namespace TOIFeedServer.Tests
             for (var i = 0; i < 10; i++)
             {
                 var tagTask = mockDbService.InsertTag(
-                    new TagModel(GuidParse(_tagGuid + i), TagType.Bluetooth)
+                    new TagModel(_tagGuid + i, TagType.Bluetooth)
                 );
                 tagTask.Wait();
             }

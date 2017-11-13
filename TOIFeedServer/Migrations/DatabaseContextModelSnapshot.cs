@@ -22,7 +22,7 @@ namespace TOIFeedServer.Migrations
 
             modelBuilder.Entity("TOIFeedServer.Models.ContextModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
@@ -38,7 +38,7 @@ namespace TOIFeedServer.Migrations
 
             modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
                 {
-                    b.Property<Guid>("TagId")
+                    b.Property<string>("TagId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<double>("Latitude");
@@ -56,22 +56,9 @@ namespace TOIFeedServer.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("TOIFeedServer.Models.ToiContextModel", b =>
-                {
-                    b.Property<Guid>("ToiId");
-
-                    b.Property<Guid>("ContextId");
-
-                    b.HasKey("ToiId", "ContextId");
-
-                    b.HasIndex("ContextId");
-
-                    b.ToTable("ToiContextModel");
-                });
-
             modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
@@ -87,43 +74,35 @@ namespace TOIFeedServer.Migrations
                     b.ToTable("Tois");
                 });
 
-            modelBuilder.Entity("TOIFeedServer.Models.ToiTagModel", b =>
+            modelBuilder.Entity("TOIFeedServer.Models.ToiModel+StringId", b =>
                 {
-                    b.Property<Guid>("ToiId");
+                    b.Property<Guid>("Key")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("TagId");
+                    b.Property<string>("ToiModelId");
 
-                    b.HasKey("ToiId", "TagId");
+                    b.Property<string>("ToiModelId1");
 
-                    b.HasIndex("TagId");
+                    b.Property<string>("Value");
 
-                    b.ToTable("ToiTagModel");
+                    b.HasKey("Key");
+
+                    b.HasIndex("ToiModelId");
+
+                    b.HasIndex("ToiModelId1");
+
+                    b.ToTable("StringId");
                 });
 
-            modelBuilder.Entity("TOIFeedServer.Models.ToiContextModel", b =>
+            modelBuilder.Entity("TOIFeedServer.Models.ToiModel+StringId", b =>
                 {
-                    b.HasOne("TOIFeedServer.Models.ContextModel", "Context")
-                        .WithMany("Tois")
-                        .HasForeignKey("ContextId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("TOIFeedServer.Models.ToiModel")
+                        .WithMany("Contexts")
+                        .HasForeignKey("ToiModelId");
 
-                    b.HasOne("TOIFeedServer.Models.ToiModel", "Toi")
-                        .WithMany("ContextModels")
-                        .HasForeignKey("ToiId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("TOIFeedServer.Models.ToiTagModel", b =>
-                {
-                    b.HasOne("TOIFeedServer.Models.TagModel", "Tag")
-                        .WithMany("Tois")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TOIFeedServer.Models.ToiModel", "Toi")
-                        .WithMany("TagModels")
-                        .HasForeignKey("ToiId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("TOIFeedServer.Models.ToiModel")
+                        .WithMany("Tags")
+                        .HasForeignKey("ToiModelId1");
                 });
 #pragma warning restore 612, 618
         }

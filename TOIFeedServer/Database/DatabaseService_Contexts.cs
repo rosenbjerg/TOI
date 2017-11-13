@@ -30,7 +30,7 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Created;
         }
 
-        public async Task<DbResult<ContextModel>> GetContextFromId(Guid id)
+        public async Task<DbResult<ContextModel>> GetContextFromId(string id)
         {
             var context = await _db.Contexts.SingleOrDefaultAsync(t => t.Id == id);
             var status = context == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
@@ -70,7 +70,7 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Ok;
         }
 
-        public async Task<DbResult<IEnumerable<ContextModel>>> GetContextsFromId(HashSet<Guid> contextIds)
+        public async Task<DbResult<IEnumerable<ContextModel>>> GetContextsFromId(HashSet<string> contextIds)
         {
             var context = _db.Contexts.Where(c => contextIds.Contains(c.Id));
             var status = await context.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;

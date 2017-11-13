@@ -15,7 +15,7 @@ namespace TOIFeedServer.Tests
     public class ModelsTest
     {
         private static DatabaseService _dbs;
-        private List<Guid> _guids;
+        private List<string> _guids;
         private List<TagModel> _tags;
         private List<ContextModel> _contexts;
         private List<ToiModel> _tois;
@@ -39,11 +39,11 @@ namespace TOIFeedServer.Tests
 
         private void FillMock()
         {
-            _guids = new List<Guid>
+            _guids = new List<string>
             {
-                Guid.ParseExact("1".PadLeft(32, '0'), "N"),
-                Guid.ParseExact("2".PadLeft(32, '0'), "N"),
-                Guid.ParseExact("3".PadLeft(32, '0'), "N")
+                "1",
+                "2",
+                "3"
             };
 
             _tags = new List<TagModel>
@@ -79,15 +79,17 @@ namespace TOIFeedServer.Tests
 
             _tois = new List<ToiModel>
             {
-                new ToiModel (_guids[0], new List<ContextModel> (), new List<TagModel>{_tags[0]})
+                new ToiModel
                 {
+                    Id = _guids[0],
                     Description = "kludder",
                     Title = "Test Title",
                     Image =
                         "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
                 },
-                new ToiModel (_guids[1], new List<ContextModel> (), new List<TagModel>{_tags[1]})
+                new ToiModel
                 {
+                    Id = _guids[1],
                     Description = "kludder",
                     Title = "Test Title",
                     Image =
@@ -185,7 +187,7 @@ namespace TOIFeedServer.Tests
             Assert.AreEqual(DatabaseStatusCode.Created, test);
             Assert.AreEqual(1, result.Result.Count());
             var first = result.Result.FirstOrDefault();
-            Assert.AreEqual(_guids[0], first?.TagModels[0].TagId);
+            Assert.AreEqual(_guids[0], first?.Tags[0]);
         }
 
         [TestMethod]
@@ -215,7 +217,7 @@ namespace TOIFeedServer.Tests
                 _tois[0],
                 _tois[1]
             };
-            var tagsId = new List<Guid>()
+            var tagsId = new List<string>()
             {
                 _tags[0].TagId,
                 _tags[1].TagId
@@ -234,14 +236,16 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task UpdateToI()
         {
-            var toi2 = new ToiModel(_guids[0], new List<ContextModel>(),  new List<TagModel> {_tags[0]})
+            var toi2 = new ToiModel
             {
+                Id = _guids[0],
                 Description = "test2",
                 Title = "test2",
                 Url = "test2"
             };
-            var toi1 = new ToiModel(_guids[0], new List<ContextModel>(),  new List<TagModel> {_tags[0]})
+            var toi1 = new ToiModel
             {
+                Id = _guids[0],
                 Description = "test",
                 Title = "test",
                 Url = "test"
@@ -263,16 +267,16 @@ namespace TOIFeedServer.Tests
         public async Task UpdateToiCorrectTags()
         {
             var toi1 = _tois[0];
-            var tagsBefore = toi1.TagModels.Count;
+            var tagsBefore = toi1.Tags.Count;
             var insertStatusCode = await _dbs.InsertToiModel(toi1);
-            toi1.AddTag(_tags[1]);
+            toi1.Tags.Add(_tags[1].TagId);
             var statusCode = await _dbs.UpdateToiModel(toi1);
 
             var updated = await _dbs.GetToi(toi1.Id);
 
             Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
             Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
-            Assert.AreEqual(tagsBefore + 1, updated.Result.TagModels.Count);
+            Assert.AreEqual(tagsBefore + 1, updated.Result.Tags.Count);
         }
     }
 }

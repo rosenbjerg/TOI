@@ -41,7 +41,7 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Updated;
         }
 
-        public async Task<DbResult<TagModel>> GetTagFromId(Guid id)
+        public async Task<DbResult<TagModel>> GetTagFromId(string id)
         {
             var tag = await _db.Tags.FindAsync(id);
             var status = tag == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
@@ -70,7 +70,7 @@ namespace TOIFeedServer.Database
             return new DbResult<IEnumerable<TagModel>>(tags, statsCode);
         }
 
-        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromId(HashSet<Guid> ids)
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTagsFromId(HashSet<string> ids)
         {
             var tags = _db.Tags.Where(t => ids.Contains(t.TagId));
             var statsCode = await tags.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;

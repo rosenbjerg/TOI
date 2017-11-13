@@ -30,7 +30,7 @@ namespace TOIFeedServer
 
             _server.Get("/tags", async (req, res) =>
             {
-                var ids = ParseGuids(req.Queries["ids"][0]).ToHashSet();
+                var ids = SplitIds(req.Queries["ids"][0]).ToHashSet();
                 var tags = await tagMan.GetTags(ids);
 
                 if (tags != null)
@@ -91,8 +91,8 @@ namespace TOIFeedServer
             {
                 var form = await req.GetFormDataAsync();
                 var toiId = await toiMan.CreateToi(form);
-                if (toiId != Guid.Empty)
-                    await res.SendString(toiId.ToString("N"));
+                if (toiId != "-1")
+                    await res.SendString(toiId);
                 else
                     await res.SendString("The TOI could not be created.", status: 400);
             });
@@ -120,64 +120,68 @@ namespace TOIFeedServer
 
             var testContext1 = new ContextModel
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString("N"),
                 Title = "Grown-up stuff"
             };
             var testContext2 = new ContextModel
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString("N"),
                 Title = "For børn"
             };
             var tag1 = new TagModel
             {
                 Name = "F-Klubben",
-                TagId = TagManager.CreateTagGuid("FA:C4:D1:03:8D:3D"),
+                TagId = "FA:C4:D1:03:8D:3D",
                 TagType = TagType.Bluetooth
             };
             var tag2 = new TagModel
             {
                 Name = "Cassiopeia",
-                TagId = TagManager.CreateTagGuid("CC:14:54:01:52:82"),
+                TagId = "CC:14:54:01:52:82",
                 TagType = TagType.Bluetooth
             };
             var tag3 = new TagModel
             {
                 Name = "At Marius place",
-                TagId = TagManager.CreateTagGuid("CB:FF:B9:6C:A4:7D"),
+                TagId = "CB:FF:B9:6C:A4:7D",
                 TagType = TagType.Bluetooth
             };
             var tag4 = new TagModel
             {
                 Name = "By the bin",
-                TagId = TagManager.CreateTagGuid("F4:B4:15:05:42:05"),
+                TagId = "F4:B4:15:05:42:05",
                 TagType = TagType.Bluetooth
             };
             
             var modelList = new List<ToiModel>
             {
-                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1}, new List<TagModel>{tag1, tag2})
+                new ToiModel
                 {
+                    Id = Guid.NewGuid().ToString("N"),
                     Description = "FA:C4:D1:03:8D:3D",
                     Title = "Tag 1",
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
                     Url = "https://imgur.com/gallery/yWoZC"
                 },
-                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1}, new List<TagModel>{tag2})
+                new ToiModel 
                 {
+                    Id = Guid.NewGuid().ToString("N"),
                     Description = "CC:14:54:01:52:82",
                     Title = "Tag 2",
                     Image = "https://i.imgur.com/6UwO2nF.mp4",
                     Url = "https://imgur.com/gallery/6UwO2nF"
                 },
-                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext2}, new List<TagModel>{tag3})
+                new ToiModel
                 {
+                    Id = Guid.NewGuid().ToString("N"),
                     Description = "CB:FF:B9:6C:A4:7D",
                     Title = "Tag 3",
                     Image = "https://i.imgur.com/aNV3gzq.png",
                     Url = "https://imgur.com/gallery/aNV3gzq"
                 },
-                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1, testContext2}, new List<TagModel>{tag4})
+                new ToiModel
                 {
+                    Id = Guid.NewGuid().ToString("N"),
                     Description = "F4:B4:15:05:42:05",
                     Title = "Tag 4",
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",

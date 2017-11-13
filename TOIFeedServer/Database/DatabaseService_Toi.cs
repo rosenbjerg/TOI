@@ -37,20 +37,17 @@ namespace TOIFeedServer.Database
             return DatabaseStatusCode.Created;
         }
 
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<Guid> ids)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<string> ids)
         {
             var hash = ids.ToHashSet();
-            var result = _db.Tois.Where(p => p.TagModels.Any(x => hash.Contains(x.TagId)));
+            var result = _db.Tois.Where(p => p.Tags.Any(x => hash.Contains(x)));
             var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
         }
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetAllToiModels()
         {
-            var result = await _db.Tois
-                .Include(t => t.ContextModels)
-                .Include(t => t.TagModels)
-                .ToListAsync();
+            var result = await _db.Tois.ToListAsync();
             var statusCode = result.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
 
@@ -71,17 +68,17 @@ namespace TOIFeedServer.Database
             fetched.Title = toi.Title;
             fetched.Url = toi.Url;
 
-            fetched.ContextModels.RemoveAll(t => !toi.ContextModels.Contains(t));
-            fetched.ContextModels.AddRange(toi.ContextModels.Intersect(fetched.ContextModels));
+            fetched.Contexts.RemoveAll(t => !toi.Contexts.Contains(t));
+            fetched.Contexts.AddRange(toi.Contexts.Where(c => !fetched.Contexts.Contains(c)));
             
-            fetched.TagModels.RemoveAll(t => !toi.TagModels.Contains(t));
-            fetched.TagModels.AddRange(toi.TagModels.Where(t => !fetched.TagModels.Contains(t)));
+            fetched.Tags.RemoveAll(t => !toi.Tags.Contains(t));
+            fetched.Tags.AddRange(toi.Tags.Where(t => !fetched.Tags.Contains(t)));
             _db.Tois.Update(fetched);
             await _db.SaveChangesAsync();
             return DatabaseStatusCode.Ok;
         }
 
-        public async Task<DbResult<ToiModel>> GetToi(Guid guid)
+        public async Task<DbResult<ToiModel>> GetToi(string guid)
         {
             var result = await _db.Tois
                 .FirstOrDefaultAsync(toi => toi.Id == guid);
@@ -90,12 +87,9 @@ namespace TOIFeedServer.Database
         }
 
         // TODO Create test for this method 
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<Guid> contexts)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<string> contexts)
         {
-            var result = _db.Tois
-                .Include(t => t.ContextModels).ThenInclude(tcm => tcm.Context)
-                .Include(t => t.TagModels).ThenInclude(ttm => ttm.Tag)
-                .Where(t => contexts.Contains(t.Id));
+            var result = _db.Tois.Where(t => contexts.Contains(t.Id));
             var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
         }

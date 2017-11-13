@@ -8,11 +8,50 @@ namespace TOIFeedServer.Models
 {
     public class ToiModel : TagInfo
     {
-        [Key]
-        public Guid Id { get; set; }
+        public class StringId
+        {
+            [Key]
+            public Guid Key { get; set; }
 
-        public List<ToiTagModel> TagModels { get; set; }
-        public List<ToiContextModel> ContextModels { get; set; }
+            public string Value { get; set; }
+
+            public StringId()
+            {
+                
+            }
+
+            public StringId(string value)
+            {
+                Key = Guid.NewGuid();
+                Value = value;
+            }
+
+            public static implicit operator string(StringId si)
+            {
+                return si.Value;
+            }
+
+            public static implicit operator StringId(string s)
+            {
+                return new StringId(s);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is StringId si && si.Value == this.Value;
+            }
+
+            public override int GetHashCode()
+            {
+                return Value.GetHashCode();
+            }
+        }
+
+        [Key]
+        public string Id { get; set; }
+
+        public List<StringId> Tags { get; set; }
+        public List<StringId> Contexts { get; set; }
 
         public object GetToiInfo()
         {
@@ -33,17 +72,5 @@ namespace TOIFeedServer.Models
         {
             return Id.GetHashCode();
         }
-
-        public ToiModel(){}
-
-        public ToiModel(Guid id, List<ContextModel> ctx, List<TagModel> tags)
-        {
-            Id = id
-            TagModels = tags.Select(t => new ToiTagModel(this, t)).ToList();
-            ContextModels = ctx.Select(c => new ToiContextModel(this, c)).ToList();
-        }
-
-        public void AddTag(TagModel tag) => TagModels.Add(new ToiTagModel(this, tag));
-        public void AddContext(ContextModel ctx) => ContextModels.Add(new ToiContextModel(this, ctx));
     }
 }

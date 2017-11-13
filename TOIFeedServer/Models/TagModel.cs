@@ -10,14 +10,14 @@ namespace TOIFeedServer.Models
         {
             
         }
-        public TagModel(Guid id, TagType type)
+        public TagModel(string id, TagType type)
         {
             TagId = id;
             TagType = type;
         }
 
         [Key]
-        public Guid TagId { get; set; }
+        public string TagId { get; set; }
 
         public string Name { get; set; }
 
@@ -28,8 +28,6 @@ namespace TOIFeedServer.Models
         public double Longitude { get; set; }   
 
         public int Radius { get; set; }
-        
-        public ICollection<ToiTagModel> Tois { get; set; }
 
         public override bool Equals(object obj)
         {
