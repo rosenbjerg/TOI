@@ -31,11 +31,7 @@ namespace TOIFeedServer.Migrations
                         .IsRequired()
                         .HasMaxLength(70);
 
-                    b.Property<Guid?>("ToiModelId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ToiModelId");
 
                     b.ToTable("Contexts");
                 });
@@ -55,13 +51,22 @@ namespace TOIFeedServer.Migrations
 
                     b.Property<int>("TagType");
 
-                    b.Property<Guid?>("ToiModelId");
-
                     b.HasKey("TagId");
 
-                    b.HasIndex("ToiModelId");
-
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ToiContextModel", b =>
+                {
+                    b.Property<Guid>("ToiId");
+
+                    b.Property<Guid>("ContextId");
+
+                    b.HasKey("ToiId", "ContextId");
+
+                    b.HasIndex("ContextId");
+
+                    b.ToTable("ToiContextModel");
                 });
 
             modelBuilder.Entity("TOIFeedServer.Models.ToiModel", b =>
@@ -82,18 +87,43 @@ namespace TOIFeedServer.Migrations
                     b.ToTable("Tois");
                 });
 
-            modelBuilder.Entity("TOIFeedServer.Models.ContextModel", b =>
+            modelBuilder.Entity("TOIFeedServer.Models.ToiTagModel", b =>
                 {
-                    b.HasOne("TOIFeedServer.Models.ToiModel")
-                        .WithMany("ContextModels")
-                        .HasForeignKey("ToiModelId");
+                    b.Property<Guid>("ToiId");
+
+                    b.Property<Guid>("TagId");
+
+                    b.HasKey("ToiId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("ToiTagModel");
                 });
 
-            modelBuilder.Entity("TOIFeedServer.Models.TagModel", b =>
+            modelBuilder.Entity("TOIFeedServer.Models.ToiContextModel", b =>
                 {
-                    b.HasOne("TOIFeedServer.Models.ToiModel")
+                    b.HasOne("TOIFeedServer.Models.ContextModel", "Context")
+                        .WithMany("Tois")
+                        .HasForeignKey("ContextId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TOIFeedServer.Models.ToiModel", "Toi")
+                        .WithMany("ContextModels")
+                        .HasForeignKey("ToiId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TOIFeedServer.Models.ToiTagModel", b =>
+                {
+                    b.HasOne("TOIFeedServer.Models.TagModel", "Tag")
+                        .WithMany("Tois")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TOIFeedServer.Models.ToiModel", "Toi")
                         .WithMany("TagModels")
-                        .HasForeignKey("ToiModelId");
+                        .HasForeignKey("ToiId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

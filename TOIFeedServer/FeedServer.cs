@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -8,6 +9,7 @@ using RedHttpServerCore;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
 using TOIFeedServer.Models;
+using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer
 {
@@ -26,9 +28,9 @@ namespace TOIFeedServer
             var tagMan = new TagManager(dbService);
             var toiMan = new ToiManager(dbService);
 
-            _server.Post("/tag", async (req, res) =>
+            _server.Get("/tags", async (req, res) =>
             {
-                var ids = await req.ParseBodyAsync<HashSet<Guid>>();
+                var ids = ParseGuids(req.Queries["ids"][0]).ToHashSet();
                 var tags = await tagMan.GetTags(ids);
 
                 if (tags != null)
@@ -72,17 +74,8 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
             });
-            _server.Get("/tag/all", async (req, res) =>
-            {
-                //TODO figure out where to place the filter in the request.
-                var tags = await tagMan.GetTags();
-                if (tags != null)
-                    await res.SendJson(tags);
-                else
-                    await res.SendString("There are no tags yet.", status: StatusCodes.Status404NotFound);
-            });
 
-            _server.Get("/toi/all", async (req, res) =>
+            _server.Get("/tois", async (req, res) =>
             {
                 var contextString = "";
                 if (req.Queries.ContainsKey("contexts"))
