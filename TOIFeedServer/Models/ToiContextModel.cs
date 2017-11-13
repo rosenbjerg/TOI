@@ -24,5 +24,15 @@ namespace TOIFeedServer.Models
         }
 
         public ToiContextModel(){}
+
+        public override bool Equals(object obj)
+        {
+            return obj is ToiContextModel otherTcm && otherTcm.Context == Context && otherTcm.Toi == Toi;
+        }
+
+        public override int GetHashCode()
+        {
+            return ToiId.GetHashCode() + ContextId.GetHashCode();
+        }
     }
 }

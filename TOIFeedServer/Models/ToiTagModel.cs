@@ -22,5 +22,15 @@ namespace TOIFeedServer.Models
         }
 
         public ToiTagModel(){}
+
+        public override int GetHashCode()
+        {
+            return ToiId.GetHashCode() + TagId.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ToiTagModel ttm && ttm.TagId == TagId && ttm.ToiId == ToiId;
+        }
     }
 }

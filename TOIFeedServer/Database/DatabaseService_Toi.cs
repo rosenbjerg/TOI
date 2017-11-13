@@ -58,7 +58,8 @@ namespace TOIFeedServer.Database
 
         public async Task<DatabaseStatusCode> UpdateToiModel(ToiModel toi)
         {
-            var fetched = await _db.Tois.FindAsync(toi.Id);
+            var oldTagDbRes = await GetToi(toi.Id);
+            var fetched = oldTagDbRes.Result;
             if (fetched == null)
             {
                 return DatabaseStatusCode.NoElement;
@@ -74,7 +75,7 @@ namespace TOIFeedServer.Database
             fetched.ContextModels.AddRange(toi.ContextModels.Intersect(fetched.ContextModels));
             
             fetched.TagModels.RemoveAll(t => !toi.TagModels.Contains(t));
-            fetched.TagModels.AddRange(toi.TagModels.Intersect(fetched.TagModels));
+            fetched.TagModels.AddRange(toi.TagModels.Where(t => !fetched.TagModels.Contains(t)));
             _db.Tois.Update(fetched);
             await _db.SaveChangesAsync();
             return DatabaseStatusCode.Ok;
@@ -82,7 +83,8 @@ namespace TOIFeedServer.Database
 
         public async Task<DbResult<ToiModel>> GetToi(Guid guid)
         {
-            var result = await _db.Tois.FindAsync(guid);
+            var result = await _db.Tois
+                .FirstOrDefaultAsync(toi => toi.Id == guid);
             var statusCode = result == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
             return new DbResult<ToiModel>(result, statusCode);
         }
@@ -91,8 +93,8 @@ namespace TOIFeedServer.Database
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<Guid> contexts)
         {
             var result = _db.Tois
-                .Include(t => t.ContextModels)
-                .Include(t => t.TagModels)
+                .Include(t => t.ContextModels).ThenInclude(tcm => tcm.Context)
+                .Include(t => t.TagModels).ThenInclude(ttm => ttm.Tag)
                 .Where(t => contexts.Contains(t.Id));
             var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
             return new DbResult<IEnumerable<ToiModel>>(result, statusCode);

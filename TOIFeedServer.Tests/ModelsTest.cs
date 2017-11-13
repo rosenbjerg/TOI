@@ -79,17 +79,15 @@ namespace TOIFeedServer.Tests
 
             _tois = new List<ToiModel>
             {
-                new ToiModel (new List<ContextModel> (), new List<TagModel>{_tags[0]})
+                new ToiModel (_guids[0], new List<ContextModel> (), new List<TagModel>{_tags[0]})
                 {
-                    Id = _guids[0],
                     Description = "kludder",
                     Title = "Test Title",
                     Image =
                         "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
                 },
-                new ToiModel (new List<ContextModel> (), new List<TagModel>{_tags[1]})
+                new ToiModel (_guids[1], new List<ContextModel> (), new List<TagModel>{_tags[1]})
                 {
-                    Id = _guids[1],
                     Description = "kludder",
                     Title = "Test Title",
                     Image =
@@ -236,16 +234,14 @@ namespace TOIFeedServer.Tests
         [TestMethod]
         public async Task UpdateToI()
         {
-            var toi2 = new ToiModel(new List<ContextModel>(),  new List<TagModel> {_tags[0]})
+            var toi2 = new ToiModel(_guids[0], new List<ContextModel>(),  new List<TagModel> {_tags[0]})
             {
-                Id = _guids[0],
                 Description = "test2",
                 Title = "test2",
                 Url = "test2"
             };
-            var toi1 = new ToiModel(new List<ContextModel>(),  new List<TagModel> {_tags[0]})
+            var toi1 = new ToiModel(_guids[0], new List<ContextModel>(),  new List<TagModel> {_tags[0]})
             {
-                Id = _guids[0],
                 Description = "test",
                 Title = "test",
                 Url = "test"
@@ -267,20 +263,16 @@ namespace TOIFeedServer.Tests
         public async Task UpdateToiCorrectTags()
         {
             var toi1 = _tois[0];
-            var toi2 = _tois[1];
-            toi2.Id = toi1.Id;
-            toi1.AddTag(_tags[1]);
-            toi2.AddTag(_tags[2]);
-
+            var tagsBefore = toi1.TagModels.Count;
             var insertStatusCode = await _dbs.InsertToiModel(toi1);
+            toi1.AddTag(_tags[1]);
+            var statusCode = await _dbs.UpdateToiModel(toi1);
 
-            var statusCode = await _dbs.UpdateToiModel(toi2);
-
-            var updated = await _dbs.GetToi(_guids[0]);
+            var updated = await _dbs.GetToi(toi1.Id);
 
             Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
             Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
-            Assert.AreEqual(2, updated.Result.TagModels.Count);
+            Assert.AreEqual(tagsBefore + 1, updated.Result.TagModels.Count);
         }
     }
 }

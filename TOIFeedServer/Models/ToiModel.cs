@@ -9,10 +9,10 @@ namespace TOIFeedServer.Models
     public class ToiModel : TagInfo
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
-        public List<ToiTagModel> TagModels { get; set; } = new List<ToiTagModel>();
-        public List<ToiContextModel> ContextModels { get; set; } = new List<ToiContextModel>();
+        public List<ToiTagModel> TagModels { get; set; }
+        public List<ToiContextModel> ContextModels { get; set; }
 
         public object GetToiInfo()
         {
@@ -36,8 +36,9 @@ namespace TOIFeedServer.Models
 
         public ToiModel(){}
 
-        public ToiModel(List<ContextModel> ctx, List<TagModel> tags)
+        public ToiModel(Guid id, List<ContextModel> ctx, List<TagModel> tags)
         {
+            Id = id
             TagModels = tags.Select(t => new ToiTagModel(this, t)).ToList();
             ContextModels = ctx.Select(c => new ToiContextModel(this, c)).ToList();
         }

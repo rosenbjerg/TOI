@@ -71,8 +71,8 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", _ctxGuid},
-                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + 0}) },
+                {"contexts", _ctxGuid},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '0'}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
                 {"description", "This is a mock TOI." }
@@ -89,8 +89,8 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", _ctxGuid},
-                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + 1, _tagGuid + 2, _tagGuid + 3}) },
+                {"contexts", _ctxGuid},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '1', _tagGuid + '2', _tagGuid + '3'}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
                 {"description", "This is a mock TOI." }
@@ -113,7 +113,7 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", contextId},
+                {"contexts", contextId},
                 {"tags", tags},
                 {"title", title },
                 {"url", url },
@@ -139,7 +139,7 @@ namespace TOIFeedServer.Tests
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
                 {"id", toiId },
-                {"context", contextId},
+                {"contexts", contextId},
                 {"tags", tags},
                 {"title", title },
                 {"url", url },

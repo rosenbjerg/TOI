@@ -155,33 +155,29 @@ namespace TOIFeedServer
             
             var modelList = new List<ToiModel>
             {
-                new ToiModel (new List<ContextModel> {testContext1}, new List<TagModel>{tag1, tag2})
+                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1}, new List<TagModel>{tag1, tag2})
                 {
-                    Id = Guid.NewGuid(),
                     Description = "FA:C4:D1:03:8D:3D",
                     Title = "Tag 1",
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
                     Url = "https://imgur.com/gallery/yWoZC"
                 },
-                new ToiModel (new List<ContextModel> {testContext1}, new List<TagModel>{tag2})
+                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1}, new List<TagModel>{tag2})
                 {
-                    Id = Guid.NewGuid(),
                     Description = "CC:14:54:01:52:82",
                     Title = "Tag 2",
                     Image = "https://i.imgur.com/6UwO2nF.mp4",
                     Url = "https://imgur.com/gallery/6UwO2nF"
                 },
-                new ToiModel (new List<ContextModel> {testContext2}, new List<TagModel>{tag3})
+                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext2}, new List<TagModel>{tag3})
                 {
-                    Id = Guid.NewGuid(),
                     Description = "CB:FF:B9:6C:A4:7D",
                     Title = "Tag 3",
                     Image = "https://i.imgur.com/aNV3gzq.png",
                     Url = "https://imgur.com/gallery/aNV3gzq"
                 },
-                new ToiModel (new List<ContextModel> {testContext1, testContext2}, new List<TagModel>{tag4})
+                new ToiModel (Guid.NewGuid(), new List<ContextModel> {testContext1, testContext2}, new List<TagModel>{tag4})
                 {
-                    Id = Guid.NewGuid(),
                     Description = "F4:B4:15:05:42:05",
                     Title = "Tag 4",
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",

@@ -25,7 +25,8 @@ namespace TOIFeedServer.Managers
         {
             var fields = new List<string> { "contexts", "tags", "title", "url", "description" };
 
-            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
+            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
+                return null;
 
             var contextIds = ParseGuids(form["contexts"][0]).ToHashSet();
             var tagIds = ParseGuids(form["tags"][0]).ToHashSet();
