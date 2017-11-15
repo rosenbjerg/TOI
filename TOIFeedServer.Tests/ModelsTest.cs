@@ -33,7 +33,8 @@ namespace TOIFeedServer.Tests
         [TestInitialize]
         public void InitializeTest()
         {
-            _dbs = new DatabaseService(true);
+            _dbs = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            _dbs.TruncateDatabase().Wait();
             FillMock();
         }
 
@@ -89,7 +90,8 @@ namespace TOIFeedServer.Tests
                     Tags = new List<string>
                     {
                         _tags[0].Id, _tags[1].Id
-                    }
+                    },
+                    Contexts = new List<string>{_contexts[1].Id}
                 },
                 new ToiModel
                 {
@@ -101,6 +103,10 @@ namespace TOIFeedServer.Tests
                     Tags = new List<string>
                     {
                         _tags[0].Id
+                    },
+                    Contexts = new List<string>
+                    {
+                        _contexts[0].Id, _contexts[2].Id
                     }
                 }
             };
@@ -177,7 +183,7 @@ namespace TOIFeedServer.Tests
         }
 
         [TestMethod]
-        public async Task GetToiFromTagId()
+        public async Task GetToisFromTagId()
         {
             // Act
             var test = await _dbs.InsertToiModel(_tois[0]);

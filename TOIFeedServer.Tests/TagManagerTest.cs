@@ -22,7 +22,9 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            _manager = new TagManager(new DatabaseService(true));
+            var dbs = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            dbs.TruncateDatabase().Wait();
+            _manager = new TagManager(dbs);
 
             for (var i = 0; i < 10; i++)
             {

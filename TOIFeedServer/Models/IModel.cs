@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TOIFeedServer.Models
+﻿namespace TOIFeedServer.Models
 {
     public interface IModel
     {

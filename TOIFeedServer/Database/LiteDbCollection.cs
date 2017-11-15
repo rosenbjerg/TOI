@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using LiteDB;
 using TOIFeedServer.Models;
@@ -13,17 +12,32 @@ namespace TOIFeedServer.Database
         where T : IModel
     {
         private readonly LiteCollection<T> _collection;
+        private string[] _includes;
 
-        public LiteDbCollection(LiteCollection<T> collection)
+        public LiteDbCollection(LiteCollection<T> collection, params string[] includes)
         {
             _collection = collection;
+            _includes = includes;
         }
 
         public Task<DatabaseStatusCode> Insert(params T[] items)
         {
-            return Task.FromResult(_collection.InsertBulk(items) == items.Length
-                ? DatabaseStatusCode.Created
-                : DatabaseStatusCode.AlreadyContainsElement);
+            if (items.Length != items.Distinct().Count())
+            {
+                return Task.FromResult(DatabaseStatusCode.ListContainsDuplicate);
+            }
+
+            try
+            {
+                return Task.FromResult(_collection.InsertBulk(items) == items.Length
+                    ? DatabaseStatusCode.Created
+                    : DatabaseStatusCode.AlreadyContainsElement);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Task.FromResult(DatabaseStatusCode.AlreadyContainsElement);
+            }
         }
 
         public Task<DatabaseStatusCode> Update(string id, T item)
@@ -50,7 +64,7 @@ namespace TOIFeedServer.Database
 
         public Task<DbResult<T>> FindOne(Expression<Func<T, bool>> predicate)
         {
-            var result = _collection.FindOne(predicate);
+            var result = _collection.Include("Tags").Include("Contexts").FindOne(predicate);
             return Task.FromResult(new DbResult<T>(result, result != null
                 ? DatabaseStatusCode.Ok
                 : DatabaseStatusCode.NoElement));
@@ -66,7 +80,10 @@ namespace TOIFeedServer.Database
 
         public Task<DbResult<IEnumerable<T>>> GetAll()
         {
-            return Task.FromResult(new DbResult<IEnumerable<T>>(_collection.FindAll(), DatabaseStatusCode.Ok));
+            var items = _collection.FindAll().ToList();
+            var status = items.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+
+            return Task.FromResult(new DbResult<IEnumerable<T>>(items, status));
         }
 
         public async Task<DatabaseStatusCode> DeleteAll()

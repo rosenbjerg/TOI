@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using RedHttpServerCore;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
@@ -17,13 +14,15 @@ namespace TOIFeedServer
     {
         private readonly RedHttpServer _server;
 
-        public FeedServer(bool sampleData = false, bool testDb = false, int port = 7474)
+        public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
-            _server = !testDb ? new RedHttpServer(port, "./WebManagement") : new RedHttpServer(port);
+            _server = new RedHttpServer(port, "./WebManagement");
 
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
 
-            var dbService = new DatabaseService(testDb);
+            Console.WriteLine(development ? "Using LiteDB" : "Using MongoDB");
+
+            var dbService = new DatabaseService(development ? DatabaseFactory.DatabaseType.LiteDB : DatabaseFactory.DatabaseType.MongoDB);
             _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
             var tagMan = new TagManager(dbService);
             var toiMan = new ToiManager(dbService);

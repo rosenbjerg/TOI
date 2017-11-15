@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using TOIFeedServer.Models;
@@ -10,6 +9,7 @@ using TOIFeedServer.Models;
 namespace TOIFeedServer.Database
 {
     public class MongoDbCollection<T> : IDbCollection<T>
+        where T : IModel
     {
         private IMongoCollection<T> _db;
 
@@ -20,19 +20,33 @@ namespace TOIFeedServer.Database
 
         public async Task<DatabaseStatusCode> Insert(params T[] items)
         {
-            await _db.InsertManyAsync(items);
-            return DatabaseStatusCode.Created;
+            if (items.Length != items.Distinct().Count())
+            {
+                return DatabaseStatusCode.ListContainsDuplicate;
+            }
+
+            try
+            {
+                await _db.InsertManyAsync(items);
+                return DatabaseStatusCode.Created;
+            }
+            catch (MongoException e)
+            {
+                Console.WriteLine(e);
+                return DatabaseStatusCode.AlreadyContainsElement;
+            }
         }
 
         public async Task<DatabaseStatusCode> Update(string id, T item)
         {
-            var i = await _db.FindOneAndReplaceAsync(id, item);
+            var i = await _db.FindOneAndReplaceAsync(t => t.Id == id, item);
             return i != null ? DatabaseStatusCode.Updated : DatabaseStatusCode.NoElement;
         }
 
-        public Task<DatabaseStatusCode> Delete(string id)
+        public async Task<DatabaseStatusCode> Delete(string id)
         {
-            throw new NotImplementedException();
+            await _db.DeleteOneAsync(i => i.Id == id);
+            return DatabaseStatusCode.Deleted;
         }
 
         public async Task<DbResult<IEnumerable<T>>> Find(Expression<Func<T, bool>> predicate)
@@ -51,7 +65,7 @@ namespace TOIFeedServer.Database
 
         public async Task<DbResult<T>> FindOne(string id)
         {
-            var result = await _db.Find(id).FirstOrDefaultAsync();
+            var result = await _db.Find(i => i.Id == id).FirstOrDefaultAsync();
             var statusCode = result == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
             return new DbResult<T>(result, statusCode);
         }

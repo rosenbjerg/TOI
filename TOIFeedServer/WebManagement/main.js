@@ -89,7 +89,7 @@ function loadTags(callback) {
             for (let i = 0, max = tagResult.Result.length; i < max; i++){
                 let tag = tagResult.Result[i];
                 tag.Icon = getMaterialIcon(tag.TagType);
-                state.tags[tag.TagId] = tag;
+                state.tags[tag.Id] = tag;
             }
             callback();
         });
@@ -222,6 +222,7 @@ $("#create-toi").click(showSaveEditToi);
 
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
+    console.log(id);
     let tag = state.tags[id];
     console.log(tag);
     showPopup(modalTemplates.editTag.render(tag));
@@ -275,7 +276,7 @@ $viewSpace.on("click", "#add-toi-tag-search button", function () {
     }
     else {
         for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].TagId.contains(searchTerm)))
+            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].Id.contains(searchTerm)))
                 result.push(state.tags[x]);
         }
     }

@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
@@ -12,27 +9,27 @@ namespace TOIFeedServer.Database
     {
         public async Task<DatabaseStatusCode> InsertContext(params ContextModel[] contexts)
         {
-            return await _ctxs.Insert(contexts);
+            return await _db.Contexts.Insert(contexts);
         }
 
         public async Task<DbResult<ContextModel>> GetContextFromId(string id)
         {
-            return await _ctxs.FindOne(id);
+            return await _db.Contexts.FindOne(id);
         }
 
         public async Task<DatabaseStatusCode> UpdateContext(ContextModel context)
         {
-            return await _ctxs.Update(context.Id, context);
+            return await _db.Contexts.Update(context.Id, context);
         }
 
         public async Task<DbResult<IEnumerable<ContextModel>>> GetAllContexts()
         {
-            return await _ctxs.GetAll();
+            return await _db.Contexts.GetAll();
         }
 
         public async Task<DbResult<IEnumerable<ContextModel>>> GetContextsFromIds(HashSet<string> contextIds)
         {
-            return await _ctxs.Find(c => contextIds.Contains(c.Id));
+            return await _db.Contexts.Find(c => contextIds.Contains(c.Id));
         }
     }
 }

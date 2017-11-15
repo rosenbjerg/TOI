@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
+using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
 {
     public interface IDbCollection<T>
+        where T : IModel
     {
         Task<DatabaseStatusCode> Insert(params T[] items);
         Task<DatabaseStatusCode> Update(string id, T item);
@@ -17,5 +18,6 @@ namespace TOIFeedServer.Database
         Task<DbResult<IEnumerable<T>>> GetAll();
 
         Task<DatabaseStatusCode> DeleteAll();
+        
     }
 }

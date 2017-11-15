@@ -24,7 +24,8 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            var mockDbService = new DatabaseService(true);
+            var mockDbService = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            mockDbService.TruncateDatabase().Wait();
             //Insert a mock context for the toi
             var ctxTask = mockDbService.InsertContext(new ContextModel(_ctxGuid, "Mock Context",
                 "This is a mock context used for unit testing."));
@@ -39,7 +40,7 @@ namespace TOIFeedServer.Tests
                 tagTask.Wait();
             }
 
-            _manager = new ToiManager(new DatabaseService(true));
+            _manager = new ToiManager(mockDbService);
 
             for (var i = 0; i < 3; i++)
             {
@@ -64,6 +65,7 @@ namespace TOIFeedServer.Tests
         [ClassCleanup]
         public static void Cleanup()
         {
+            
         }
 
         [TestMethod]
