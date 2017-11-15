@@ -22,7 +22,9 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            _manager = new TagManager(new DatabaseService(true));
+            var dbs = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            dbs.TruncateDatabase().Wait();
+            _manager = new TagManager(dbs);
 
             for (var i = 0; i < 10; i++)
             {
@@ -52,7 +54,7 @@ namespace TOIFeedServer.Tests
             var tagNo = 3;
             var q = new QueryCollection(new Dictionary<string, StringValues>
             {
-                {"id", $"F4B41505420{tagNo}"}
+                {"id", $"F4:B4:15:05:42:0{tagNo}"}
             });
             var tTask = _manager.GetTag(q);
             tTask.Wait();

@@ -24,9 +24,10 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            var mockDbService = new DatabaseService(true);
+            var mockDbService = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            mockDbService.TruncateDatabase().Wait();
             //Insert a mock context for the toi
-            var ctxTask = mockDbService.InsertContext(new ContextModel(GuidParse(_ctxGuid), "Mock Context",
+            var ctxTask = mockDbService.InsertContext(new ContextModel(_ctxGuid, "Mock Context",
                 "This is a mock context used for unit testing."));
             ctxTask.Wait();
 
@@ -34,12 +35,12 @@ namespace TOIFeedServer.Tests
             for (var i = 0; i < 10; i++)
             {
                 var tagTask = mockDbService.InsertTag(
-                    new TagModel(GuidParse(_tagGuid + i), TagType.Bluetooth)
+                    new TagModel(_tagGuid + i, TagType.Bluetooth)
                 );
                 tagTask.Wait();
             }
 
-            _manager = new ToiManager(new DatabaseService(true));
+            _manager = new ToiManager(mockDbService);
 
             for (var i = 0; i < 3; i++)
             {
@@ -64,6 +65,7 @@ namespace TOIFeedServer.Tests
         [ClassCleanup]
         public static void Cleanup()
         {
+            
         }
 
         [TestMethod]
@@ -71,8 +73,8 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", _ctxGuid},
-                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + 0}) },
+                {"contexts", _ctxGuid},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '0'}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
                 {"description", "This is a mock TOI." }
@@ -89,8 +91,8 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", _ctxGuid},
-                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + 1, _tagGuid + 2, _tagGuid + 3}) },
+                {"contexts", _ctxGuid},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '1', _tagGuid + '2', _tagGuid + '3'}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
                 {"description", "This is a mock TOI." }
@@ -105,7 +107,6 @@ namespace TOIFeedServer.Tests
         [DataTestMethod]
         [DataRow("", "[" + _tagGuid + "0]", "Mock TOI", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "", "Mock TOI", "Mock URL", "This is a mock TOI.")]
-        [DataRow("F6:B4:15:05:42:99", "[" + _tagGuid + "1]", "Mock TOI", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "Mock TOI", "", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "Mock TOI", "Mock URL", "")]
@@ -113,7 +114,7 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"context", contextId},
+                {"contexts", contextId},
                 {"tags", tags},
                 {"title", title },
                 {"url", url },
@@ -123,7 +124,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.AreEqual(task.Result, Guid.Empty);
+            Assert.AreEqual("-1", task.Result);
         }
 
         [DataTestMethod]
@@ -139,7 +140,7 @@ namespace TOIFeedServer.Tests
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
                 {"id", toiId },
-                {"context", contextId},
+                {"contexts", contextId},
                 {"tags", tags},
                 {"title", title },
                 {"url", url },

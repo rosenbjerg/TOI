@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 using TOIClasses;
 
 namespace TOIFeedServer.Models
 {
-    public class ToiModel : TagInfo
+    public class ToiModel : TagInfo, IModel
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [BsonId]
+        public string Id { get; set; }
 
-        public List<TagModel> TagModels { get; set; } = new List<TagModel>();
-        public List<ContextModel> ContextModels { get; set; } = new List<ContextModel>();
+        [BsonElement(nameof(Tags))]
+        public List<string> Tags { get; set; }
+        [BsonElement(nameof(Contexts))]
+        public List<string> Contexts { get; set; }
 
         public object GetToiInfo()
         {

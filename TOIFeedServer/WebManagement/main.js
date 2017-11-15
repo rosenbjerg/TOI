@@ -32,6 +32,18 @@ function post(url, data, success, error) {
         error: error
     });
 }
+function put(url, data, success, error) {
+    $.ajax({
+        url: url,
+        data: data,
+        cache: false,
+        processData: false,
+        contentType: false,
+        type: "PUT",
+        success: success,
+        error: error
+    });
+}
 
 function getMaterialIcon(input) {
     switch (input) {
@@ -76,10 +88,10 @@ function diffMinutes(dt2, dt1) {
 function loadTags(callback) {
 
     if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
-        $.post("/tags", function (tagResult) {
+        $.get("/tags", function (tagResult) {
             if (tagResult.Status !== "Ok")
             {
-                console.log("/tags error");
+                console.log("/tag error");
                 return;
             }
             state.tags = {};
@@ -87,7 +99,7 @@ function loadTags(callback) {
             for (let i = 0, max = tagResult.Result.length; i < max; i++){
                 let tag = tagResult.Result[i];
                 tag.Icon = getMaterialIcon(tag.TagType);
-                state.tags[tag.TagId] = tag;
+                state.tags[tag.Id] = tag;
             }
             callback();
         });
@@ -99,6 +111,7 @@ function loadTags(callback) {
 function loadTois(callback) {
     if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
         $.get("/tois", function (toiResult) {
+            console.log(toiResult);
             if (toiResult.Status !== "Ok")
             {
                 console.log("/tois error");
@@ -242,6 +255,7 @@ $("#create-context").click(showSaveEditContext);
 
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
+    console.log(id);
     let tag = state.tags[id];
     console.log(tag);
     showPopup(modalTemplates.editTag.render(tag));
@@ -255,7 +269,7 @@ $viewSpace.on("click", ".toi", function () {
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     var form = new FormData(this);
-    post("/createtoi", form, function (data) {
+    post("/toi", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
@@ -268,7 +282,7 @@ $viewSpace.on("submit", "create-tag-form", function (ev) {
         showPopup()
         return;
     }
-    post("/createtag", form, function () {
+    post("/tag", form, function () {
 
     })
     // aja
@@ -278,7 +292,7 @@ $viewSpace.on("submit", "#edit-tag-form", function (ev) {
     let form = new FormData(this);
     form.append("id", $(this).data("tag-id"));
     form.append("type", $(this).data("tag-type"));
-    post("/edittag", form, function (data) {
+    put("/tag", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
@@ -295,7 +309,7 @@ $viewSpace.on("click", "#add-toi-tag-search button", function () {
     }
     else {
         for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].TagId.contains(searchTerm)))
+            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].Id.contains(searchTerm)))
                 result.push(state.tags[x]);
         }
     }

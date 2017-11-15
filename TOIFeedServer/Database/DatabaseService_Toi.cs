@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
@@ -11,91 +8,37 @@ namespace TOIFeedServer.Database
     public partial class DatabaseService
     {
         /// Toi database operations
-        public async Task<DatabaseStatusCode> InsertToiModel(ToiModel toiModel)
+        public async Task<DatabaseStatusCode> InsertToiModel(params ToiModel[] toiModel)
         {
-            if (await _db.Tois.AnyAsync(t => t.Equals(toiModel)))
-            {
-                return DatabaseStatusCode.AlreadyContainsElement;
-            }
-            await _db.Tois.AddAsync(toiModel);
-            _db.SaveChanges();
-            return DatabaseStatusCode.Created;
+            return await _db.Tois.Insert(toiModel);
         }
 
-        public async Task<DatabaseStatusCode> InsertToiModelList(List<ToiModel> toiModelList)
-        {
-            if (await _db.Tois.AnyAsync(t => toiModelList.Contains(t)))
-            {
-                return DatabaseStatusCode.AlreadyContainsElement;
-            }
-            if (toiModelList.Count != toiModelList.Distinct().Count())
-            {
-                return DatabaseStatusCode.ListContainsDuplicate;
-            }
-            await _db.Tois.AddRangeAsync(toiModelList);
-            _db.SaveChanges();
-            return DatabaseStatusCode.Created;
-        }
-
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<Guid> ids)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByTagIds(IEnumerable<string> ids)
         {
             var hash = ids.ToHashSet();
-            var result = _db.Tois.Where(p => p.TagModels.Any(x => hash.Contains(x.TagId)));
-            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
-            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
+            return await _db.Tois.Find(p => p.Tags.Any(x => hash.Contains(x)));
         }
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetAllToiModels()
         {
-            var result = await _db.Tois
-                .Include(t => t.ContextModels)
-                .Include(t => t.TagModels)
-                .ToListAsync();
-            var statusCode = result.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
-            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
-
+            return await _db.Tois.GetAll();
         }
 
         public async Task<DatabaseStatusCode> UpdateToiModel(ToiModel toi)
         {
-            var fetched = await _db.Tois.FindAsync(toi.Id);
-            if (fetched == null)
-            {
-                return DatabaseStatusCode.NoElement;
-            }
-            
-            
-            fetched.Description = toi.Description;
-            fetched.Image = toi.Image;
-            fetched.Title = toi.Title;
-            fetched.Url = toi.Url;
-
-            fetched.ContextModels.RemoveAll(t => !toi.ContextModels.Contains(t));
-            fetched.ContextModels.AddRange(toi.ContextModels.Intersect(fetched.ContextModels));
-            
-            fetched.TagModels.RemoveAll(t => !toi.TagModels.Contains(t));
-            fetched.TagModels.AddRange(toi.TagModels.Intersect(fetched.TagModels));
-            _db.Tois.Update(fetched);
-            await _db.SaveChangesAsync();
+            await _db.Tois.Update(toi.Id, toi);
             return DatabaseStatusCode.Ok;
         }
 
-        public async Task<DbResult<ToiModel>> GetToi(Guid guid)
+        public async Task<DbResult<ToiModel>> GetToi(string guid)
         {
-            var result = await _db.Tois.FindAsync(guid);
-            var statusCode = result == null ? DatabaseStatusCode.NoElement : DatabaseStatusCode.Ok;
-            return new DbResult<ToiModel>(result, statusCode);
+            return await _db.Tois.FindOne(guid);
         }
 
         // TODO Create test for this method 
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<Guid> contexts)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(HashSet<string> contexts)
         {
-            var result = _db.Tois
-                .Include(t => t.ContextModels)
-                .Include(t => t.TagModels)
-                .Where(t => contexts.Contains(t.Id));
-            var statusCode = await result.AnyAsync() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
-            return new DbResult<IEnumerable<ToiModel>>(result, statusCode);
+            return await _db.Tois.Find(t => t.Contexts.Any(contexts.Contains));
         }
     }
 }

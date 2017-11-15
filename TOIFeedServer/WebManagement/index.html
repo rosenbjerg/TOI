@@ -97,7 +97,7 @@
 
 <template id="edit-tag-template">
     <h3>Edit tag</h3>
-    <form id="edit-tag-form" data-tag-id="{{TagId}}">
+    <form id="edit-tag-form" data-tag-id="{{Id}}">
         <label>Tag name</label>
         <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text">
 
@@ -186,7 +186,7 @@
         <td>{{Name = Unnamed}}</td>
     </tr>
     <tr>
-        <td>{{TagId}}</td>
+        <td>{{Id}}</td>
     </tr>
 </template>
 
@@ -196,7 +196,7 @@
 </template>
 
 <template id="tag-template">
-    <li class="tag" data-id="{{TagId}}">
+    <li class="tag" data-id="{{Id}}">
         <table>
             <tbody>
                 <tr>
