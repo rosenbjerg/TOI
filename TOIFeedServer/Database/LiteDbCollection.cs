@@ -5,10 +5,12 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using LiteDB;
+using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
 {
     public class LiteDbCollection<T> : IDbCollection<T>
+        where T : IModel
     {
         private readonly LiteCollection<T> _collection;
 
@@ -65,6 +67,16 @@ namespace TOIFeedServer.Database
         public Task<DbResult<IEnumerable<T>>> GetAll()
         {
             return Task.FromResult(new DbResult<IEnumerable<T>>(_collection.FindAll(), DatabaseStatusCode.Ok));
+        }
+
+        public async Task<DatabaseStatusCode> DeleteAll()
+        {
+            var all = await GetAll();
+            foreach (var item in all.Result)
+            {
+                _collection.Delete(item.Id);
+            }
+            return DatabaseStatusCode.Deleted;
         }
     }
 }
