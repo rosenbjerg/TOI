@@ -3,7 +3,7 @@
 
 namespace TOIFeedServer.Models
 {
-    public class ContextModel
+    public class ContextModel : IModel
     {
         public ContextModel()
         {

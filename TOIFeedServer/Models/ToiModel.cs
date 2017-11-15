@@ -4,7 +4,7 @@ using TOIClasses;
 
 namespace TOIFeedServer.Models
 {
-    public class ToiModel : TagInfo
+    public class ToiModel : TagInfo, IModel
     {
         [BsonId]
         public string Id { get; set; }

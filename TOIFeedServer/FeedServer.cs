@@ -30,8 +30,13 @@ namespace TOIFeedServer
 
             _server.Get("/tags", async (req, res) =>
             {
-                var ids = SplitIds(req.Queries["ids"][0]).ToHashSet();
-                var tags = await tagMan.GetTags(ids);
+                string ids = null;
+                if (req.Queries.ContainsKey("ids"))
+                {
+                    ids = req.Queries["ids"][0];
+                }
+                var tagFilter = ids != null ? SplitIds(ids).ToHashSet() : null;
+                var tags = await tagMan.GetTags(tagFilter);
 
                 if (tags != null)
                 {
@@ -114,40 +119,45 @@ namespace TOIFeedServer
         private async void FillMockDatabase()
         {
             if (_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
-                return;
-
-            var testContext1 = new ContextModel
             {
-                Id = Guid.NewGuid().ToString("N"),
+                Console.WriteLine("Sample data already added.");
+                return;
+            }
+
+            var grownGuid = Guid.NewGuid().ToString("N");
+            var childGuid = Guid.NewGuid().ToString("N");
+            var grownCtx = new ContextModel
+            {
+                Id = grownGuid,
                 Title = "Grown-up stuff"
             };
-            var testContext2 = new ContextModel
+            var childCtx = new ContextModel
             {
-                Id = Guid.NewGuid().ToString("N"),
+                Id = childGuid,
                 Title = "For børn"
             };
-            var tag1 = new TagModel
+            var fTag = new TagModel
             {
                 Name = "F-Klubben",
-                TagId = "FA:C4:D1:03:8D:3D",
+                Id = "FA:C4:D1:03:8D:3D",
                 TagType = TagType.Bluetooth
             };
-            var tag2 = new TagModel
+            var cTag = new TagModel
             {
                 Name = "Cassiopeia",
-                TagId = "CC:14:54:01:52:82",
+                Id = "CC:14:54:01:52:82",
                 TagType = TagType.Bluetooth
             };
-            var tag3 = new TagModel
+            var mTag = new TagModel
             {
                 Name = "At Marius place",
-                TagId = "CB:FF:B9:6C:A4:7D",
+                Id = "CB:FF:B9:6C:A4:7D",
                 TagType = TagType.Bluetooth
             };
-            var tag4 = new TagModel
+            var btbTag = new TagModel
             {
                 Name = "By the bin",
-                TagId = "F4:B4:15:05:42:05",
+                Id = "F4:B4:15:05:42:05",
                 TagType = TagType.Bluetooth
             };
             
@@ -156,46 +166,60 @@ namespace TOIFeedServer
                 new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Description = "FA:C4:D1:03:8D:3D",
-                    Title = "Tag 1",
+                    Description = "Marius appartment is a place for people to meet and play Dungeons and Dragons. These people drink massive amounts of Monster.",
+                    Title = "The DND dungeon",
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
-                    Url = "https://imgur.com/gallery/yWoZC"
+                    Url = "https://imgur.com/gallery/yWoZC",
+                    Contexts = new List<string> {grownCtx.Id},
+                    Tags = new List<string> {mTag.Id}
                 },
                 new ToiModel 
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Description = "CC:14:54:01:52:82",
-                    Title = "Tag 2",
-                    Image = "https://i.imgur.com/6UwO2nF.mp4",
-                    Url = "https://imgur.com/gallery/6UwO2nF"
+                    Description = "Cocio and Tekken!",
+                    Title = "F-klubben",
+                    Image = "http://i36.tinypic.com/2e5jdsk.jpg",
+                    Url = "https://imgur.com/gallery/6UwO2nF",
+                    Contexts = new List<string> {grownCtx.Id},
+                    Tags = new List<string> {fTag.Id}
                 },
                 new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Description = "CB:FF:B9:6C:A4:7D",
-                    Title = "Tag 3",
+                    Description = "A place where nerds go daily to study computers. Smells a bit like burnt leather and horseblanket.",
+                    Title = "Cassiopeia",
                     Image = "https://i.imgur.com/aNV3gzq.png",
-                    Url = "https://imgur.com/gallery/aNV3gzq"
+                    Url = "https://imgur.com/gallery/aNV3gzq",
+                    Contexts = new List<string> {childCtx.Id},
+                    Tags = new List<string> {cTag.Id}
                 },
                 new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Description = "F4:B4:15:05:42:05",
-                    Title = "Tag 4",
+                    Description = "This hosts many interesting items that have been disposed during the week. If it stands untouched too long it will deteriorate into a pile of smelly goo.",
+                    Title = "Out Scraldespand",
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",
-                    Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59"
+                    Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59",
+                    Contexts = new List<string> {grownCtx.Id},
+                    Tags = new List<string> {btbTag.Id}
+                },
+
+                new ToiModel
+                {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Title = "AAU",
+                    Description = "Massive party at AAU. DEM gurlws are hoot!",
+                    Image = "https://i5.walmartimages.com/asr/fa1be18a-e37d-4387-b6bd-3c4fba36e1fa_1.a6268444b1193d23137622d8ff7c58b4.jpeg",
+                    Url = "pornhub.com",
+                    Contexts = new List<string> {grownCtx.Id},
+                    Tags = new List<string> {cTag.Id, btbTag.Id, mTag.Id, fTag.Id}
                 }
             };
 
             var db = _server.Plugins.Use<DatabaseService>();
-            foreach (var cm in new List<ContextModel> {testContext1, testContext2})
-            {
-                await db.InsertContext(cm);
-            }
-            foreach (var m in modelList)
-            {
-                await db.InsertToiModel(m);
-            }
+            await db.InsertTag(cTag, btbTag, mTag, fTag);
+            await db.InsertContext(grownCtx, childCtx);
+            await db.InsertToiModel(modelList.ToArray());
         }
 
         public void Start()

@@ -52,7 +52,7 @@ namespace TOIFeedServer.Tests
             var tagNo = 3;
             var q = new QueryCollection(new Dictionary<string, StringValues>
             {
-                {"id", $"F4B41505420{tagNo}"}
+                {"id", $"F4:B4:15:05:42:0{tagNo}"}
             });
             var tTask = _manager.GetTag(q);
             tTask.Wait();

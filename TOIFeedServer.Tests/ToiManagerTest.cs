@@ -105,7 +105,6 @@ namespace TOIFeedServer.Tests
         [DataTestMethod]
         [DataRow("", "[" + _tagGuid + "0]", "Mock TOI", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "", "Mock TOI", "Mock URL", "This is a mock TOI.")]
-        [DataRow("F6:B4:15:05:42:99", "[" + _tagGuid + "1]", "Mock TOI", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "", "Mock URL", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "Mock TOI", "", "This is a mock TOI.")]
         [DataRow(_ctxGuid, "[" + _tagGuid + "0]", "Mock TOI", "Mock URL", "")]
@@ -123,7 +122,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.AreEqual(task.Result, Guid.Empty);
+            Assert.AreEqual("-1", task.Result);
         }
 
         [DataTestMethod]

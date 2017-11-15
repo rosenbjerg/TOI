@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace TOIFeedServer.Models
 {
-    public class TagModel
+    public class TagModel : IModel
     {
         public TagModel()
         {
@@ -12,12 +12,12 @@ namespace TOIFeedServer.Models
         }
         public TagModel(string id, TagType type)
         {
-            TagId = id;
+            Id = id;
             TagType = type;
         }
 
         [BsonId]
-        public string TagId { get; set; }
+        public string Id { get; set; }
 
         [BsonElement(nameof(Name))]
         public string Name { get; set; }
@@ -36,17 +36,17 @@ namespace TOIFeedServer.Models
 
         public override bool Equals(object obj)
         {
-            return obj is TagModel t && t.TagId == TagId;
+            return obj is TagModel t && t.Id == Id;
         }
 
         protected bool Equals(TagModel other)
         {
-            return TagId.Equals(other.TagId);
+            return Id.Equals(other.Id);
         }
 
         public override int GetHashCode()
         {
-            return TagId.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

@@ -20,6 +20,7 @@ namespace TOIFeedServer
 
             var fs = new FeedServer(generateSampleData);
             fs.Start();
+            
 
             // Block thread to avoid closing server immediately
             if (!travisBuild)

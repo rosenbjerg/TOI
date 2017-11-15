@@ -15,5 +15,7 @@ namespace TOIFeedServer.Database
         Task<DbResult<T>> FindOne(Expression<Func<T, bool>> predicate);
         Task<DbResult<T>> FindOne(string id);
         Task<DbResult<IEnumerable<T>>> GetAll();
+
+        Task<DatabaseStatusCode> DeleteAll();
     }
 }

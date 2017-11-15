@@ -86,6 +86,10 @@ namespace TOIFeedServer.Tests
                     Title = "Test Title",
                     Image =
                         "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
+                    Tags = new List<string>
+                    {
+                        _tags[0].Id, _tags[1].Id
+                    }
                 },
                 new ToiModel
                 {
@@ -93,7 +97,11 @@ namespace TOIFeedServer.Tests
                     Description = "kludder",
                     Title = "Test Title",
                     Image =
-                        "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg"
+                        "https://scontent-amt2-1.cdninstagram.com/t51.2885-15/e35/21909339_361472870957985_3505233285414387712_n.jpg",
+                    Tags = new List<string>
+                    {
+                        _tags[0].Id
+                    }
                 }
             };
         }
@@ -213,8 +221,8 @@ namespace TOIFeedServer.Tests
             };
             var tagsId = new []
             {
-                _tags[0].TagId,
-                _tags[1].TagId
+                _tags[0].Id,
+                _tags[1].Id
             };
 
 
@@ -263,7 +271,7 @@ namespace TOIFeedServer.Tests
             var toi1 = _tois[0];
             var tagsBefore = toi1.Tags.Count;
             var insertStatusCode = await _dbs.InsertToiModel(toi1);
-            toi1.Tags.Add(_tags[1].TagId);
+            toi1.Tags.Add(_tags[2].Id);
             var statusCode = await _dbs.UpdateToiModel(toi1);
 
             var updated = await _dbs.GetToi(toi1.Id);

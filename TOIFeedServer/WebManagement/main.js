@@ -78,7 +78,7 @@ function diffMinutes(dt2, dt1)
 function loadTags(callback) {
 
     if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
-        $.get("/tag/all", function (tagResult) {
+        $.get("/tags", function (tagResult) {
             if (tagResult.Status !== "Ok")
             {
                 console.log("/tag error");
@@ -100,7 +100,7 @@ function loadTags(callback) {
 }
 function loadTois(callback) {
     if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
-        $.get("/toi/all", function (toiResult) {
+        $.get("/tois", function (toiResult) {
             console.log(toiResult);
             if (toiResult.Status !== "Ok")
             {
