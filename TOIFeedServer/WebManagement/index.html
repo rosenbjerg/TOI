@@ -25,13 +25,13 @@
 <div class="container">
     <div class="header">
         <h3>TOI Manager</h3>
-        <div class="header-menu">
-            <div class="header-menu-button" id="show-tois">Tois</div>
-            <div class="header-menu-button" id="show-contexts">Contexts</div>
-            <div class="header-menu-button" id="show-tags">Tags</div>
-            <div class="header-menu-button" id="create-toi">Create toi</div>
-            <div class="header-menu-button" id="create-context">Create context</div>
-            <div class="header-menu-button" id="create-tag">Create tag</div>
+        <div class="header-menu u-full-width">
+            <div class="header-menu-button" id="show-tois" tabindex="1">Tois</div>
+            <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
+            <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
+            <div class="header-menu-button" id="create-toi" tabindex="4">Create toi</div>
+            <div class="header-menu-button" id="create-context" tabindex="5">Create context</div>
+            <div class="header-menu-button" id="create-tag" tabindex="6">Create tag</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -119,7 +119,7 @@
                 <input required="required" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
             </div>
         </div>
-        <input class="six columns" type="button" value="Delete"/>
+        <input style="margin-left: 0" class="six columns" type="button" value="Delete"/>
         <input class="six columns button-primary" type="submit" value="Save changes"/>
     </form>
 </template>
@@ -136,12 +136,12 @@
 </template>
 
 <template id="save-edit-toi-template">
-        <h3 class="u-full-width">{{action}} TOI</h3>
+        <h3 class="u-full-width">Edit TOI</h3>
         <form id="save-edit-toi-form">
             <div class="row">
                 <div class="six columns">
                     <label>Title</label>
-                    <input required="required" type="text" name="type" class="u-full-width" id="createTitleInput">
+                    <input required="required" type="text" value="{{Title}}" name="type" class="u-full-width" id="createTitleInput">
                 </div>
                 <div class="six columns">
                     <label>Information</label>
@@ -154,7 +154,7 @@
                 <div class="six columns">
                     <label>Tags</label>
                     <table class="u-full-width">
-                        <tbody class="empty-placeholder u-full-width" data-empty-message="No tags added to TOI"></tbody>
+                        <tbody class="empty-placeholder u-full-width" data-empty-message="No tags added to TOI">{{Tags}}</tbody>
                     </table>
                     <div id="add-toi-tag-search">
                         <label>Find tags</label>
@@ -171,10 +171,24 @@
                 </div>
                 <div class="six columns">
                     <label>Url</label>
-                    <input class="u-full-width" value="https://" type="url">
+                    <input class="u-full-width" value="{{Url = https://}}" type="url">
 
                     <label>Short description</label>
-                    <textarea class="u-full-width" name="desc" rows="10"></textarea>
+                    <textarea class="u-full-width" name="desc" rows="10">{{Description}}</textarea>
+                </div>
+                <div class="six columns">
+                    <div id="add-toi-context-search">
+                        <label>Add contexts</label>
+                        <span class="ten columns">
+                            <input class="u-full-width" type="search">
+                        </span>
+                        <div class="two columns">
+                            <button class="material-icons u-full-width" type="button">search</button>
+                        </div>
+                        <table class="u-full-width">
+                            <tbody  id="context-search-result" class="empty-placeholder" data-empty-message="Find tags to add using the search bar right above"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <input class="six columns button-primary" type="submit" value="Save TOI"/>
@@ -214,18 +228,18 @@
             <tbody>
             <tr>
                 <td>
-                    <strong class="truncate">{{Title}}</strong>
+                    <strong class="truncate" title="{{Title}}">{{Title}}</strong>
                 </td>
                 <td rowspan="4">
                     <img src="{{Image}}" alt="No image">
                 </td>
             </tr>
             <tr>
-                <td>{{Description}}</td>
+                <td class="truncate" title="{{Description}}">{{Description}}</td>
             </tr>
             <tr>
-                <td>
-                    <i class="truncate">Contexts: {{Contexts}}</i>
+                <td class="truncate">
+                    <i title="{{ContextString}}">{{ContextString}}</i>
                 </td>
             </tr>
             <tr>
@@ -239,7 +253,9 @@
 </template>
 
 <template id="context-template">
-
+    <div class="context" data-id="{{Id}}">
+        <p>{{Title}}</p>
+    </div>
 </template>
 
 

@@ -20,9 +20,9 @@ namespace TOIFeedServer
 
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
 
-            Console.WriteLine(development ? "Using LiteDB" : "Using MongoDB");
+            Console.WriteLine(development ? "Using In-memory db" : "Using MongoDB");
 
-            var dbService = new DatabaseService(development ? DatabaseFactory.DatabaseType.LiteDB : DatabaseFactory.DatabaseType.MongoDB);
+            var dbService = new DatabaseService(development ? DatabaseFactory.DatabaseType.InMemory : DatabaseFactory.DatabaseType.MongoDB);
             _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
             var tagMan = new TagManager(dbService);
             var toiMan = new ToiManager(dbService);
@@ -109,6 +109,12 @@ namespace TOIFeedServer
                     await res.SendString("The tag could not be updated.", status: 400);
             });
             
+            _server.Get("/contexts", async (req, res) =>
+            {
+                var all = await dbService.GetAllContexts();
+                await res.SendJson(all);
+            }); 
+           
             if (sampleData)
             {
                 FillMockDatabase();
@@ -139,7 +145,7 @@ namespace TOIFeedServer
             {
                 Name = "F-Klubben",
                 Id = "FA:C4:D1:03:8D:3D",
-                TagType = TagType.Bluetooth
+                TagType = TagType.Nfc
             };
             var cTag = new TagModel
             {
@@ -151,13 +157,13 @@ namespace TOIFeedServer
             {
                 Name = "At Marius place",
                 Id = "CB:FF:B9:6C:A4:7D",
-                TagType = TagType.Bluetooth
+                TagType = TagType.Wifi
             };
             var btbTag = new TagModel
             {
                 Name = "By the bin",
                 Id = "F4:B4:15:05:42:05",
-                TagType = TagType.Bluetooth
+                TagType = TagType.Gps
             };
             
             var modelList = new List<ToiModel>

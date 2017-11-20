@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.Extensions.ObjectPool;
 using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Database
@@ -75,7 +78,8 @@ namespace TOIFeedServer.Database
 
         public Task<DbResult<IEnumerable<T>>> GetAll()
         {
-            return Task.FromResult(new DbResult<IEnumerable<T>>(Store, DatabaseStatusCode.Ok));
+            var status = Store.Any() ? DatabaseStatusCode.Ok : DatabaseStatusCode.NoElement;
+            return Task.FromResult(new DbResult<IEnumerable<T>>(Store, status));
         }
 
         public Task<DatabaseStatusCode> DeleteAll()

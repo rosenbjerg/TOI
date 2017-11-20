@@ -13,41 +13,40 @@ let templates = {
     context : JsT.loadById("context-template"),
 
 };
+// templates.saveEditToi.setFormatter("Tags", function (tagData) {
+//     if (!tagData)
+//         return "";
+//     let str = "";
+//     let tags = tagData.map(t => state.tags[t]);
+//     for (let i in tags) {
+//         str += templates.tagCell.render(tags[i]);
+//     }
+//     return str;
+// });
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template")
 };
 let state = {
-    tags: {}
+    tags: {},
+    tois: {},
+    contexts: {},
 };
 
-function post(url, data, success, error) {
+function ajax(url, method, data, success, error) {
     $.ajax({
         url: url,
         data: data,
         cache: false,
         processData: false,
         contentType: false,
-        type: "POST",
+        type: method.toUpperCase(),
         success: success,
         error: error
     });
 }
-function put(url, data, success, error) {
-    $.ajax({
-        url: url,
-        data: data,
-        cache: false,
-        processData: false,
-        contentType: false,
-        type: "PUT",
-        success: success,
-        error: error
-    });
-}
-
 function getMaterialIcon(input) {
     switch (input) {
-        case "GPS":
+        case "Gps":
             return "gps_fixed";
         default:
             return input.toLowerCase();
@@ -84,76 +83,58 @@ function diffMinutes(dt2, dt1) {
     diff /= 60;
     return Math.abs(Math.round(diff));
 }
-
-function loadTags(callback) {
-
-    if (!state.tagsUpdated || diffMinutes(new Date(), state.tagsUpdated) > 1){
-        $.get("/tags", function (tagResult) {
-            if (tagResult.Status !== "Ok")
+function getResource(resource, doneCallback, processData) {
+    let updated = resource + "Updated";
+    if (!state[updated] || diffMinutes(new Date(), state[updated]) > 1){
+        $.get("/" + resource, function (data) {
+            if (data.Status !== "Ok")
             {
                 console.log("/tag error");
                 return;
             }
-            state.tags = {};
-            state.tagsUpdated = new Date();
-            for (let i = 0, max = tagResult.Result.length; i < max; i++){
-                let tag = tagResult.Result[i];
-                tag.Icon = getMaterialIcon(tag.TagType);
-                state.tags[tag.Id] = tag;
+            if (processData)
+                data = processData(data.Result);
+            else
+                data = data.Result;
+
+            state[resource] = {};
+            state[updated] = new Date();
+            for (let i in data){
+                let element = data[i];
+                state[resource][element.Id] = element;
             }
-            callback();
+            if (doneCallback)
+                doneCallback();
         });
     }
     else {
-        callback();
+        if (doneCallback)
+            doneCallback();
     }
+}
+
+function loadTags(callback) {
+    getResource("tags", callback, function (data) {
+        for (let i in data){
+            data[i].Icon = getMaterialIcon(data[i].TagType);
+        }
+        return data;
+    });
+
+
 }
 function loadTois(callback) {
-    if (!state.toisUpdated || diffMinutes(new Date(), state.toisUpdated) > 1){
-        $.get("/tois", function (toiResult) {
-            console.log(toiResult);
-            if (toiResult.Status !== "Ok")
-            {
-                console.log("/tois error");
-                return;
-            }
-            state.tois = {};
-            state.toisUpdated = new Date();
-            for (let i = 0, max = toiResult.Result.length; i < max; i++){
-                let toi = toiResult.Result[i];
-                toi.TagAmount = toi.TagModels.length;
-                toi.Contexts = toi.ContextModels
-                    .map(function (t) { return t.Title })
-                    .join(', ');
-                state.tois[toi.Id] = toi;
-                console.log(toi);
-            }
-            callback();
-        });
-    }
-    else {
-        callback();
-    }
+    getResource("tois", callback, function (data) {
+        for (let i in data){
+            let toi = data[i];
+            toi.TagAmount = toi.Tags.length;
+            toi.ContextString = toi.Contexts.map(c => state.contexts[c].Title).join(', ');
+        }
+        return data;
+    });
 }
 function loadContexts(callback) {
-    if (!state.contextsUpdated || diffMinutes(new Date(), state.contextsUpdated) > 1){
-        $.get("/contexts", function (contextResult) {
-            if (contextResult.Status !== "Ok")
-            {
-                console.log("/contexts error");
-                return;
-            }
-            state.contexts = {};
-            state.contextsUpdated = new Date();
-            for (let i = 0, max = contextResult.Result.length; i < max; i++){
-                state.contexts[context.Id] = context;
-            }
-            callback();
-        });
-    }
-    else {
-        callback();
-    }
+    getResource("contexts", callback);
 }
 
 function showLogin() {
@@ -183,7 +164,6 @@ function showCreateTag() {
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, {timeout: 500});
 }
-
 function showToiList() {
     loadTois(function () {
         let l = "";
@@ -226,7 +206,6 @@ function showContextList() {
         }));
     });
 }
-
 function showPopup(html) {
     $.magnificPopup.open({
         items: {
@@ -236,14 +215,6 @@ function showPopup(html) {
     });
 }
 
-// showLogin();
-// showTagList([
-//     {Name: "Test tag navn 1",   TagId: "FA:C4:D1:03:8D:3D", TagType: "Bluetooth", Latitude: "56.9385382", Longitude: "9.7409053", Radius: 5000},
-//     {Name: "Henne på havnen",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Wifi", Radius: 900},
-//     {Name: "Skolevej 14",   TagId: "FB:C4:D1:03:8D:3D", TagType: "GPS"},
-//     {Name: "Test tag navn 2",   TagId: "FB:C4:D1:03:8D:3D", TagType: "Bluetooth"},
-//     {                           TagId: "FC:C4:D1:03:8D:3D", TagType: "NFC"}
-// ]);
 
 $("#show-tags").click(showTagList);
 $("#create-tag").click(showCreateTag);
@@ -264,12 +235,19 @@ $viewSpace.on("click", ".tag", function () {
 $viewSpace.on("click", ".toi", function () {
     let id = $(this).data("id");
     let toi = state.tois[id];
+    console.log(toi);
     showSaveEditToi(toi);
+});
+$viewSpace.on("click", ".context", function () {
+    let id = $(this).data("id");
+    let context = state.contexts[id];
+    console.log(context);
+    // showSaveEditContext(context);
 });
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     var form = new FormData(this);
-    post("/toi", form, function (data) {
+    ajax("/toi", form, function (data) {
         console.log(data);
     }, function (data) {
         console.log(data);
@@ -282,7 +260,7 @@ $viewSpace.on("submit", "create-tag-form", function (ev) {
         showPopup()
         return;
     }
-    post("/tag", form, function () {
+    ajax("/tag", form, function () {
 
     })
     // aja
@@ -322,14 +300,5 @@ $viewSpace.on("click", "#add-toi-tag-search button", function () {
 
 showLogin();
 
-// showToiList([
-//     {
-//         Id: "FA:C4:D1:03:8D:3D",
-//         Description: "This is a very descriptive description and it describes how to describe descriptions",
-//         Title: "Tag 1",
-//         Image: "https://i.imgur.com/gCTCL7z.jpg",
-//         Url: "https://imgur.com/gallery/yWoZC",
-//         TagAmount: Math.floor(Math.random() * 67),
-//         Context: "Marabou ruten"
-//     }
-// ]);
+loadContexts(loadTois);
+loadTags();
