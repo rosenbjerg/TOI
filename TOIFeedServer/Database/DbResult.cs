@@ -1,13 +1,13 @@
 ﻿namespace TOIFeedServer
 {
-    public struct DbResult<T>
+    public class DbResult<T>
     {
         public DbResult(T result, DatabaseStatusCode status)
         {
             Result = result;
             Status = status;
         }
-        public readonly T Result;
-        public readonly DatabaseStatusCode Status;
+        public T Result { get; }
+        public DatabaseStatusCode Status { get; }
     }
 }

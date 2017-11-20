@@ -8,4 +8,3 @@ script:
 - dotnet build 
 - dotnet test TOIFeedRepo.Tests/TOIFeedRepo.Tests.csproj
 - dotnet test TOIFeedServer.Tests/TOIFeedServer.Tests.csproj
-- dotnet test TOIWebClient.Tests/TOIWebClient.Tests.csproj

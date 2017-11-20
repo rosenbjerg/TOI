@@ -1,0 +1,210 @@
+html, body {
+    background-color: #FAFAFA;
+}
+textarea {
+    max-width: 100%;
+    min-width: 100%;
+}
+.mapPicker {
+    /*width: 500px; */
+    height: 400px;
+}
+@media (min-width: 550px){
+    .container {
+        /* width: 80%; */
+        width: inherit;
+    }
+
+}
+@media (min-width: 400px){
+    .container {
+        /* width: 85%; */
+        /* padding: 0; */
+        width: inherit;
+        padding: inherit;
+    }
+}
+input[type=submit] {
+    float: right;
+}
+h3 {
+    font-family: 'Comfortaa', sans-serif;
+}
+#login-form {
+    max-width: 500px;
+    margin:auto;
+}
+
+#viewSpace {
+    margin-top: 45px;
+}
+
+.header, .header-bgc {
+    /*min-height: 5rem;*/
+    margin-bottom: 0;
+}
+.header * {
+    margin-top: 10px;
+    color: #FAFAFA;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.header h3 {
+    padding-left: 12px;
+    font-family: 'Comfortaa', serif;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.header-menu, .header-menu-button {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13pt;
+}
+.header {
+
+    padding: 8px;
+    padding-top:16px;
+    border-radius: 3px;
+    box-shadow: 4px 4px 30px -4px rgba(66,66,66,0.67);
+    margin-top: 13px;
+    background-color: rgba(21,101,192,1);
+}
+.header-menu-button {
+    cursor: pointer;
+    display: inline-block;
+    padding: 1px 20px;
+    transition: background-color 50ms;
+    border: none;
+    border-radius: 1px;
+    margin: 4px 1px 1px;
+}
+.header-menu-button:hover {
+    transition: background-color 150ms;
+    background-color: rgba(144,202,249 ,0.3)
+}
+
+.empty-placeholder:empty::after{
+    content: attr(data-empty-message);
+    font-size: 10pt;
+    height: 20px;
+    color: #818181;
+    white-space: nowrap;
+}
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
+}
+
+
+ul, li {
+    list-style: none;
+}
+
+.tag, .toi, .context {
+    -webkit-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+    -moz-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+    box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+}
+
+.tag {
+    padding: 12px 8px;
+    border-radius: 2px;
+    background-color: #EEEEEE;
+    display: inline-block;
+    transition: background-color 50ms;
+    cursor: pointer;
+    /*min-width: 55px;*/
+    margin: 8px;
+}
+.context {
+    padding: 12px 8px;
+    border-radius: 2px;
+    background-color: #EEEEEE;
+    display: inline-block;
+    transition: background-color 50ms;
+    cursor: pointer;
+    /*min-width: 55px;*/
+    margin: 8px;
+}
+.tag:hover, .toi:hover, .context:hover {
+    background-color: #E0E0E0;
+    transition: background-color 150ms;
+}
+.tag *, .toi *, .context * {
+    padding: 0;
+    margin: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.tag table, .tag tr, .toi table, .toi tr {
+    table-layout: fixed;
+    border: hidden;
+    border-collapse: collapse;
+    height: 100%;
+}
+.tag i {
+    text-align: center;
+    min-width: 35px;
+    line-height: unset;
+}
+.modal-popup {
+    max-width: 500px;
+    background: #FAFAFA;
+    padding: 20px;
+    padding-top: 30px;
+    padding-bottom:20px;
+    margin: auto;
+    position: relative;
+    width: auto;
+    border-radius: 3px;
+}
+
+.toi {
+    padding: 12px 12px;
+    border-radius: 2px;
+    width: 276px;
+    max-height:200px;
+    background-color: #EEEEEE;
+    display: inline-block;
+    transition: background-color 50ms;
+    cursor: pointer;
+    margin: 8px;
+}
+.toi img {
+    max-height: 96px;
+    max-width: 120px;
+    float: right;
+    border-radius: 2px;
+    border: solid 1px #BDBDBD;
+}
+.toi table {
+    width: 100%;
+}
+#add-toi-tag-search {
+    border: 1px lightgrey;
+    border-radius: 2px;
+}
+#add-toi-tag-search button, #add-toi-context-search button {
+    padding: 0;
+}
+#add-toi-tag-search > span, #add-toi-context-search span{
+    margin-left:0;
+}
+
+input:invalid {
+    outline: 1px #ef9a9a;
+}
+.tag-table-cell {
+
+}
+/*#add-toi-tag-search > div:last-child{*/
+    /*float: right;*/
+/*}*/

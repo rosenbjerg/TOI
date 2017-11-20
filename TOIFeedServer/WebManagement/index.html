@@ -1,22 +1,266 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TOI Management Markinator</title>
-
+    <title>TOI Management</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
+    <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>
+    <script src="js/locationpicker.jquery.js"></script>
+    <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
 
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|Roboto|Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>
+    <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!--<div class="header-bgc"></div>-->
+<div class="container">
+    <div class="header">
+        <h3>TOI Manager</h3>
+        <div class="header-menu u-full-width">
+            <div class="header-menu-button" id="show-tois" tabindex="1">Tois</div>
+            <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
+            <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
+            <div class="header-menu-button" id="create-toi" tabindex="4">Create toi</div>
+            <div class="header-menu-button" id="create-context" tabindex="5">Create context</div>
+            <div class="header-menu-button" id="create-tag" tabindex="6">Create tag</div>
+        </div>
+    </div>
+    <div id="viewSpace"></div>
+</div>
+
+<template id="login-template">
+    <h3 class="u-full-width" style="text-align: center">Login</h3>
+
+    <form id="login-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <input class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
+</template>
+
+<template id="create-tag-template">
+        <h3>Create new tag</h3>
+        <form id="create-tag-form">
+            <label for="titleInput">Title</label>
+            <input required="required" name="titleInput" class="u-full-width" type="text" placeholder="Title" id="titleInput" />
+
+            <label for="idInput">Hardware ID</label>
+            <input required="required" name="idInput" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"
+                   id="idInput"/>
+
+            <div class="row">
+                <label for="typeInput">Type</label>
+                <select name="typeInput" class="u-full-width" id="typeInput">
+                    <option value="none" >- Please select</option>
+                    <option value="nfc">NFC</option>
+                    <option value="ble">Bluetooth Low Energy</option>
+                    <option value="wifi">Wi-Fi</option>
+                    <option value="gps">GPS</option>
+                </select>
+            </div>
+
+            <label>Location name (optional)</label>
+            <input class="u-full-width locationNameInput" type="text"/>
+
+            <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
+            <label>Pick location or type in coordinates</label>
+            <div class="mapPicker u-full-width"></div>
+
+            <div class="row">
+                <div class="four columns">
+                    <label>Latitude</label>
+                    <input required="required" class="u-full-width latitudeInput" value="{{latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                </div>
+                <div class="four columns">
+                    <label>Longitude</label>
+                    <input required="required" class="u-full-width longitudeInput" value="{{longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                </div>
+                <div class="four columns">
+                    <label>Radius</label>
+                    <input required="required" class="u-full-width radiusInput" value="{{radius}}" type="number" pattern="\d+"/>
+                </div>
+            </div>
+            <input class="six columns button-primary" type="submit" value="Save tag"/>
+        </form>
+</template>
+
+<template id="edit-tag-template">
+    <h3>Edit tag</h3>
+    <form id="edit-tag-form" data-tag-id="{{Id}}">
+        <label>Tag name</label>
+        <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text">
+
+        <label>Location</label>
+        <input class="u-full-width locationNameInput" type="text"/>
+        <div class="mapPicker u-full-width"></div>
+
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
+            </div>
+        </div>
+        <input style="margin-left: 0" class="six columns" type="button" value="Delete"/>
+        <input class="six columns button-primary" type="submit" value="Save changes"/>
+    </form>
+</template>
+
+<template id="save-edit-context-template">
+    <h3>{{action}} context</h3>
+    <form id="save-edit-context-form">
+        <label>Context name</label>
+        <input class="u-full-width" type="text" required="required" value="{{Name}}" name="name">
+        <label>Description</label>
+        <textarea class="u-full-width" required="required" name="desc">{{Description}}</textarea>
+        <input class="six columns button-primary" type="submit" value="Save context"/>
+    </form>
+</template>
+
+<template id="save-edit-toi-template">
+        <h3 class="u-full-width">Edit TOI</h3>
+        <form id="save-edit-toi-form">
+            <div class="row">
+                <div class="six columns">
+                    <label>Title</label>
+                    <input required="required" type="text" value="{{Title}}" name="type" class="u-full-width" id="createTitleInput">
+                </div>
+                <div class="six columns">
+                    <label>Information</label>
+                    <select name="type" class="u-full-width" id="createTypeInput">
+                        <option value="image">Picture</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="six columns">
+                    <label>Tags</label>
+                    <table class="u-full-width">
+                        <tbody class="empty-placeholder u-full-width" data-empty-message="No tags added to TOI">{{Tags}}</tbody>
+                    </table>
+                    <div id="add-toi-tag-search">
+                        <label>Find tags</label>
+                        <span class="ten columns">
+                            <input class="u-full-width" type="search">
+                        </span>
+                        <div class="two columns">
+                            <button class="material-icons u-full-width" type="button">search</button>
+                        </div>
+                        <table class="u-full-width">
+                            <thead>
+                                <tr>
+                                    <th>Tag name</th>
+                                    <th>Tag id</th>
+                                </tr>
+                            </thead>
+                            <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="Find tags to add using the search bar right above"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="six columns">
+                    <label>Url</label>
+                    <input class="u-full-width" value="{{Url = https://}}" type="url">
+
+                    <label>Short description</label>
+                    <textarea class="u-full-width" name="desc" rows="10">{{Description}}</textarea>
+                </div>
+                <div class="six columns">
+                    <div id="add-toi-context-search">
+                        <label>Add contexts</label>
+                        <span class="ten columns">
+                            <input class="u-full-width" type="search">
+                        </span>
+                        <div class="two columns">
+                            <button class="material-icons u-full-width" type="button">search</button>
+                        </div>
+                        <table class="u-full-width">
+                            <tbody  id="context-search-result" class="empty-placeholder" data-empty-message="Find contexts to add using the search bar right above"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <input class="six columns button-primary" type="submit" value="Save TOI"/>
+        </form>
+</template>
+
+<template id="tag-table-cell">
+    <tr>
+        <td class="truncate">{{Name = Unnamed}}</td>
+        <td class="truncate">{{Id}}</td>
+    </tr>
+</template>
+
+<template id="list-template">
+    <h3>{{title}}</h3>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{{list}}</ul>
+</template>
+
+<template id="tag-template">
+    <li class="tag" data-id="{{Id}}">
+        <table>
+            <tbody>
+                <tr>
+                    <td title="{{TagType}}"><i class="material-icons">{{Icon}}</i></td>
+                    <td>{{Name}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
+<template id="toi-template">
+    <li class="toi" data-id="{{Id}}">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <strong class="truncate" title="{{Title}}">{{Title}}</strong>
+                </td>
+                <td rowspan="4">
+                    <img src="{{Image}}" alt="No image">
+                </td>
+            </tr>
+            <tr>
+                <td class="truncate" title="{{Description}}">{{Description}}</td>
+            </tr>
+            <tr>
+                <td class="truncate">
+                    <i title="{{ContextString}}">{{ContextString}}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <i>Tags: {{TagAmount = 0}}</i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
+<template id="context-template">
+    <div class="context" data-id="{{Id}}">
+        <p>{{Title}}</p>
+    </div>
+</template>
 
 
 <script src="main.js"></script>

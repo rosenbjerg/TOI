@@ -1,34 +1,33 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 
 namespace TOIFeedServer.Models
 {
-    public class ContextModel
+    public class ContextModel : IModel
     {
         public ContextModel()
         {
             
         }
-        public ContextModel(Guid id, string title, string description = null)
+        public ContextModel(string id, string title, string description = null)
         {
             Id = id;
             Title = title;
             Description = description;
         }
 
-        [Key]
-        public Guid Id { get; set; }
+        [BsonId]
+        public string Id { get; set; }
 
+        [BsonElement(nameof(Description))]
         public string Description { get; set; }
 
-        [StringLength(70)]
-        [Required]
+        [BsonElement(nameof(Title))]
         public string Title { get; set; }
 
         public override bool Equals(object obj)
         {
-            return obj is ContextModel t && t.Id == Id;
+            return obj != null && obj is ContextModel t && t.Id == Id;
         }
 
         protected bool Equals(ContextModel other)
@@ -40,5 +39,6 @@ namespace TOIFeedServer.Models
         {
             return Id.GetHashCode();
         }
+        
     }
 }
