@@ -79,7 +79,7 @@ namespace TOIFeedServer
                     await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
             });
 
-            _server.Post("/toi/fromTags", async (req, res) =>
+            _server.Post("/toi/fromtags", async (req, res) =>
             {
                 var tags = await req.ParseBodyAsync<IEnumerable<string>>();
                 if (tags == null)
@@ -98,7 +98,7 @@ namespace TOIFeedServer
                 }
             });
 
-            _server.Get("/toi/fromContext", async (req, res) =>
+            _server.Get("/toi/fromcontext", async (req, res) =>
             {
                 var contextString = "";
                 if (req.Queries.ContainsKey("contexts"))
