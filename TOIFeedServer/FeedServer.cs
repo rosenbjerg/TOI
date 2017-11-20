@@ -6,6 +6,7 @@ using RedHttpServerCore;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
 using TOIFeedServer.Models;
+using Newtonsoft.Json;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer
@@ -90,7 +91,8 @@ namespace TOIFeedServer
 
             _server.Post("/toi/fromtags", async (req, res) =>
             {
-                var tags = await req.ParseBodyAsync<IEnumerable<string>>();
+                var bString = await req.ParseBodyAsync<string>();
+                var tags = JsonConvert.DeserializeObject<IEnumerable<string>>(bString);
                 if (tags == null)
                 {
                     await res.SendString("Bad request", status: StatusCodes.Status400BadRequest);
@@ -103,7 +105,7 @@ namespace TOIFeedServer
                 }
                 else
                 {
-                    await res.SendJson(toi);
+                    await res.SendJson(toi.Result);
                 }
             });
             
