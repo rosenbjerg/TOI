@@ -72,5 +72,11 @@ namespace TOIFeedServer.Managers
             }
             return result;
         }
+
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByTagIds(IEnumerable<string> ids)
+        {
+            var res = await _dbService.GetToisByTagIds(ids);
+            return res;
+        }
     }
 }
