@@ -159,7 +159,9 @@ ul, li {
     max-width: 500px;
     background: #FAFAFA;
     padding: 20px;
-    margin: 40px auto;
+    padding-top: 30px;
+    padding-bottom:20px;
+    margin: auto;
     position: relative;
     width: auto;
     border-radius: 3px;
@@ -199,6 +201,9 @@ ul, li {
 
 input:invalid {
     outline: 1px #ef9a9a;
+}
+.tag-table-cell {
+
 }
 /*#add-toi-tag-search > div:last-child{*/
     /*float: right;*/

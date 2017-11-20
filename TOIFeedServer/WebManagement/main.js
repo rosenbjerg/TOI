@@ -277,26 +277,64 @@ $viewSpace.on("submit", "#edit-tag-form", function (ev) {
     });
 });
 $viewSpace.on("click", "#add-toi-tag-search button", function () {
-    let searchTerm = $("#add-toi-tag-search input").val();
-    let result = [];
-    if (searchTerm === ""){
-        for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x))
-                result.push(state.tags[x]);
-        }
-    }
-    else {
-        for (let x in state.tags){
-            if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.contains(searchTerm) || state.tags[x].Id.contains(searchTerm)))
-                result.push(state.tags[x]);
-        }
-    }
+    // let searchTerm = $("#add-toi-tag-search input").val();
+    // let result = [];
+    // if (searchTerm === ""){
+    //     for (let x in state.tags){
+    //         if (state.tags.hasOwnProperty(x))
+    //             result.push(state.tags[x]);
+    //     }
+    // }
+    // else {
+    //     for (let x in state.tags){
+    //         if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.indexOf(searchTerm) !== -1 || state.tags[x].Id.contains(searchTerm)))
+    //             result.push(state.tags[x]);
+    //     }
+    // }
+    // let str = "";
+    // for (let i = 0, max = result.length; i < max; i++) {
+    //     str += templates.tagCell.render(result[i]);
+    // }
+    // $("#tag-search-result").empty().append(str);
+    //
+    //
+
+    let searchTerm = $("add-toi-tag-search input").val();
+    console.log(searchTerm);
+    let result = searchInData(state.tags, function (c) {
+        console.log(c);
+        return searchTerm === "" || c.Name.includes(searchTerm) || c.Id.includes(searchTerm);
+    });
     let str = "";
-    for (let i = 0, max = result.length; i < max; i++) {
+    for (let i in result){
         str += templates.tagCell.render(result[i]);
     }
     $("#tag-search-result").empty().append(str);
 });
+$viewSpace.on("click", "#add-toi-context-search button", function () {
+    let searchTerm = $("add-toi-context-search input").val();
+    console.log(searchTerm == "");
+    console.log(searchTerm);
+    let result = searchInData(state.contexts, function (c) {
+        return searchTerm === "" || c.Title.includes(searchTerm) || c.Id.includes(searchTerm);
+    });
+    let str = "";
+    for (let i in result){
+        str += templates.tagCell.render(result[i]);
+    }
+    console.log(result);
+    $("#context-search-result").empty().append(str);
+});
+function searchInData(collection, compareFunc) {
+    let result = [];
+    for (let x in collection){
+        if (!collection.hasOwnProperty(x) || !compareFunc(collection[x]))
+            continue;
+        console.log("added");
+        result.push(collection[x]);
+    }
+    return result;
+}
 
 showLogin();
 
