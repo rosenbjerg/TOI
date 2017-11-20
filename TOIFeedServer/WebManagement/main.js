@@ -2,15 +2,16 @@
 
 let $viewSpace = $("#viewSpace");
 let templates = {
-    login : JsT.loadById("login-template"),
-    createTag : JsT.loadById("create-tag-template"),
-    saveEditToi : JsT.loadById("save-edit-toi-template"),
-    list : JsT.loadById("list-template"),
-    tag : JsT.loadById("tag-template"),
-    toi : JsT.loadById("toi-template"),
-    tagCell : JsT.loadById("tag-table-cell"),
-    saveEditContext : JsT.loadById("save-edit-context-template"),
-    context : JsT.loadById("context-template"),
+    login : JsT.loadById("login-template", true),
+    createTag : JsT.loadById("create-tag-template", true),
+    saveEditToi : JsT.loadById("save-edit-toi-template", true),
+    list : JsT.loadById("list-template", true),
+    tag : JsT.loadById("tag-template", true),
+    toi : JsT.loadById("toi-template", true),
+    tagCell : JsT.loadById("tag-table-cell", true),
+    contextCell : JsT.loadById("context-table-cell", true),
+    saveEditContext : JsT.loadById("save-edit-context-template", true),
+    context : JsT.loadById("context-template", true),
 
 };
 // templates.saveEditToi.setFormatter("Tags", function (tagData) {
@@ -24,7 +25,7 @@ let templates = {
 //     return str;
 // });
 let modalTemplates = {
-    editTag : JsT.loadById("edit-tag-template")
+    editTag : JsT.loadById("edit-tag-template", true)
 };
 let state = {
     tags: {},
@@ -43,6 +44,15 @@ function ajax(url, method, data, success, error) {
         success: success,
         error: error
     });
+}
+function searchInData(collection, compareFunc) {
+    let result = [];
+    for (let x in collection){
+        if (!collection.hasOwnProperty(x) || !compareFunc(collection[x]))
+            continue;
+        result.push(collection[x]);
+    }
+    return result;
 }
 function getMaterialIcon(input) {
     switch (input) {
@@ -144,7 +154,10 @@ function showSaveEditToi(toi) {
     $viewSpace.empty().append(templates.saveEditToi.render(toi));
 }
 function showSaveEditContext(context) {
-    $viewSpace.empty().append(templates.saveEditContext.render(toi));
+    showPopup(templates.saveEditContext.render({
+        action: context ? "Edit" : "New",
+        context: context
+    }));
 }
 function showCreateTag() {
     let defaults = {
@@ -172,6 +185,8 @@ function showToiList() {
                 l += templates.toi.render(state.tois[x]);
         }
         $viewSpace.empty().append(templates.list.render({
+            createText: "New ToI",
+            createButtonId: "create-new-toi",
             title: "All tois",
             list: l,
             thing: "TOI"
@@ -186,6 +201,8 @@ function showTagList() {
                 l += templates.tag.render(state.tags[x]);
         }
         $viewSpace.empty().append(templates.list.render({
+            createText: "New tag",
+            createButtonId: "create-new-tag",
             title: "All tags",
             list: l,
             thing: "tag"
@@ -200,6 +217,8 @@ function showContextList() {
                 l += templates.context.render(state.contexts[x]);
         }
         $viewSpace.empty().append(templates.list.render({
+            createText: "New context",
+            createButtonId: "create-new-context",
             title: "All Contexts",
             list: l,
             thing: "context"
@@ -216,13 +235,16 @@ function showPopup(html) {
 }
 
 
-$("#show-tags").click(showTagList);
-$("#create-tag").click(showCreateTag);
-$("#show-tois").click(showToiList);
-$("#create-toi").click(showSaveEditToi);
-$("#show-contexts").click(showContextList);
-$("#create-context").click(showSaveEditContext);
+$("#show-tags").click(function() {showTagList()});
+$("#create-tag").click(function() {showCreateTag()});
+$("#show-tois").click(function() {showToiList()});
+$("#create-toi").click(function() {showSaveEditToi()});
+$("#show-contexts").click(function() {showContextList()});
+$("#create-context").click(function() {showSaveEditContext()});
 
+$viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
+$viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
+$viewSpace.on("click", "#create-new-context", function () {showSaveEditContext()});
 
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
@@ -242,18 +264,28 @@ $viewSpace.on("click", ".context", function () {
     let id = $(this).data("id");
     let context = state.contexts[id];
     console.log(context);
-    // showSaveEditContext(context);
+    showSaveEditContext(context);
 });
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
-    var form = new FormData(this);
-    ajax("/toi", form, function (data) {
+    let tags = $("#added-tags").find("tr").map(function (i, e) {
+        return $(e).data("id");
+    }).get();
+    let contexts = $("#added-contexts").find("tr").map(function (i, e) {
+        return $(e).data("id");
+    }).get();
+    let form = new FormData(this);
+    form.append("tags", tags);
+    form.append("contexts", contexts);
+    let htmlForm = this;
+    ajax("/toi", "POST", form, function (data) {
         console.log(data);
+        htmlForm.reset();
     }, function (data) {
         console.log(data);
     });
 });
-$viewSpace.on("submit", "create-tag-form", function (ev) {
+$viewSpace.on("submit", "#create-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
     if (form.get("typeInput") === "none"){
@@ -276,65 +308,77 @@ $viewSpace.on("submit", "#edit-tag-form", function (ev) {
         console.log(data);
     });
 });
-$viewSpace.on("click", "#add-toi-tag-search button", function () {
-    // let searchTerm = $("#add-toi-tag-search input").val();
-    // let result = [];
-    // if (searchTerm === ""){
-    //     for (let x in state.tags){
-    //         if (state.tags.hasOwnProperty(x))
-    //             result.push(state.tags[x]);
-    //     }
-    // }
-    // else {
-    //     for (let x in state.tags){
-    //         if (state.tags.hasOwnProperty(x) && (state.tags[x].Name.indexOf(searchTerm) !== -1 || state.tags[x].Id.contains(searchTerm)))
-    //             result.push(state.tags[x]);
-    //     }
-    // }
-    // let str = "";
-    // for (let i = 0, max = result.length; i < max; i++) {
-    //     str += templates.tagCell.render(result[i]);
-    // }
-    // $("#tag-search-result").empty().append(str);
-    //
-    //
+$viewSpace.on("submit", "#save-edit-context-form", function (ev) {
+    ev.preventDefault();
+    let id = $(this).data("id");
+    let form = new FormData(this);
+    if (id) {
+        form.append("id", id);
+        ajax("/context", "PUT", form, function () {
+            state.contexts[id].Title = form.get("title");
+            state.contexts[id].Description = form.get("description");
 
-    let searchTerm = $("add-toi-tag-search input").val();
-    console.log(searchTerm);
+        });
+    }
+    else {
+        ajax("/context", "POST", form, function (data) {
+            console.log("new context saved:");
+            state.contexts[data] = {
+                Id: data,
+                Title: form.get("title"),
+                Description: form.get("description")
+            };
+            console.log(state.contexts[data]);
+        });
+    }
+
+    put("/tag", form, function (data) {
+        console.log(data);
+    }, function (data) {
+        console.log(data);
+    });
+});
+$viewSpace.on("click", "#add-toi-tag-search button", function () {
+    let searchTerm = $("#add-toi-tag-search input").val();
     let result = searchInData(state.tags, function (c) {
-        console.log(c);
         return searchTerm === "" || c.Name.includes(searchTerm) || c.Id.includes(searchTerm);
     });
     let str = "";
     for (let i in result){
-        str += templates.tagCell.render(result[i]);
+        str += templates.tagCell.render({action: "add_circle", tag: result[i]});
     }
     $("#tag-search-result").empty().append(str);
 });
 $viewSpace.on("click", "#add-toi-context-search button", function () {
-    let searchTerm = $("add-toi-context-search input").val();
-    console.log(searchTerm == "");
-    console.log(searchTerm);
+    let searchTerm = $("#add-toi-context-search input").val();
     let result = searchInData(state.contexts, function (c) {
-        return searchTerm === "" || c.Title.includes(searchTerm) || c.Id.includes(searchTerm);
+        return searchTerm === "" || c.Title.includes(searchTerm);
     });
     let str = "";
     for (let i in result){
-        str += templates.tagCell.render(result[i]);
+        str += templates.contextCell.render({action: "add_circle", context: result[i]});
     }
-    console.log(result);
     $("#context-search-result").empty().append(str);
 });
-function searchInData(collection, compareFunc) {
-    let result = [];
-    for (let x in collection){
-        if (!collection.hasOwnProperty(x) || !compareFunc(collection[x]))
-            continue;
-        console.log("added");
-        result.push(collection[x]);
-    }
-    return result;
-}
+
+$viewSpace.on("click", "#add-toi-context-search .context-cell i", function () {
+    let context = state.contexts[$(this.parentNode.parentNode).data("id")];
+    $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: context}));
+    this.parentNode.parentNode.remove();
+});
+$viewSpace.on("click", "#add-toi-tag-search .tag-cell i", function () {
+    let tag = state.tags[$(this.parentNode.parentNode).data("id")];
+    $("#added-tags").append(templates.tagCell.render({action: "remove_circle", tag: tag}));
+    this.parentNode.parentNode.remove();
+});
+
+$viewSpace.on("click", "#added-contexts .context-cell i", function () {
+    this.parentNode.parentNode.remove();
+});
+$viewSpace.on("click", "#added-tags .tag-cell i", function () {
+    this.parentNode.parentNode.remove();
+});
+
 
 showLogin();
 
