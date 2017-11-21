@@ -168,13 +168,12 @@ ul, li {
 .modal-popup {
     max-width: 500px;
     background: #FAFAFA;
-    padding: 20px;
-    padding-top: 30px;
-    padding-bottom:20px;
+    padding: 40px 20px 10px;
     margin: auto;
     position: relative;
     width: auto;
     border-radius: 3px;
+    overflow: auto;
 }
 
 .toi {

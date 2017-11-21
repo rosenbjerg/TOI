@@ -98,7 +98,7 @@ namespace TOIFeedServer
                 if (toiId != "-1")
                     await res.SendString(toiId);
                 else
-                    await res.SendString("The TOI could not be created.", status: 400);
+                    await res.SendString("The ToI could not be created.", status: 400);
             });
             _server.Put("/toi", async (req, res) =>
             {
@@ -106,7 +106,7 @@ namespace TOIFeedServer
                 if (await toiMan.UpdateToi(form))
                     await res.SendString("OK");
                 else
-                    await res.SendString("The tag could not be updated.", status: 400);
+                    await res.SendString("The ToI could not be updated.", status: 400);
             });
             
             _server.Get("/contexts", async (req, res) =>
@@ -114,6 +114,31 @@ namespace TOIFeedServer
                 var all = await dbService.GetAllContexts();
                 await res.SendJson(all);
             }); 
+            _server.Post("/context", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var toiId = await toiMan.CreateContext(form);
+                if (toiId != "-1")
+                    await res.SendString(toiId);
+                else
+                    await res.SendString("The context could not be created.", status: 400);
+            });
+            _server.Put("/context", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await toiMan.UpdateContext(form))
+                    await res.SendString("OK");
+                else
+                    await res.SendString("The context could not be updated.", status: 400);
+            });
+            _server.Delete("/context", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await toiMan.DeleteContext(form))
+                    await res.SendString("OK");
+                else
+                    await res.SendString("The context could not be deleted.", status: 400);
+            });
            
             if (sampleData)
             {

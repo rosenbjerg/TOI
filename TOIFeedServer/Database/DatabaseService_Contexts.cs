@@ -31,5 +31,10 @@ namespace TOIFeedServer.Database
         {
             return await _db.Contexts.Find(c => contextIds.Contains(c.Id));
         }
+
+        public async Task<DatabaseStatusCode> DeleteContext(string id)
+        {
+            return await _db.Contexts.Delete(id);
+        }
     }
 }

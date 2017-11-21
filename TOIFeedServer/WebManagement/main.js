@@ -1,6 +1,7 @@
 "use strict";
 
 let $viewSpace = $("#viewSpace");
+let $body = $("body");
 let templates = {
     login : JsT.loadById("login-template", true),
     createTag : JsT.loadById("create-tag-template", true),
@@ -14,19 +15,42 @@ let templates = {
     context : JsT.loadById("context-template", true),
 
 };
-// templates.saveEditToi.setFormatter("Tags", function (tagData) {
-//     if (!tagData)
-//         return "";
-//     let str = "";
-//     let tags = tagData.map(t => state.tags[t]);
-//     for (let i in tags) {
-//         str += templates.tagCell.render(tags[i]);
-//     }
-//     return str;
-// });
+templates.saveEditToi.setFormatter("Tags", function (tagData) {
+    if (!tagData)
+        return "";
+    let str = "";
+    let tags = tagData.map(t => state.tags[t]);
+    console.log(tags);
+    for (let i in tags) {
+        str += templates.tagCell.render(tags[i]);
+    }
+    return str;
+});
 let modalTemplates = {
-    editTag : JsT.loadById("edit-tag-template", true)
+    editTag : JsT.loadById("edit-tag-template", true),
+    userPrompt : JsT.loadById("user-prompt-template", true)
 };
+
+
+toastr.options = {
+    "closeButton": false,
+    "debug": false,
+    "newestOnTop": false,
+    "progressBar": false,
+    "positionClass": "toast-bottom-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+}
+
+
 let state = {
     tags: {},
     tois: {},
@@ -156,7 +180,8 @@ function showSaveEditToi(toi) {
 function showSaveEditContext(context) {
     showPopup(templates.saveEditContext.render({
         action: context ? "Edit" : "New",
-        context: context
+        context: context,
+        create: context ? undefined : ""
     }));
 }
 function showCreateTag() {
@@ -233,14 +258,20 @@ function showPopup(html) {
         }
     });
 }
-
+function promptUser(title, question, onOk) {
+    showPopup(modalTemplates.userPrompt.render({
+        title: title,
+        question: question
+    }));
+    $("#user-prompt-accept").click(function () {
+        console.log("accept");
+        onOk();
+    });
+}
 
 $("#show-tags").click(function() {showTagList()});
-$("#create-tag").click(function() {showCreateTag()});
 $("#show-tois").click(function() {showToiList()});
-$("#create-toi").click(function() {showSaveEditToi()});
 $("#show-contexts").click(function() {showContextList()});
-$("#create-context").click(function() {showSaveEditContext()});
 
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
@@ -263,9 +294,9 @@ $viewSpace.on("click", ".toi", function () {
 $viewSpace.on("click", ".context", function () {
     let id = $(this).data("id");
     let context = state.contexts[id];
-    console.log(context);
     showSaveEditContext(context);
 });
+
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     let tags = $("#added-tags").find("tr").map(function (i, e) {
@@ -297,7 +328,9 @@ $viewSpace.on("submit", "#create-tag-form", function (ev) {
     })
     // aja
 });
-$viewSpace.on("submit", "#edit-tag-form", function (ev) {
+
+// Forms in popups are "bound" to body
+$body.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
     form.append("id", $(this).data("tag-id"));
@@ -308,7 +341,7 @@ $viewSpace.on("submit", "#edit-tag-form", function (ev) {
         console.log(data);
     });
 });
-$viewSpace.on("submit", "#save-edit-context-form", function (ev) {
+$body.on("submit", "#save-edit-context-form", function (ev) {
     ev.preventDefault();
     let id = $(this).data("id");
     let form = new FormData(this);
@@ -317,27 +350,48 @@ $viewSpace.on("submit", "#save-edit-context-form", function (ev) {
         ajax("/context", "PUT", form, function () {
             state.contexts[id].Title = form.get("title");
             state.contexts[id].Description = form.get("description");
-
+            toastr["success"]("Context updated");
+            showContextList();
+            $.magnificPopup.close();
+        }, function (resp) {
+            toastr["error"](resp.responseText);
         });
     }
     else {
         ajax("/context", "POST", form, function (data) {
-            console.log("new context saved:");
             state.contexts[data] = {
                 Id: data,
                 Title: form.get("title"),
                 Description: form.get("description")
             };
-            console.log(state.contexts[data]);
+            toastr["success"]("Context saved");
+            showContextList();
+            $.magnificPopup.close();
+        }, function (resp) {
+            toastr["error"](resp.responseText);
         });
     }
-
-    put("/tag", form, function (data) {
-        console.log(data);
-    }, function (data) {
-        console.log(data);
-    });
 });
+$body.on("click", "#remove-context", function () {
+    let id = $(this.parentNode).data("id");
+    promptUser("Delete context?", "Are you sure you want to delete this context?", function () {
+        let form = new FormData();
+        form.append("id", id);
+        ajax("context", "DELETE", form, function () {
+            delete state.contexts[id];
+            toastr["success"]("Context deleted");
+            showContextList();
+            $.magnificPopup.close();
+        }, function (resp) {
+            console.log(resp);
+            toastr["error"](resp.responseText);
+        });
+    })
+});
+$body.on("click", "#user-prompt-cancel", function () {
+    $.magnificPopup.close();
+});
+
 $viewSpace.on("click", "#add-toi-tag-search button", function () {
     let searchTerm = $("#add-toi-tag-search input").val();
     let result = searchInData(state.tags, function (c) {

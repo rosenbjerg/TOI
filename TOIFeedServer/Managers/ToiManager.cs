@@ -78,22 +78,30 @@ namespace TOIFeedServer.Managers
         }
         public async Task<string> CreateContext(IFormCollection form)
         {
-            var context = ValidateContextForm(form);
+            var context = ValidateContextForm(form, false);
             if (context == null) return "-1";
             return await _dbService.InsertContext(context) == DatabaseStatusCode.Created ? context.Id : "-1";
         }
 
-        private ContextModel ValidateContextForm(IFormCollection form)
+
+        public async Task<bool> UpdateContext(IFormCollection form)
         {
-            var nonEmpty = new List<string> { "name", "desc" };
+            var context = ValidateContextForm(form, true);
+            if (context == null) return false;
+            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated;
+        }
+        private ContextModel ValidateContextForm(IFormCollection form, bool update)
+        {
+            var nonEmpty = new List<string> { "title", "description" };
 
             if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
                 return null;
-
+            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+                return null;
             
             var ctx = new ContextModel
             {
-                Id = Guid.NewGuid().ToString("N"),
+                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
                 Description = form["description"][0],
                 Title = form["title"][0],
             };
@@ -101,11 +109,11 @@ namespace TOIFeedServer.Managers
             return ctx;
         }
 
-        public async Task<bool> UpdateContext(IFormCollection form)
+        public async Task<bool> DeleteContext(IFormCollection form)
         {
-            var context = ValidateContextForm(form);
-            if (context == null) return false;
-            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated;
+            if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+                return false;
+            return await _dbService.DeleteContext(form["id"][0]) == DatabaseStatusCode.Deleted;
         }
     }
 }

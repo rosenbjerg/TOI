@@ -8,13 +8,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
     <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>
-    <script src="js/locationpicker.jquery.js"></script>
+    <script src="js/locationpicker.jquery.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Roboto|Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
     <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
@@ -126,6 +128,7 @@
         <input class="u-full-width" type="text" required="required" value="{{context.Title}}" name="title">
         <label>Description</label>
         <textarea class="u-full-width" required="required" name="description">{{context.Description}}</textarea>
+        {{{ create = <input style="margin-left: 0" class="six columns" type="button" id="remove-context" value="Delete context"/> }}
         <input class="six columns button-primary" type="submit" value="Save context"/>
     </form>
 </template>
@@ -214,7 +217,7 @@
 </template>
 
 <template id="list-template">
-    <h3 style="display: inline-block">{{title}}</h3><button id="{{createButtonId}}"><span>{{createText}}</span><i class="material-icons">add_circle_outline</i></button>
+    <h3 style="display: inline-block">{{title}}</h3><button id="{{createButtonId}}" title="{{createText}}" class="material-icons">add_circle_outline</button>
     <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{{list}}</ul>
 </template>
 
@@ -267,6 +270,12 @@
     </div>
 </template>
 
+<template id="user-prompt-template">
+    <h3>{{title}}</h3>
+    <p>{{question}}</p>
+    <button class="six columns" style="margin-left: 0" id="user-prompt-cancel">Cancel</button>
+    <button class="six columns button-primary" id="user-prompt-accept">Yes</button>
+</template>
 
 <script src="main.js"></script>
 </body>
