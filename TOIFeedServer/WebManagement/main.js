@@ -188,15 +188,17 @@ function showLogin() {
 }
 function showSaveEditToi(toi) {
     $viewSpace.empty().append(templates.saveEditToi.render(toi));
-    let tags = toi.Tags.reduce(function (acc, curr) {
-        return acc += templates.tagCell.render({action: "remove_circle", tag: state.tags[curr]});
-    }, "");
+    if (toi) {
+        let tags = toi.Tags.reduce(function (acc, curr) {
+            return acc += templates.tagCell.render({action: "remove_circle", tag: state.tags[curr]});
+        }, "");
 
-    let contexts = toi.Contexts.reduce(function (acc, curr) {
-        return acc += templates.contextCell.render({action: "remove_circle", context: state.contexts[curr]});
-    }, "");
-    $("#added-tags").append(tags);
-    $("#added-contexts").append(contexts);
+        let contexts = toi.Contexts.reduce(function (acc, curr) {
+            return acc += templates.contextCell.render({action: "remove_circle", context: state.contexts[curr]});
+        }, "");
+        $("#added-tags").append(tags);
+        $("#added-contexts").append(contexts);
+    }
 }
 function showSaveEditContext(context, onSaveCallback) {
     showPopup(templates.saveEditContext.render({
@@ -391,7 +393,8 @@ $viewSpace.on("submit", "#create-tag-form", function (ev) {
         return;
     }
     ajax("/tag", "POST", form, function (tag) {
-        state.tags[tag.Id] = prepTag(tag);
+        prepTag(tag);
+        state.tags[tag.Id] = tag;
         toastr["success"]("Tag created");
         $.magnificPopup.close();
     }, function (data) {
@@ -403,7 +406,8 @@ $viewSpace.on("submit", "#create-tag-form", function (ev) {
 $body.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    form.append("id", $(this).data("tag-id"));
+    form.append("id", $(this).data("id"));
+    form.append("type", $(this).data("type"));
     ajax("/tag", "PUT", form, function (tag) {
         state.tags[tag.Id] = tag;
         toastr["success"]("Changes to tag has been saved");
@@ -460,7 +464,7 @@ $viewSpace.on("click", "#add-toi-context-search .context-cell i", function () {
     $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: context}));
     this.parentNode.parentNode.remove();
 });
-$viewSpace.on("click", "#add-toi-tag-search .tag-cell i", function () {
+$viewSpace.on("click", "#add-toi-tag-search .tag-cell .mi-button", function () {
     let tag = state.tags[$(this.parentNode.parentNode).data("id")];
     $("#added-tags").append(templates.tagCell.render({action: "remove_circle", tag: tag}));
     this.parentNode.parentNode.remove();
@@ -469,7 +473,7 @@ $viewSpace.on("click", "#add-toi-tag-search .tag-cell i", function () {
 $viewSpace.on("click", "#added-contexts .context-cell i", function () {
     this.parentNode.parentNode.remove();
 });
-$viewSpace.on("click", "#added-tags .tag-cell i", function () {
+$viewSpace.on("click", "#added-tags .tag-cell .mi-button", function () {
     this.parentNode.parentNode.remove();
 });
 

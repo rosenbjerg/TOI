@@ -49,12 +49,11 @@
 <template id="create-tag-template">
         <h3>Create new tag</h3>
         <form id="create-tag-form">
-            <label for="titleInput">Title</label>
-            <input required="required" name="titleInput" class="u-full-width" type="text" placeholder="Title" id="titleInput" />
+            <label>Title</label>
+            <input required="required" name="title" class="u-full-width" type="text" placeholder="Title"/>
 
-            <label for="idInput">Hardware ID</label>
-            <input required="required" name="idInput" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"
-                   id="idInput"/>
+            <label>Hardware ID</label>
+            <input required="required" name="id" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"/>
 
             <div class="row">
                 <label>Type</label>
@@ -77,15 +76,15 @@
             <div class="row">
                 <div class="four columns">
                     <label>Latitude</label>
-                    <input required="required" class="u-full-width latitudeInput" value="{{latitude}}" type="number" step="any"/>
+                    <input required="required" name="latitude" class="u-full-width latitudeInput" type="number" step="any"/>
                 </div>
                 <div class="four columns">
                     <label>Longitude</label>
-                    <input required="required" class="u-full-width longitudeInput" value="{{longitude}}" type="number" step="any"/>
+                    <input required="required" name="longitude" class="u-full-width longitudeInput" type="number" step="any"/>
                 </div>
                 <div class="four columns">
                     <label>Radius</label>
-                    <input required="required" class="u-full-width radiusInput" value="{{radius}}" type="number"/>
+                    <input required="required" name="radius" class="u-full-width radiusInput" type="number"/>
                 </div>
             </div>
             <input class="six columns button-primary" type="submit" value="Save tag"/>
@@ -94,26 +93,26 @@
 
 <template id="edit-tag-template">
     <h3>Edit tag</h3>
-    <form id="edit-tag-form" data-tag-id="{{Id}}">
+    <form id="edit-tag-form" data-id="{{Id}}" data-type="{{Type}}">
         <label>Tag name</label>
-        <input required="required" class="u-full-width" value="{{Name}}" name="name" type="text">
+        <input required="required" class="u-full-width" value="{{Title}}" name="title" type="text">
 
-        <label>Location</label>
+        <label>Location (Optional)</label>
         <input class="u-full-width locationNameInput" type="text"/>
         <div class="mapPicker u-full-width"></div>
 
         <div class="row">
             <div class="four columns">
                 <label>Latitude</label>
-                <input required="required" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
             </div>
             <div class="four columns">
                 <label>Longitude</label>
-                <input required="required" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
             </div>
             <div class="four columns">
                 <label>Radius</label>
-                <input required="required" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
             </div>
         </div>
         <input style="margin-left: 0" class="six columns" type="button" value="Delete"/>
@@ -204,17 +203,17 @@
 
 <template id="tag-table-cell">
     <tr class="tag-cell" data-id="{{tag.Id}}">
-        <td><i class="material-icons">{{tag.Icon}}</i></td>
+        <td title="{{tag.Type}}"><i class="material-icons tag-type-image">{{tag.Icon}}</i></td>
         <td class="truncate">{{tag.Title = Unnamed}}</td>
         <td class="truncate">{{tag.Id}}</td>
-        <td><i class="material-icons">{{action}}</i></td>
+        <td><i class="material-icons mi-button">{{action}}</i></td>
     </tr>
 </template>
 
 <template id="context-table-cell">
     <tr class="context-cell" data-id="{{context.Id}}">
         <td class="truncate">{{context.Title = Unnamed}}</td>
-        <td><i class="material-icons">{{action}}</i></td>
+        <td><i class="material-icons mi-button">{{action}}</i></td>
     </tr>
 </template>
 

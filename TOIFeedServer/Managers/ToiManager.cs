@@ -19,11 +19,14 @@ namespace TOIFeedServer.Managers
             _dbService = dbService;
         }
 
-        private ToiModel ValidateToiForm(IFormCollection form)
+        private ToiModel ValidateToiForm(IFormCollection form, bool update)
         {
-            var nonEmpty = new List<string> { "title", "url", "type" };
+            var nonEmpty = new List<string> { "title", "url", "type", "image" };
             var canBeEmpty = new List<string> { "contexts", "tags", "description" };
 
+            if (update && !form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+                return null;
+            
             if (canBeEmpty.Any(field => !form.ContainsKey(field)))
                 return null;
             
@@ -35,11 +38,11 @@ namespace TOIFeedServer.Managers
 
             var tm = new ToiModel
             {
-                Id = Guid.NewGuid().ToString("N"),
+                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
                 Description = form["description"][0],
                 Title = form["title"][0],
                 Url = form["url"][0],
-                Image = form.ContainsKey("image") ? form["image"][0] : "",
+                Image = form["image"][0],
                 Contexts = contextIds,
                 Tags = tagIds
             };
@@ -49,14 +52,14 @@ namespace TOIFeedServer.Managers
 
         public async Task<ToiModel> CreateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form);
+            var toi = ValidateToiForm(form, false);
             if (toi == null) return null;
             return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi : null;
         }
 
         public async Task<ToiModel> UpdateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form);
+            var toi = ValidateToiForm(form, true);
             if (toi == null) return null;
             return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated ? toi : null;
         }

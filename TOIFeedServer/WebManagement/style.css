@@ -212,7 +212,7 @@ ul, li {
 input:invalid {
     outline: 1px #ef9a9a;
 }
-.context-cell i, .tag-cell i {
+.context-cell .mi-button, .tag-cell .mi-button {
     float: right;
     cursor: pointer;
     -webkit-user-select: none;
@@ -238,4 +238,7 @@ input:invalid {
 }
 #create-new-tag span, #create-new-toi span, #create-new-context span {
     line-height: 31px;
+}
+.tag-type-image {
+    margin-top: 4px;
 }
