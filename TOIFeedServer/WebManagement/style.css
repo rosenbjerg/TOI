@@ -24,6 +24,15 @@ textarea {
         padding: inherit;
     }
 }
+table {
+    border-collapse: collapse;
+}
+table tr {
+    border-bottom: solid 1px #E0E0E0;
+}
+table td, table th {
+    border: none;
+}
 input[type=submit] {
     float: right;
 }
@@ -56,17 +65,18 @@ h3 {
     font-family: 'Comfortaa', serif;
     margin-bottom: 0;
     margin-top: 0;
+    margin-right: 16px;
+    display: inline-block;
 }
 .header-menu, .header-menu-button {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 13pt;
+    display: inline-block;
 }
 .header {
-
-    padding: 8px;
-    padding-top:16px;
+    padding: 16px 8px 8px;
     border-radius: 3px;
     box-shadow: 4px 4px 30px -4px rgba(66,66,66,0.67);
     margin-top: 13px;
@@ -158,13 +168,12 @@ ul, li {
 .modal-popup {
     max-width: 500px;
     background: #FAFAFA;
-    padding: 20px;
-    padding-top: 30px;
-    padding-bottom:20px;
+    padding: 40px 20px 10px;
     margin: auto;
     position: relative;
     width: auto;
     border-radius: 3px;
+    overflow: auto;
 }
 
 .toi {
@@ -202,9 +211,25 @@ ul, li {
 input:invalid {
     outline: 1px #ef9a9a;
 }
-.tag-table-cell {
-
+.context-cell i, .tag-cell i {
+    float: right;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.tag-cell:hover, .context-cell:hover {
+    background-color: #dcdcdc;
+    transition: background-color 100ms;
 }
 /*#add-toi-tag-search > div:last-child{*/
     /*float: right;*/
 /*}*/
+#create-new-tag, #create-new-toi, #create-new-context {
+    float: right;
+    border: none;
+}
+#create-new-tag span, #create-new-toi span, #create-new-context span {
+    line-height: 31px;
+}

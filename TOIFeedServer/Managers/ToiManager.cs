@@ -21,9 +21,13 @@ namespace TOIFeedServer.Managers
 
         private ToiModel ValidateToiForm(IFormCollection form)
         {
-            var fields = new List<string> { "contexts", "tags", "title", "url", "description" };
+            var nonEmpty = new List<string> { "title", "url", "type" };
+            var canBeEmpty = new List<string> { "contexts", "tags", "description" };
 
-            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
+            if (canBeEmpty.Any(field => !form.ContainsKey(field)))
+                return null;
+
+            if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
                 return null;
 
             var contextIds = SplitIds(form["contexts"][0]).ToList();
@@ -32,10 +36,10 @@ namespace TOIFeedServer.Managers
             var tm = new ToiModel
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Description = form["description"],
-                Title = form["title"],
-                Url = form["url"],
-                Image = form.ContainsKey("image") ? form["image"] : StringValues.Empty,
+                Description = form["description"][0],
+                Title = form["title"][0],
+                Url = form["url"][0],
+                Image = form.ContainsKey("image") ? form["image"][0] : "",
                 Contexts = contextIds,
                 Tags = tagIds
             };
@@ -56,7 +60,7 @@ namespace TOIFeedServer.Managers
             if (toi == null) return false;
             return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated;
         }
-        
+
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
         {
             DbResult<IEnumerable<ToiModel>> result;
@@ -77,6 +81,46 @@ namespace TOIFeedServer.Managers
         {
             var res = await _dbService.GetToisByTagIds(ids);
             return res;
+        }
+
+        public async Task<string> CreateContext(IFormCollection form)
+        {
+            var context = ValidateContextForm(form, false);
+            if (context == null) return "-1";
+            return await _dbService.InsertContext(context) == DatabaseStatusCode.Created ? context.Id : "-1";
+        }
+
+
+        public async Task<bool> UpdateContext(IFormCollection form)
+        {
+            var context = ValidateContextForm(form, true);
+            if (context == null) return false;
+            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated;
+        }
+        private ContextModel ValidateContextForm(IFormCollection form, bool update)
+        {
+            var nonEmpty = new List<string> { "title", "description" };
+
+            if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
+                return null;
+            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+                return null;
+
+            var ctx = new ContextModel
+            {
+                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
+                Description = form["description"][0],
+                Title = form["title"][0],
+            };
+
+            return ctx;
+        }
+
+        public async Task<bool> DeleteContext(IFormCollection form)
+        {
+            if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+                return false;
+            return await _dbService.DeleteContext(form["id"][0]) == DatabaseStatusCode.Deleted;
         }
     }
 }

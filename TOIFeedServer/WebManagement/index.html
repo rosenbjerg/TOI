@@ -8,30 +8,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
     <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>
-    <script src="js/locationpicker.jquery.js"></script>
+    <script src="js/locationpicker.jquery.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Comfortaa|Roboto|Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
     <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!--<div class="header-bgc"></div>-->
 <div class="container">
     <div class="header">
         <h3>TOI Manager</h3>
-        <div class="header-menu u-full-width">
-            <div class="header-menu-button" id="show-tois" tabindex="1">Tois</div>
+        <div class="header-menu">
+            <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
             <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
             <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
-            <div class="header-menu-button" id="create-toi" tabindex="4">Create toi</div>
-            <div class="header-menu-button" id="create-context" tabindex="5">Create context</div>
-            <div class="header-menu-button" id="create-tag" tabindex="6">Create tag</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -126,35 +123,43 @@
 
 <template id="save-edit-context-template">
     <h3>{{action}} context</h3>
-    <form id="save-edit-context-form">
+    <form id="save-edit-context-form" data-id="{{context.Id}}">
         <label>Context name</label>
-        <input class="u-full-width" type="text" required="required" value="{{Name}}" name="name">
+        <input class="u-full-width" type="text" required="required" value="{{context.Title}}" name="title">
         <label>Description</label>
-        <textarea class="u-full-width" required="required" name="desc">{{Description}}</textarea>
+        <textarea class="u-full-width" required="required" name="description">{{context.Description}}</textarea>
+        {{{ create = <input style="margin-left: 0" class="six columns" type="button" id="remove-context" value="Delete context"/> }}
         <input class="six columns button-primary" type="submit" value="Save context"/>
     </form>
 </template>
 
 <template id="save-edit-toi-template">
-        <h3 class="u-full-width">Edit TOI</h3>
+        <h3 class="u-full-width">{{action}} TOI</h3>
         <form id="save-edit-toi-form">
             <div class="row">
                 <div class="six columns">
                     <label>Title</label>
-                    <input required="required" type="text" value="{{Title}}" name="type" class="u-full-width" id="createTitleInput">
+                    <input required="required" type="text" value="{{Title}}" name="title" class="u-full-width" id="createTitleInput">
+                    <label>Image</label>
+                    <input required="required" type="url" name="image" class="u-full-width" value="{{Image = https://}}">
                 </div>
                 <div class="six columns">
                     <label>Information</label>
-                    <select name="type" class="u-full-width" id="createTypeInput">
-                        <option value="image">Picture</option>
+                    <select name="type" class="u-full-width" name="type" id="createTypeInput">
+                        <option value="iframe">Website</option>
+                        <option value="video">Video</option>
+                        <option value="image">Image</option>
+                        <option value="audio">Audio</option>
+                        <option value="text">Text</option>
                     </select>
+                    <input class="u-full-width" value="{{Url = https://}}" name="url" type="url">
                 </div>
             </div>
             <div class="row">
                 <div class="six columns">
                     <label>Tags</label>
                     <table class="u-full-width">
-                        <tbody class="empty-placeholder u-full-width" data-empty-message="No tags added to TOI">{{Tags}}</tbody>
+                        <tbody id="added-tags" class="empty-placeholder u-full-width" data-empty-message="No tags added to ToI">{{Tags}}</tbody>
                     </table>
                     <div id="add-toi-tag-search">
                         <label>Find tags</label>
@@ -165,24 +170,19 @@
                             <button class="material-icons u-full-width" type="button">search</button>
                         </div>
                         <table class="u-full-width">
-                            <thead>
-                                <tr>
-                                    <th>Tag name</th>
-                                    <th>Tag id</th>
-                                </tr>
-                            </thead>
                             <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="Find tags to add using the search bar right above"></tbody>
                         </table>
                     </div>
                 </div>
                 <div class="six columns">
-                    <label>Url</label>
-                    <input class="u-full-width" value="{{Url = https://}}" type="url">
-
                     <label>Short description</label>
-                    <textarea class="u-full-width" name="desc" rows="10">{{Description}}</textarea>
+                    <textarea class="u-full-width" name="description" rows="10">{{Description}}</textarea>
                 </div>
                 <div class="six columns">
+                    <label>Contexts</label>
+                    <table class="u-full-width">
+                        <tbody id="added-contexts" class="empty-placeholder u-full-width" data-empty-message="No contexts added to ToI">{{Contexts}}</tbody>
+                    </table>
                     <div id="add-toi-context-search">
                         <label>Add contexts</label>
                         <span class="ten columns">
@@ -202,14 +202,22 @@
 </template>
 
 <template id="tag-table-cell">
-    <tr>
-        <td class="truncate">{{Name = Unnamed}}</td>
-        <td class="truncate">{{Id}}</td>
+    <tr class="tag-cell" data-id="{{tag.Id}}">
+        <td class="truncate">{{tag.Name = Unnamed}}</td>
+        <td class="truncate">{{tag.Id}}</td>
+        <td><i class="material-icons">{{action}}</i></td>
+    </tr>
+</template>
+
+<template id="context-table-cell">
+    <tr class="context-cell" data-id="{{context.Id}}">
+        <td class="truncate">{{context.Title = Unnamed}}</td>
+        <td><i class="material-icons">{{action}}</i></td>
     </tr>
 </template>
 
 <template id="list-template">
-    <h3>{{title}}</h3>
+    <h3 style="display: inline-block">{{title}}</h3><button id="{{createButtonId}}" title="{{createText}}" class="material-icons">add_circle_outline</button>
     <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{{list}}</ul>
 </template>
 
@@ -262,6 +270,12 @@
     </div>
 </template>
 
+<template id="user-prompt-template">
+    <h3>{{title}}</h3>
+    <p>{{question}}</p>
+    <button class="six columns" style="margin-left: 0" id="user-prompt-cancel">Cancel</button>
+    <button class="six columns button-primary" id="user-prompt-accept">Yes</button>
+</template>
 
 <script src="main.js"></script>
 </body>
