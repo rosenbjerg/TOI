@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TOIFeedServer.Models;
+using TOIClasses;
 
 namespace TOIFeedServer.Database
 {

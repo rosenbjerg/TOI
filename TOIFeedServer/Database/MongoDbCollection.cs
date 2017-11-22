@@ -4,12 +4,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using TOIFeedServer.Models;
+using TOIClasses;
 
 namespace TOIFeedServer.Database
 {
     public class MongoDbCollection<T> : IDbCollection<T>
-        where T : IModel
+        where T : ModelBase
     {
         private IMongoCollection<T> _db;
 

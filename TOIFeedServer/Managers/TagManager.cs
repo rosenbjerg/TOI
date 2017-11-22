@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TOIClasses;
 using TOIFeedServer.Database;
-using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Managers
 {
@@ -26,42 +26,50 @@ namespace TOIFeedServer.Managers
 
         
 
-        private static TagModel ValidateTagForm(IFormCollection form)
+        private static TagModel ValidateTagForm(IFormCollection form, bool update)
         {
-            var fields = new List<string> { "title", "longitude", "latitude", "radius", "type" };
+            var always = new List<string> { "title", "longitude", "latitude", "radius" };
+            var onUpdate = new List<string> {  "type" };
 
-            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
+            if (always.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
+
+            if (!update)
+            {
+                
+            }
             if (!int.TryParse(form["radius"][0], out var radius) ||
                 !double.TryParse(form["longitude"][0], out var longitude) ||
                 !double.TryParse(form["latitude"], out var latitude) ||
-                !int.TryParse(form["type"], out var type)) return null;
-            if (radius < 10) return null;
+                !int.TryParse(form["type"], out var type)) 
+                return null;
+            if (radius < 1) 
+                return null;
             if (string.IsNullOrEmpty(form["id"][0]))
                 return null;
 
-                return new TagModel
+            return new TagModel
             {
-                Name = form["title"][0],
+                Title = form["title"][0],
                 Id = form["id"][0],
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
-                TagType = (TagType)type
+                Type = (TagType)type
             };
         }
 
-        public async Task<bool> CreateTag(IFormCollection form)
+        public async Task<TagModel> CreateTag(IFormCollection form)
         {
-            var tag = ValidateTagForm(form);
-            if (tag == null) return false;
-            return await _dbService.InsertTag(tag) == DatabaseStatusCode.Created;
+            var tag = ValidateTagForm(form, false);
+            if (tag == null) return null;
+            return await _dbService.InsertTag(tag) != DatabaseStatusCode.Created ? null : tag;
         }
 
-        public async Task<bool> UpdateTag(IFormCollection form)
+        public async Task<TagModel> UpdateTag(IFormCollection form)
         {
-            var tag = ValidateTagForm(form);
-            if (tag == null) return false;
-            return await _dbService.UpdateTag(tag) == DatabaseStatusCode.Updated;
+            var tag = ValidateTagForm(form, true);
+            if (tag == null) return null;
+            return await _dbService.UpdateTag(tag) != DatabaseStatusCode.Updated ? null : tag;
         }
 
         public async Task<TagModel> GetTag(IQueryCollection queries)
@@ -69,8 +77,8 @@ namespace TOIFeedServer.Managers
             try
             {
                 //trim query så den er ROBUST!    
-                var guid = queries["id"][0];
-                var dbRes = await _dbService.GetTagFromId(guid);
+                var id = queries["id"][0];
+                var dbRes = await _dbService.GetTagFromId(id);
                 return dbRes.Result;
             }
             catch (Exception e)

@@ -26,6 +26,11 @@ templates.saveEditToi.setFormatter("Tags", function (tagData) {
     }
     return str;
 });
+templates.saveEditContext.setFormatter("create", function (data) {
+    if (data)
+        return '<input style="margin-left: 0" class="six columns" type="button" id="remove-context" value="Delete context"/>';
+    return "";
+});
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template", true),
     userPrompt : JsT.loadById("user-prompt-template", true)
@@ -48,7 +53,7 @@ toastr.options = {
     "hideEasing": "linear",
     "showMethod": "fadeIn",
     "hideMethod": "fadeOut"
-}
+};
 
 
 let state = {
@@ -106,7 +111,7 @@ function initMapPicker(pos) {
             latitudeInput: $(".latitudeInput"),
             longitudeInput: $(".longitudeInput"),
             radiusInput: $(".radiusInput"),
-            locationNameInput: $(".locationNameInput")
+            locationTitleInput: $(".locationTitleInput")
         },
         zoom: zoom
     });
@@ -147,10 +152,19 @@ function getResource(resource, doneCallback, processData) {
     }
 }
 
+
+function prepToi(toi) {
+    toi.TagAmount = toi.Tags.length;
+    toi.ContextString = toi.Contexts.map(c => state.contexts[c].Title).join(', ');
+}
+function prepTag(tag) {
+    tag.Icon = getMaterialIcon(tag.Type);
+}
+
 function loadTags(callback) {
     getResource("tags", callback, function (data) {
         for (let i in data){
-            data[i].Icon = getMaterialIcon(data[i].TagType);
+            prepTag(data[i]);
         }
         return data;
     });
@@ -160,9 +174,7 @@ function loadTags(callback) {
 function loadTois(callback) {
     getResource("tois", callback, function (data) {
         for (let i in data){
-            let toi = data[i];
-            toi.TagAmount = toi.Tags.length;
-            toi.ContextString = toi.Contexts.map(c => state.contexts[c].Title).join(', ');
+            prepToi(data[i]);
         }
         return data;
     });
@@ -176,13 +188,52 @@ function showLogin() {
 }
 function showSaveEditToi(toi) {
     $viewSpace.empty().append(templates.saveEditToi.render(toi));
+    let tags = toi.Tags.reduce(function (acc, curr) {
+        return acc += templates.tagCell.render({action: "remove_circle", tag: state.tags[curr]});
+    }, "");
+
+    let contexts = toi.Contexts.reduce(function (acc, curr) {
+        return acc += templates.contextCell.render({action: "remove_circle", context: state.contexts[curr]});
+    }, "");
+    $("#added-tags").append(tags);
+    $("#added-contexts").append(contexts);
 }
-function showSaveEditContext(context) {
+function showSaveEditContext(context, onSaveCallback) {
     showPopup(templates.saveEditContext.render({
         action: context ? "Edit" : "New",
+        create: !!context,
         context: context,
-        create: context ? undefined : ""
     }));
+    $("#save-edit-context-form").submit(function (ev) {
+        ev.preventDefault();
+        let id = $(this).data("id");
+        let form = new FormData(this);
+        if (id) {
+            form.append("id", id);
+            ajax("/context", "PUT", form, function (context) {
+                state.contexts[context.Id] = context;
+                toastr["success"]("Context updated");
+                showContextList();
+                $.magnificPopup.close();
+            }, function (resp) {
+                toastr["error"](resp.responseText);
+            });
+        }
+        else {
+            ajax("/context", "POST", form, function (context) {
+                console.log(context);
+                state.contexts[context.Id] = context;
+                toastr["success"]("Context saved");
+                if (onSaveCallback)
+                    onSaveCallback(context);
+                else
+                    showContextList();
+                $.magnificPopup.close();
+            }, function (resp) {
+                toastr["error"](resp.responseText);
+            });
+        }
+    })
 }
 function showCreateTag() {
     let defaults = {
@@ -264,7 +315,6 @@ function promptUser(title, question, onOk) {
         question: question
     }));
     $("#user-prompt-accept").click(function () {
-        console.log("accept");
         onOk();
     });
 }
@@ -276,6 +326,11 @@ $("#show-contexts").click(function() {showContextList()});
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
 $viewSpace.on("click", "#create-new-context", function () {showSaveEditContext()});
+$viewSpace.on("click", "#create-new-context-inline", function () {
+    showSaveEditContext(undefined, function (newContext) {
+        $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: newContext}));
+    });
+});
 
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
@@ -297,36 +352,51 @@ $viewSpace.on("click", ".context", function () {
     showSaveEditContext(context);
 });
 
+
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
-    let tags = $("#added-tags").find("tr").map(function (i, e) {
-        return $(e).data("id");
-    }).get();
-    let contexts = $("#added-contexts").find("tr").map(function (i, e) {
-        return $(e).data("id");
-    }).get();
+    let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
+    let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
     let form = new FormData(this);
+    let id = $(this).data("id");
+    if (id)
+        form.append("id", id);
     form.append("tags", tags);
     form.append("contexts", contexts);
-    let htmlForm = this;
-    ajax("/toi", "POST", form, function (data) {
-        console.log(data);
-        htmlForm.reset();
-    }, function (data) {
-        console.log(data);
-    });
+    if (id) {
+        ajax("/toi", "PUT", form, function (toi) {
+            state.tois[toi.Id] = prepToi(toi);
+            toastr["success"]("ToI updated");
+            showSaveEditToi();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+    else {
+        ajax("/toi", "POST", form, function (toi) {
+            state.tois[toi.Id] = prepToi(toi);
+            toastr["success"]("ToI created");
+            showSaveEditToi();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+
 });
 $viewSpace.on("submit", "#create-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
-    if (form.get("typeInput") === "none"){
-        showPopup()
+    if (form.get("type") === "none"){
+        toastr["error"]("You must select the type");
         return;
     }
-    ajax("/tag", form, function () {
-
-    })
-    // aja
+    ajax("/tag", "POST", form, function (tag) {
+        state.tags[tag.Id] = prepTag(tag);
+        toastr["success"]("Tag created");
+        $.magnificPopup.close();
+    }, function (data) {
+        toastr["error"](data.responseText)
+    });
 });
 
 // Forms in popups are "bound" to body
@@ -334,43 +404,13 @@ $body.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
     form.append("id", $(this).data("tag-id"));
-    form.append("type", $(this).data("tag-type"));
-    put("/tag", form, function (data) {
-        console.log(data);
+    ajax("/tag", "PUT", form, function (tag) {
+        state.tags[tag.Id] = tag;
+        toastr["success"]("Changes to tag has been saved");
+        $.magnificPopup.close();
     }, function (data) {
-        console.log(data);
-    });
-});
-$body.on("submit", "#save-edit-context-form", function (ev) {
-    ev.preventDefault();
-    let id = $(this).data("id");
-    let form = new FormData(this);
-    if (id) {
-        form.append("id", id);
-        ajax("/context", "PUT", form, function () {
-            state.contexts[id].Title = form.get("title");
-            state.contexts[id].Description = form.get("description");
-            toastr["success"]("Context updated");
-            showContextList();
-            $.magnificPopup.close();
-        }, function (resp) {
-            toastr["error"](resp.responseText);
-        });
-    }
-    else {
-        ajax("/context", "POST", form, function (data) {
-            state.contexts[data] = {
-                Id: data,
-                Title: form.get("title"),
-                Description: form.get("description")
-            };
-            toastr["success"]("Context saved");
-            showContextList();
-            $.magnificPopup.close();
-        }, function (resp) {
-            toastr["error"](resp.responseText);
-        });
-    }
+        toastr["error"](data.responseText);
+    })
 });
 $body.on("click", "#remove-context", function () {
     let id = $(this.parentNode).data("id");
@@ -395,7 +435,7 @@ $body.on("click", "#user-prompt-cancel", function () {
 $viewSpace.on("click", "#add-toi-tag-search button", function () {
     let searchTerm = $("#add-toi-tag-search input").val();
     let result = searchInData(state.tags, function (c) {
-        return searchTerm === "" || c.Name.includes(searchTerm) || c.Id.includes(searchTerm);
+        return searchTerm === "" || c.Title.includes(searchTerm) || c.Id.includes(searchTerm);
     });
     let str = "";
     for (let i in result){
