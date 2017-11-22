@@ -47,18 +47,18 @@ namespace TOIFeedServer.Managers
             return tm;
         }
 
-        public async Task<string> CreateToi(IFormCollection form)
+        public async Task<ToiModel> CreateToi(IFormCollection form)
         {
             var toi = ValidateToiForm(form);
-            if (toi == null) return "-1";
-            return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi.Id : "-1";
+            if (toi == null) return null;
+            return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi : null;
         }
 
-        public async Task<bool> UpdateToi(IFormCollection form)
+        public async Task<ToiModel> UpdateToi(IFormCollection form)
         {
             var toi = ValidateToiForm(form);
-            if (toi == null) return false;
-            return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated;
+            if (toi == null) return null;
+            return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated ? toi : null;
         }
         
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
@@ -76,19 +76,19 @@ namespace TOIFeedServer.Managers
             }
             return result;
         }
-        public async Task<string> CreateContext(IFormCollection form)
+        public async Task<ContextModel> CreateContext(IFormCollection form)
         {
             var context = ValidateContextForm(form, false);
-            if (context == null) return "-1";
-            return await _dbService.InsertContext(context) == DatabaseStatusCode.Created ? context.Id : "-1";
+            if (context == null) return null;
+            return await _dbService.InsertContext(context) == DatabaseStatusCode.Created ? context : null;
         }
 
 
-        public async Task<bool> UpdateContext(IFormCollection form)
+        public async Task<ContextModel> UpdateContext(IFormCollection form)
         {
             var context = ValidateContextForm(form, true);
-            if (context == null) return false;
-            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated;
+            if (context == null) return null;
+            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated ? context : null;
         }
         private ContextModel ValidateContextForm(IFormCollection form, bool update)
         {
