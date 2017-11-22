@@ -6,23 +6,24 @@ textarea {
     min-width: 100%;
 }
 .mapPicker {
-    /*width: 500px; */
     height: 400px;
 }
 @media (min-width: 550px){
     .container {
-        /* width: 80%; */
         width: inherit;
     }
 
 }
 @media (min-width: 400px){
     .container {
-        /* width: 85%; */
-        /* padding: 0; */
         width: inherit;
         padding: inherit;
     }
+}
+a {
+    font-family: Raleway,HelveticaNeue,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 1.3rem;
+    cursor: pointer;
 }
 table {
     border-collapse: collapse;
@@ -222,6 +223,11 @@ input:invalid {
 .tag-cell:hover, .context-cell:hover {
     background-color: #dcdcdc;
     transition: background-color 100ms;
+}
+#create-new-context-inline {
+    text-align: right;
+    display: inline-block;
+    /*margin-bottom: 18px;*/
 }
 /*#add-toi-tag-search > div:last-child{*/
     /*float: right;*/
