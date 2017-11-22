@@ -1,4 +1,4 @@
-﻿using TOIFeedServer.Models;
+﻿using TOIClasses;
 
 namespace TOIFeedServer.Database
 {

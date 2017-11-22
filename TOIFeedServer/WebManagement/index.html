@@ -205,7 +205,7 @@
 <template id="tag-table-cell">
     <tr class="tag-cell" data-id="{{tag.Id}}">
         <td><i class="material-icons">{{tag.Icon}}</i></td>
-        <td class="truncate">{{tag.Name = Unnamed}}</td>
+        <td class="truncate">{{tag.Title = Unnamed}}</td>
         <td class="truncate">{{tag.Id}}</td>
         <td><i class="material-icons">{{action}}</i></td>
     </tr>
@@ -228,8 +228,8 @@
         <table>
             <tbody>
                 <tr>
-                    <td title="{{TagType}}"><i class="material-icons">{{Icon}}</i></td>
-                    <td>{{Name}}</td>
+                    <td title="{{Type}}"><i class="material-icons">{{Icon}}</i></td>
+                    <td>{{Title}}</td>
                 </tr>
             </tbody>
         </table>

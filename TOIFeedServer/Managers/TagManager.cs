@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TOIClasses;
 using TOIFeedServer.Database;
-using TOIFeedServer.Models;
 
 namespace TOIFeedServer.Managers
 {
@@ -49,12 +49,12 @@ namespace TOIFeedServer.Managers
 
             return new TagModel
             {
-                Name = form["title"][0],
+                Title = form["title"][0],
                 Id = form["id"][0],
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
-                TagType = (TagType)type
+                Type = (TagType)type
             };
         }
 

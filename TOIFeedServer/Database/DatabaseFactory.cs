@@ -1,7 +1,7 @@
 ﻿using System;
 using LiteDB;
 using MongoDB.Driver;
-using TOIFeedServer.Models;
+using TOIClasses;
 
 namespace TOIFeedServer.Database
 {

@@ -6,12 +6,12 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.ObjectPool;
-using TOIFeedServer.Models;
+using TOIClasses;
 
 namespace TOIFeedServer.Database
 {
     public class InMemoryDbCollection<T> : IDbCollection<T>
-        where T : IModel
+        where T : ModelBase
     {
         public List<T> Store { get; set; } = new List<T>();
         

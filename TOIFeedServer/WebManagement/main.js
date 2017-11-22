@@ -111,7 +111,7 @@ function initMapPicker(pos) {
             latitudeInput: $(".latitudeInput"),
             longitudeInput: $(".longitudeInput"),
             radiusInput: $(".radiusInput"),
-            locationNameInput: $(".locationNameInput")
+            locationTitleInput: $(".locationTitleInput")
         },
         zoom: zoom
     });
@@ -158,7 +158,7 @@ function prepToi(toi) {
     toi.ContextString = toi.Contexts.map(c => state.contexts[c].Title).join(', ');
 }
 function prepTag(tag) {
-    tag.Icon = getMaterialIcon(tag.TagType);
+    tag.Icon = getMaterialIcon(tag.Type);
 }
 
 function loadTags(callback) {
@@ -221,10 +221,11 @@ function showSaveEditContext(context, onSaveCallback) {
         }
         else {
             ajax("/context", "POST", form, function (context) {
+                console.log(context);
                 state.contexts[context.Id] = context;
                 toastr["success"]("Context saved");
                 if (onSaveCallback)
-                    onSaveCallback(state.contexts[id]);
+                    onSaveCallback(context);
                 else
                     showContextList();
                 $.magnificPopup.close();
@@ -434,7 +435,7 @@ $body.on("click", "#user-prompt-cancel", function () {
 $viewSpace.on("click", "#add-toi-tag-search button", function () {
     let searchTerm = $("#add-toi-tag-search input").val();
     let result = searchInData(state.tags, function (c) {
-        return searchTerm === "" || c.Name.includes(searchTerm) || c.Id.includes(searchTerm);
+        return searchTerm === "" || c.Title.includes(searchTerm) || c.Id.includes(searchTerm);
     });
     let str = "";
     for (let i in result){

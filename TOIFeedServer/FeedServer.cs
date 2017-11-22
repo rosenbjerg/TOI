@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
+using TOIClasses;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
-using TOIFeedServer.Models;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer
@@ -160,27 +160,27 @@ namespace TOIFeedServer
             };
             var fTag = new TagModel
             {
-                Name = "F-Klubben",
+                Title = "F-Klubben",
                 Id = "FA:C4:D1:03:8D:3D",
-                TagType = TagType.Nfc
+                Type = TagType.Nfc
             };
             var cTag = new TagModel
             {
-                Name = "Cassiopeia",
+                Title = "Cassiopeia",
                 Id = "CC:14:54:01:52:82",
-                TagType = TagType.Bluetooth
+                Type = TagType.Bluetooth
             };
             var mTag = new TagModel
             {
-                Name = "At Marius place",
+                Title = "At Marius place",
                 Id = "CB:FF:B9:6C:A4:7D",
-                TagType = TagType.Wifi
+                Type = TagType.Wifi
             };
             var btbTag = new TagModel
             {
-                Name = "By the bin",
+                Title = "By the bin",
                 Id = "F4:B4:15:05:42:05",
-                TagType = TagType.Gps
+                Type = TagType.Gps
             };
             
             var modelList = new List<ToiModel>

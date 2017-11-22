@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using TOIClasses;
 using TOIFeedServer.Database;
-using TOIFeedServer.Models;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Managers
