@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
+using TOIClasses;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
 using TOIFeedServer.Models;
@@ -201,7 +202,8 @@ namespace TOIFeedServer
                     Image = "https://i.imgur.com/gCTCL7z.jpg",
                     Url = "https://imgur.com/gallery/yWoZC",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {mTag.Id}
+                    Tags = new List<string> {mTag.Id},
+                    InformationType = ToiInformationType.Website
                 },
                 new ToiModel 
                 {
@@ -211,7 +213,8 @@ namespace TOIFeedServer
                     Image = "http://i36.tinypic.com/2e5jdsk.jpg",
                     Url = "https://imgur.com/gallery/6UwO2nF",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {fTag.Id}
+                    Tags = new List<string> {fTag.Id},
+                    InformationType = ToiInformationType.Video
                 },
                 new ToiModel
                 {
@@ -221,7 +224,8 @@ namespace TOIFeedServer
                     Image = "https://i.imgur.com/aNV3gzq.png",
                     Url = "https://imgur.com/gallery/aNV3gzq",
                     Contexts = new List<string> {childCtx.Id},
-                    Tags = new List<string> {cTag.Id}
+                    Tags = new List<string> {cTag.Id},
+                    InformationType = ToiInformationType.Text
                 },
                 new ToiModel
                 {
@@ -231,7 +235,8 @@ namespace TOIFeedServer
                     Image = "https://i.imgur.com/2Ivtb0i.jpg",
                     Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {btbTag.Id}
+                    Tags = new List<string> {btbTag.Id},
+                    InformationType = ToiInformationType.Text
                 },
 
                 new ToiModel
@@ -240,9 +245,10 @@ namespace TOIFeedServer
                     Title = "AAU",
                     Description = "Massive party at AAU. DEM gurlws are hoot!",
                     Image = "https://i5.walmartimages.com/asr/fa1be18a-e37d-4387-b6bd-3c4fba36e1fa_1.a6268444b1193d23137622d8ff7c58b4.jpeg",
-                    Url = "pornhub.com",
+                    Url = "http://www.fklub.dk/",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {cTag.Id, btbTag.Id, mTag.Id, fTag.Id}
+                    Tags = new List<string> {cTag.Id, btbTag.Id, mTag.Id, fTag.Id},
+                    InformationType = ToiInformationType.Website
                 }
             };
 
