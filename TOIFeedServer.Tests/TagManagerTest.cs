@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RedHttpServerCore.Request;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
-using TOIFeedServer.Models;
+using TOIClasses;
 
 namespace TOIFeedServer.Tests
 {
