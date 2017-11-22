@@ -6,9 +6,9 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using ServiceStack.Text;
+using TOIClasses;
 using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
-using TOIFeedServer.Models;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Tests

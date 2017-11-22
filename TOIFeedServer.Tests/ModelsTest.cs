@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TOIClasses;
 using TOIFeedServer.Database;
-using TOIFeedServer.Models;
+using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Tests
 {
@@ -51,21 +51,21 @@ namespace TOIFeedServer.Tests
             {
                 new TagModel(_guids[0], TagType.Bluetooth)
                 {
-                    Name = "test1",
+                    Title = "test1",
                     Longitude = 45.00,
                     Latitude = 50.00
                 },
 
                 new TagModel(_guids[1], TagType.Bluetooth)
                 {
-                    Name = "test2",
+                    Title = "test2",
                     Longitude = 40,
                     Latitude = 45
                 },
 
                 new TagModel(_guids[2], TagType.Gps)
                 {
-                    Name = "test3",
+                    Title = "test3",
                     Longitude = 30,
                     Latitude = 20
                 }
