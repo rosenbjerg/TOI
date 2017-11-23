@@ -46,7 +46,9 @@ h3 {
 }
 
 #viewSpace {
-    margin-top: 45px;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-top: 32px;
 }
 
 .header, .header-bgc {
@@ -180,7 +182,7 @@ ul, li {
 .toi {
     padding: 12px 12px;
     border-radius: 2px;
-    width: 276px;
+    width: 264px;
     max-height:200px;
     background-color: #EEEEEE;
     display: inline-block;

@@ -51,10 +51,8 @@
         <form id="create-tag-form">
             <label>Title</label>
             <input required="required" name="title" class="u-full-width" type="text" placeholder="Title"/>
-
             <label>Hardware ID</label>
             <input required="required" name="id" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"/>
-
             <div class="row">
                 <label>Type</label>
                 <select name="type" class="u-full-width">
@@ -65,14 +63,11 @@
                     <option value="gps">GPS</option>
                 </select>
             </div>
-
             <label>Location name (optional)</label>
             <input class="u-full-width locationNameInput" type="text"/>
-
             <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
             <label>Pick location or type in coordinates</label>
             <div class="mapPicker u-full-width"></div>
-
             <div class="row">
                 <div class="four columns">
                     <label>Latitude</label>
@@ -84,7 +79,7 @@
                 </div>
                 <div class="four columns">
                     <label>Radius</label>
-                    <input required="required" name="radius" class="u-full-width radiusInput" type="number"/>
+                    <input required="required" name="radius" class="u-full-width radiusInput" type="number" min="1"/>
                 </div>
             </div>
             <input class="six columns button-primary" type="submit" value="Save tag"/>
@@ -96,23 +91,21 @@
     <form id="edit-tag-form" data-id="{{Id}}" data-type="{{Type}}">
         <label>Tag name</label>
         <input required="required" class="u-full-width" value="{{Title}}" name="title" type="text">
-
         <label>Location (Optional)</label>
         <input class="u-full-width locationNameInput" type="text"/>
         <div class="mapPicker u-full-width"></div>
-
         <div class="row">
             <div class="four columns">
                 <label>Latitude</label>
-                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" step="any"/>
             </div>
             <div class="four columns">
                 <label>Longitude</label>
-                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" pattern="\d+[,.]\d+"/>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" step="any"/>
             </div>
             <div class="four columns">
                 <label>Radius</label>
-                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius}}" type="number" pattern="\d+"/>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius}}" type="number" min="1"/>
             </div>
         </div>
         <input style="margin-left: 0" class="six columns" type="button" value="Delete"/>
