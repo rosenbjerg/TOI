@@ -24,7 +24,7 @@ namespace TOIFeedServer.Managers
             var nonEmpty = new List<string> { "title", "url", "type", "image" };
             var canBeEmpty = new List<string> { "contexts", "tags", "description" };
 
-            if (update && !form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
                 return null;
             
             if (canBeEmpty.Any(field => !form.ContainsKey(field)))

@@ -52,8 +52,8 @@ namespace TOIFeedServer.Tests
                 new TagModel(_guids[0], TagType.Bluetooth)
                 {
                     Title = "test1",
-                    Longitude = 45.00,
-                    Latitude = 50.00
+                    Longitude = 45.00M,
+                    Latitude = 50.00M
                 },
 
                 new TagModel(_guids[1], TagType.Bluetooth)
@@ -132,7 +132,7 @@ namespace TOIFeedServer.Tests
             var res = await _dbs.GetTagFromId(_guids[0]);
 
             //Assert
-            Assert.AreEqual(TagType.Bluetooth, res.Result.TagType);
+            Assert.AreEqual(TagType.Bluetooth, res.Result.Type);
         }
 
         private async Task InsertTags(IEnumerable<TagModel> tags)
