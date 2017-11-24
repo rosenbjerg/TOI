@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
-    <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Comfortaa|Material+Icons" rel="stylesheet"/>-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -29,6 +28,7 @@
             <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
             <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
             <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
+            <div class="header-menu-button" id="show-users" tabindex="4">Users</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -151,7 +151,7 @@
                 <div class="six columns">
                     <label>Tags</label>
                     <table class="u-full-width">
-                        <tbody id="added-tags" class="empty-placeholder u-full-width" data-empty-message="No tags added to ToI"></tbody>
+                        <tbody id="added-tags" class="empty-placeholder u-full-width" data-empty-message="No tags added to ToI">{{{Tags}}</tbody>
                     </table>
                     <div id="add-toi-tag-search">
                         <label>Find tags</label>
@@ -211,8 +211,14 @@
 </template>
 
 <template id="list-template">
-    <h3 style="display: inline-block">{{title}}</h3><button id="{{createButtonId}}" title="{{createText}}" class="material-icons">add_circle_outline</button>
-    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show">{{{list}}</ul>
+    <div class="list-header">
+        <h3 style="display: inline-block" class="first truncate">{{title}}</h3>
+        <input id="filter-{{thing}}" class="middle" type="search" placeholder="Filter {{thing}}s">
+        <span>
+            <button id="{{createButtonId}}" title="{{createText}}" class="material-icons last">add_circle_outline</button>
+        </span>
+    </div>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show" id="list-ul">{{{list}}</ul>
 </template>
 
 <template id="tag-template">

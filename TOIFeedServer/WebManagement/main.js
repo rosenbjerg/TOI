@@ -15,17 +15,14 @@ let templates = {
     context : JsT.loadById("context-template", true),
 
 };
-templates.saveEditToi.setFormatter("Tags", function (tagData) {
-    if (!tagData)
-        return "";
-    let str = "";
-    let tags = tagData.map(t => state.tags[t]);
-    console.log(tags);
-    for (let i in tags) {
-        str += templates.tagCell.render(tags[i]);
-    }
-    return str;
-});
+// templates.saveEditToi.setFormatter("Tags", function (tagData) {
+//     if (!tagData)
+//         return "";
+//     let tags = tagData.reduce(function (acc, curr) {
+//         return acc + templates.tagCell.render({action: "remove_circle", tag: state.tags[curr]})
+//     });
+//     return tags;
+// });
 templates.saveEditContext.setFormatter("create", function (data) {
     if (data)
         return '<input style="margin-left: 0" class="six columns" type="button" id="remove-context" value="Delete context"/>';
@@ -265,10 +262,12 @@ function showToiList() {
         $viewSpace.empty().append(templates.list.render({
             createText: "New ToI",
             createButtonId: "create-new-toi",
-            title: "All tois",
+            title: "ToIs",
             list: l,
             thing: "TOI"
         }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-tois").addClass("active");
     });
 }
 function showTagList() {
@@ -281,10 +280,12 @@ function showTagList() {
         $viewSpace.empty().append(templates.list.render({
             createText: "New tag",
             createButtonId: "create-new-tag",
-            title: "All tags",
+            title: "Tags",
             list: l,
             thing: "tag"
         }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-tags").addClass("active");
     });
 }
 function showContextList() {
@@ -297,10 +298,12 @@ function showContextList() {
         $viewSpace.empty().append(templates.list.render({
             createText: "New context",
             createButtonId: "create-new-context",
-            title: "All Contexts",
+            title: "Contexts",
             list: l,
             thing: "context"
         }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-contexts").addClass("active");
     });
 }
 function showPopup(html) {
@@ -475,6 +478,42 @@ $viewSpace.on("click", "#added-contexts .context-cell i", function () {
 });
 $viewSpace.on("click", "#added-tags .tag-cell .mi-button", function () {
     this.parentNode.parentNode.remove();
+});
+
+// #filter-TOI, #filter-context, #filter-tag
+$viewSpace.on("input", "#filter-TOI", function () {
+    let searchTerm = this.value;
+    let result = searchInData(state.tois, function (toi) {
+        return toi.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = "";
+    for (let i in result) {
+        l += templates.toi.render(result[i]);
+    }
+    $("#list-ul").empty().append(l);
+});
+$viewSpace.on("input", "#filter-context", function () {
+    let searchTerm = this.value;
+    let result = searchInData(state.contexts, function (ctx) {
+        return ctx.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = "";
+    for (let i in result) {
+        l += templates.context.render(result[i]);
+    }
+    $("#list-ul").empty().append(l);
+});
+$viewSpace.on("input", "#filter-tag", function () {
+    let searchTerm = this.value;
+    let result = searchInData(state.tags, function (tag) {
+        return  tag.Id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                tag.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = "";
+    for (let i in result) {
+        l += templates.tag.render(result[i]);
+    }
+    $("#list-ul").empty().append(l);
 });
 
 

@@ -17,7 +17,7 @@ namespace TOIFeedServer
         public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
             _server = new RedHttpServer(port, "./WebManagement");
-
+            
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
 
             Console.WriteLine(development ? "Using In-memory db" : "Using MongoDB");
