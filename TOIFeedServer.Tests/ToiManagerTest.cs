@@ -50,11 +50,13 @@ namespace TOIFeedServer.Tests
                 };
                 var form = new FormCollection(new Dictionary<string, StringValues>
                 {
-                    {"context", _ctxGuid},
+                    {"context", JsonConvert.SerializeObject(new List<string> {_ctxGuid})},
                     {"tags", JsonConvert.SerializeObject(tags)},
                     {"url", "https://mock.com" },
                     {"title", "Mock TOI" },
-                    {"description", "This is a mock TOI." }
+                    {"description", "This is a mock TOI." },
+                    {"type", ToiInformationType.Text.ToString() },
+                    {"image", "https://openclipart.org/image/2400px/svg_to_png/130795/Trollface.png" },
                 });
 
                 var task = _manager.CreateToi(form);
@@ -73,10 +75,12 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"contexts", _ctxGuid},
-                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '0'}) },
+                {"contexts", JsonConvert.SerializeObject(new List<string> {_ctxGuid})},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
+                {"type", JsonConvert.SerializeObject(ToiInformationType.Text) },
+                {"image", "https://openclipart.org/image/2400px/svg_to_png/130795/Trollface.png" },
                 {"description", "This is a mock TOI." }
             });
 
@@ -91,7 +95,7 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"contexts", _ctxGuid},
+                {"contexts", JsonConvert.SerializeObject(new List<string> {_ctxGuid})},
                 {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '1', _tagGuid + '2', _tagGuid + '3'}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
@@ -114,17 +118,17 @@ namespace TOIFeedServer.Tests
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
             {
-                {"contexts", contextId},
-                {"tags", tags},
-                {"title", title },
-                {"url", url },
-                {"description", description }
+                {"contexts", JsonConvert.SerializeObject(new List<string> {_ctxGuid})},
+                {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid + '1', _tagGuid + '2', _tagGuid + '3'}) },
+                {"url", "https://mock.com" },
+                {"title", "Mock TOI" },
+                {"description", "This is a mock TOI." }
             });
 
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.AreEqual("-1", task.Result);
+            Assert.IsNull(task.Result);
         }
 
         [DataTestMethod]
@@ -150,7 +154,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.UpdateToi(form);
             task.Wait();
 
-            Assert.IsFalse(task.Result);
+            Assert.IsNull(task.Result);
         }
 
         public void UpdateToi__Valid()
