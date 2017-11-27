@@ -21,7 +21,7 @@ namespace TOIFeedServer.Managers
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByTagIds(IEnumerable<string> ids)
         {
-            var res = await _dbService.GetToisByTagIds(ids);
+            var res = await _db.Tois.Find(t => t.Tags.Any(ids.Contains));
             return res;
         }
 

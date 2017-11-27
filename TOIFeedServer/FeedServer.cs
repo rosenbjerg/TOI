@@ -165,7 +165,7 @@ namespace TOIFeedServer
             if (_server.Plugins.Use<Database>().Tois.GetAll().Result.Status != DatabaseStatusCode.NoElement)
             {
                 Console.WriteLine("Sample data already added.");
-                await _server.Plugins.Use<DatabaseService>().TruncateDatabase();
+                return;
             }
 
             var grownGuid = Guid.NewGuid().ToString("N");
