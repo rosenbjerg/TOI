@@ -20,6 +20,12 @@ namespace TOIFeedServer.Managers
             _dbService = dbService;
         }
 
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByTagIds(IEnumerable<string> ids)
+        {
+            var res = await _dbService.GetToisByTagIds(ids);
+            return res;
+        }
+
         private static ToiInformationType InformationTypeFromString(string informationType)
         {
             switch (informationType)
