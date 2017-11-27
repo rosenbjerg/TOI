@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
 using TOIClasses;
 using TOIFeedServer.Managers;
+using Newtonsoft.Json;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer
@@ -16,7 +17,7 @@ namespace TOIFeedServer
         public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
             _server = new RedHttpServer(port, "./WebManagement");
-            
+
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
 
             Console.WriteLine(development ? "Using In-memory db" : "Using MongoDB");
@@ -77,6 +78,27 @@ namespace TOIFeedServer
                 var tois = await toiMan.GetToisByContext(contextString);
                 await res.SendJson(tois.Result);
             });
+
+            _server.Post("/toi/fromtags", async (req, res) =>
+            {
+                var bString = await req.ParseBodyAsync<string>();
+                var tags = JsonConvert.DeserializeObject<IEnumerable<string>>(bString);
+                if (tags == null)
+                {
+                    await res.SendString("Bad request", status: StatusCodes.Status400BadRequest);
+                    return;
+                }
+                var toi = await toiMan.GetToiByTagIds(tags);
+                if (toi.Status == DatabaseStatusCode.NoElement)
+                {
+                    await res.SendString("Not found", status: StatusCodes.Status404NotFound);
+                }
+                else
+                {
+                    await res.SendJson(toi.Result);
+                }
+            });
+
             _server.Get("/toi", async (req, res) =>
             {
                 //TODO implement method for getting a single ToiModel
@@ -99,12 +121,12 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The ToI could not be updated.", status: 400);
             });
-            
+
             _server.Get("/contexts", async (req, res) =>
             {
                 var all = await db.Contexts.GetAll();
                 await res.SendJson(all.Result);
-            }); 
+            });
             _server.Post("/context", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
@@ -131,7 +153,7 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The context could not be deleted.", status: 400);
             });
-           
+
             if (sampleData)
             {
                 FillMockDatabase();
@@ -143,7 +165,7 @@ namespace TOIFeedServer
             if (_server.Plugins.Use<Database>().Tois.GetAll().Result.Status != DatabaseStatusCode.NoElement)
             {
                 Console.WriteLine("Sample data already added.");
-                return;
+                await _server.Plugins.Use<DatabaseService>().TruncateDatabase();
             }
 
             var grownGuid = Guid.NewGuid().ToString("N");
@@ -151,7 +173,8 @@ namespace TOIFeedServer
             var grownCtx = new ContextModel
             {
                 Id = grownGuid,
-                Title = "Grown-up stuff"
+                Title = "Grown-up stuff",
+                Description = "Marks legetøj"
             };
             var childCtx = new ContextModel
             {
@@ -161,28 +184,28 @@ namespace TOIFeedServer
             var fTag = new TagModel
             {
                 Title = "F-Klubben",
-                Id = "FA:C4:D1:03:8D:3D",
+                Id = "FAC4D1038D3D",
                 Type = TagType.Nfc
             };
             var cTag = new TagModel
             {
                 Title = "Cassiopeia",
-                Id = "CC:14:54:01:52:82",
+                Id = "CC1454015282",
                 Type = TagType.Bluetooth
             };
             var mTag = new TagModel
             {
                 Title = "At Marius place",
-                Id = "CB:FF:B9:6C:A4:7D",
+                Id = "CBFFB96CA47D",
                 Type = TagType.Wifi
             };
             var btbTag = new TagModel
             {
                 Title = "By the bin",
-                Id = "F4:B4:15:05:42:05",
+                Id = "F4B415054205",
                 Type = TagType.Gps
             };
-            
+
             var modelList = new List<ToiModel>
             {
                 new ToiModel
@@ -196,7 +219,7 @@ namespace TOIFeedServer
                     Tags = new List<string> {mTag.Id},
                     InformationType = ToiInformationType.Website
                 },
-                new ToiModel 
+                new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
                     Description = "Cocio and Tekken!",

@@ -19,6 +19,12 @@ namespace TOIFeedServer.Managers
             _db = db;
         }
 
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByTagIds(IEnumerable<string> ids)
+        {
+            var res = await _dbService.GetToisByTagIds(ids);
+            return res;
+        }
+
         private static ToiInformationType InformationTypeFromString(string informationType)
         {
             switch (informationType)
@@ -48,7 +54,7 @@ namespace TOIFeedServer.Managers
             
             if (canBeEmpty.Any(field => !form.ContainsKey(field)))
                 return null;
-            
+
             if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
                 return null;
 
@@ -83,7 +89,7 @@ namespace TOIFeedServer.Managers
             if (toi == null) return null;
             return await _db.Tois.Update(toi.Id, toi) == DatabaseStatusCode.Updated ? toi : null;
         }
-        
+
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
         {
             DbResult<IEnumerable<ToiModel>> result;
@@ -121,7 +127,7 @@ namespace TOIFeedServer.Managers
                 return null;
             if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
                 return null;
-            
+
             var ctx = new ContextModel
             {
                 Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
