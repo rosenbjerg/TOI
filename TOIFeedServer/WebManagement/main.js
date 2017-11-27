@@ -146,9 +146,7 @@ function getResource(resource, doneCallback, processData) {
                 return;
             }
             if (processData)
-                data = processData(data.Result);
-            else
-                data = data.Result;
+                data = processData(data);
 
             state[resource] = {};
             state[updated] = new Date();
