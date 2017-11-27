@@ -82,10 +82,10 @@ namespace TOIFeedServer
             _server.Post("/toi/fromtags", async (req, res) =>
             {
                 var bString = await req.ParseBodyAsync<string>();
-                IEnumerable<string> tags;
+                List<string> tags;
                 try
                 {
-                    tags = JsonConvert.DeserializeObject<IEnumerable<string>>(bString);
+                    tags = JsonConvert.DeserializeObject<List<string>>(bString);
                 }
                 catch (Exception e)
                 {
