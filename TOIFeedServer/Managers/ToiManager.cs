@@ -24,15 +24,15 @@ namespace TOIFeedServer.Managers
         {
             switch (informationType)
             {
-                case "iframe":
+                case "Iframe":
                     return ToiInformationType.Website;
-                case "video":
+                case "Video":
                     return ToiInformationType.Video;
-                case "image":
+                case "Image":
                     return ToiInformationType.Image;
-                case "audio":
+                case "Audio":
                     return ToiInformationType.Audio;
-                case "text":
+                case "Text":
                     return ToiInformationType.Text;
                 default:
                     throw new ArgumentException($"Invalid InformationType: {informationType}");

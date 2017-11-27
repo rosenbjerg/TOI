@@ -79,7 +79,7 @@ namespace TOIFeedServer.Tests
                 {"tags", JsonConvert.SerializeObject(new List<string> {_tagGuid}) },
                 {"url", "https://mock.com" },
                 {"title", "Mock TOI" },
-                {"type", JsonConvert.SerializeObject(ToiInformationType.Text) },
+                {"type", ToiInformationType.Text.ToString() },
                 {"image", "https://openclipart.org/image/2400px/svg_to_png/130795/Trollface.png" },
                 {"description", "This is a mock TOI." }
             });
