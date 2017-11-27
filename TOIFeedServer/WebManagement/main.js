@@ -140,11 +140,6 @@ function getResource(resource, doneCallback, processData) {
     let updated = resource + "Updated";
     if (!state[updated] || diffMinutes(new Date(), state[updated]) > 1){
         $.get("/" + resource, function (data) {
-            if (data.Status !== "Ok")
-            {
-                console.log("/tag error");
-                return;
-            }
             if (processData)
                 data = processData(data);
 
