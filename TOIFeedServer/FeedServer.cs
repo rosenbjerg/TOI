@@ -82,7 +82,16 @@ namespace TOIFeedServer
             _server.Post("/toi/fromtags", async (req, res) =>
             {
                 var bString = await req.ParseBodyAsync<string>();
-                var tags = JsonConvert.DeserializeObject<IEnumerable<string>>(bString);
+                IEnumerable<string> tags;
+                try
+                {
+                    tags = JsonConvert.DeserializeObject<IEnumerable<string>>(bString);
+                }
+                catch (Exception e)
+                {
+                    await res.SendString("Exception :(", status: StatusCodes.Status400BadRequest);
+                    throw;
+                }
                 if (tags == null)
                 {
                     await res.SendString("Bad request", status: StatusCodes.Status400BadRequest);

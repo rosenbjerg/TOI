@@ -24,7 +24,10 @@ namespace TOIFeedServer.Managers
         }
 
         
-
+        private static readonly char[] TrimChars = new char[]
+        {
+            ':', ' ', '-', ',', '.'
+        };
         private static TagModel ValidateTagForm(IFormCollection form, bool update)
         {
             var fields = new List<string> { "title", "longitude", "latitude", "radius", "type", "id" };
@@ -40,7 +43,7 @@ namespace TOIFeedServer.Managers
             return new TagModel
             {
                 Title = form["title"][0],
-                Id = form["id"][0],
+                Id = string.Join('', form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries)).ToUpperInvariant(),
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
