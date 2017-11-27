@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using TOIClasses;
 
-namespace TOIFeedServer.Database
+namespace TOIFeedServer
 {
     public class MongoDbCollection<T> : IDbCollection<T>
         where T : ModelBase

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LiteDB;
 using TOIClasses;
 
-namespace TOIFeedServer.Database
+namespace TOIFeedServer
 {
     public class LiteDbCollection<T> : IDbCollection<T>
         where T : ModelBase

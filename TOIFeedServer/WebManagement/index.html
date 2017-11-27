@@ -28,7 +28,7 @@
             <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
             <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
             <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
-            <div class="header-menu-button" id="show-users" tabindex="4">Users</div>
+            <div class="header-menu-button" id="show-profile" tabindex="4">Profile</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -275,6 +275,19 @@
     <p>{{question}}</p>
     <button class="six columns" style="margin-left: 0" id="user-prompt-cancel">Cancel</button>
     <button class="six columns button-primary" id="user-prompt-accept">Yes</button>
+</template>
+
+<template id="profile-template">
+    <h3>Profile</h3>
+    <form style="margin-left: 0" class="six columns" id="change-email-form">
+        <input class="u-full-width" type="email" required="required" name="email" value="{{user.Email}}">
+        <input class="u-full-width button-primary" type="submit" value="Change email">
+    </form>
+    <form class="six columns" id="change-password-form">
+        <input class="u-full-width" type="password" name="pwd1" required="required" pattern=".{6,}" placeholder="Password (min. 6 characters)">
+        <input class="u-full-width" type="password" name="pwd2" required="required" pattern="Repeat password">
+        <input class="u-full-width button-primary" type="submit" value="Change password">
+    </form>
 </template>
 
 <script src="main.js"></script>

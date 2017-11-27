@@ -6,33 +6,32 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using TOIClasses;
-using TOIFeedServer.Database;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Managers
 {
     public class ToiManager
     {
-        private readonly DatabaseService _dbService;
+        private readonly Database _db;
 
-        public ToiManager(DatabaseService dbService)
+        public ToiManager(Database db)
         {
-            _dbService = dbService;
+            _db = db;
         }
 
         private static ToiInformationType InformationTypeFromString(string informationType)
         {
             switch (informationType)
             {
-                case "Iframe":
+                case "iframe":
                     return ToiInformationType.Website;
-                case "Video":
+                case "video":
                     return ToiInformationType.Video;
-                case "Image":
+                case "image":
                     return ToiInformationType.Image;
-                case "Audio":
+                case "audio":
                     return ToiInformationType.Audio;
-                case "Text":
+                case "text":
                     return ToiInformationType.Text;
                 default:
                     throw new ArgumentException($"Invalid InformationType: {informationType}");
@@ -75,14 +74,14 @@ namespace TOIFeedServer.Managers
         {
             var toi = ValidateToiForm(form, false);
             if (toi == null) return null;
-            return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi : null;
+            return await _db.Tois.Insert(toi) == DatabaseStatusCode.Created ? toi : null;
         }
 
         public async Task<ToiModel> UpdateToi(IFormCollection form)
         {
             var toi = ValidateToiForm(form, true);
             if (toi == null) return null;
-            return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated ? toi : null;
+            return await _db.Tois.Update(toi.Id, toi) == DatabaseStatusCode.Updated ? toi : null;
         }
         
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
@@ -90,13 +89,13 @@ namespace TOIFeedServer.Managers
             DbResult<IEnumerable<ToiModel>> result;
             if (context == "")
             {
-                result = await _dbService.GetAllToiModels();
+                result = await _db.Tois.GetAll();
             }
             else
             {
                 var ids = context.Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
                     .ToHashSet();
-                result = await _dbService.GetToisByContext(ids);
+                result = await _db.Tois.Find(t => t.Contexts.Any(ids.Contains));
             }
             return result;
         }
@@ -104,7 +103,7 @@ namespace TOIFeedServer.Managers
         {
             var context = ValidateContextForm(form, false);
             if (context == null) return null;
-            return await _dbService.InsertContext(context) == DatabaseStatusCode.Created ? context : null;
+            return await _db.Contexts.Insert(context) == DatabaseStatusCode.Created ? context : null;
         }
 
 
@@ -112,7 +111,7 @@ namespace TOIFeedServer.Managers
         {
             var context = ValidateContextForm(form, true);
             if (context == null) return null;
-            return await _dbService.UpdateContext(context) == DatabaseStatusCode.Updated ? context : null;
+            return await _db.Contexts.Update(context.Id, context) == DatabaseStatusCode.Updated ? context : null;
         }
         private ContextModel ValidateContextForm(IFormCollection form, bool update)
         {
@@ -137,7 +136,7 @@ namespace TOIFeedServer.Managers
         {
             if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
                 return false;
-            return await _dbService.DeleteContext(form["id"][0]) == DatabaseStatusCode.Deleted;
+            return await _db.Contexts.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
         }
     }
 }

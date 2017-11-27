@@ -13,6 +13,7 @@ let templates = {
     contextCell : JsT.loadById("context-table-cell", true),
     saveEditContext : JsT.loadById("save-edit-context-template", true),
     context : JsT.loadById("context-template", true),
+    profile : JsT.loadById("profile-template")
 
 };
 // templates.saveEditToi.setFormatter("Tags", function (tagData) {
@@ -33,7 +34,23 @@ let modalTemplates = {
     userPrompt : JsT.loadById("user-prompt-template", true)
 };
 
-
+let cUser = {
+    Username: "admin",
+    Email: "test@test.dk",
+    Title: "admin"
+};
+let testusers = [
+    {
+        Username: "markinator3000",
+        Email: "markina@tor.3k",
+        Title: "admin"
+    },
+    {
+        Username: "mholst14",
+        Email: "spam@nej.tak",
+        Title: "editor"
+    }
+];
 toastr.options = {
     "closeButton": false,
     "debug": false,
@@ -183,6 +200,24 @@ function loadContexts(callback) {
 function showLogin() {
     $viewSpace.empty().append(templates.login.render());
 }
+function showToiList() {
+    loadTois(function () {
+        let l = "";
+        for (let x in state.tois) {
+            if (state.tois.hasOwnProperty(x))
+                l += templates.toi.render(state.tois[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            createText: "New ToI",
+            createButtonId: "create-new-toi",
+            title: "ToIs",
+            list: l,
+            thing: "TOI"
+        }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-tois").addClass("active");
+    });
+}
 function showSaveEditToi(toi) {
     $viewSpace.empty().append(templates.saveEditToi.render(toi));
     if (toi) {
@@ -196,6 +231,24 @@ function showSaveEditToi(toi) {
         $("#added-tags").append(tags);
         $("#added-contexts").append(contexts);
     }
+}
+function showContextList() {
+    loadContexts(function () {
+        let l = "";
+        for (let x in state.contexts) {
+            if (state.contexts.hasOwnProperty(x))
+                l += templates.context.render(state.contexts[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            createText: "New context",
+            createButtonId: "create-new-context",
+            title: "Contexts",
+            list: l,
+            thing: "context"
+        }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-contexts").addClass("active");
+    });
 }
 function showSaveEditContext(context, onSaveCallback) {
     showPopup(templates.saveEditContext.render({
@@ -234,42 +287,6 @@ function showSaveEditContext(context, onSaveCallback) {
         }
     })
 }
-function showCreateTag() {
-    let defaults = {
-        radius: 50,
-        latitude: 56.9385382,
-        longitude: 9.7409053
-    };
-    navigator.geolocation.getCurrentPosition(function (pos) {
-        console.log("got real coordinates");
-        defaults.latitude = pos.coords.latitude;
-        defaults.longitude = pos.coords.longitude;
-        $viewSpace.empty().append(templates.createTag.render(defaults));
-        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
-    }, function (err) {
-        console.log(err);
-        $viewSpace.empty().append(templates.createTag.render(defaults));
-        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
-    }, {timeout: 500});
-}
-function showToiList() {
-    loadTois(function () {
-        let l = "";
-        for (let x in state.tois) {
-            if (state.tois.hasOwnProperty(x))
-                l += templates.toi.render(state.tois[x]);
-        }
-        $viewSpace.empty().append(templates.list.render({
-            createText: "New ToI",
-            createButtonId: "create-new-toi",
-            title: "ToIs",
-            list: l,
-            thing: "TOI"
-        }));
-        $(".header-menu-button.active").removeClass("active");
-        $("#show-tois").addClass("active");
-    });
-}
 function showTagList() {
     loadTags(function () {
         let l = "";
@@ -288,23 +305,33 @@ function showTagList() {
         $("#show-tags").addClass("active");
     });
 }
-function showContextList() {
-    loadContexts(function () {
-        let l = "";
-        for (let x in state.contexts) {
-            if (state.contexts.hasOwnProperty(x))
-                l += templates.context.render(state.contexts[x]);
-        }
-        $viewSpace.empty().append(templates.list.render({
-            createText: "New context",
-            createButtonId: "create-new-context",
-            title: "Contexts",
-            list: l,
-            thing: "context"
-        }));
-        $(".header-menu-button.active").removeClass("active");
-        $("#show-contexts").addClass("active");
-    });
+function showCreateTag() {
+    let defaults = {
+        radius: 50,
+        latitude: 56.9385382,
+        longitude: 9.7409053
+    };
+    navigator.geolocation.getCurrentPosition(function (pos) {
+        console.log("got real coordinates");
+        defaults.latitude = pos.coords.latitude;
+        defaults.longitude = pos.coords.longitude;
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, function (err) {
+        console.log(err);
+        $viewSpace.empty().append(templates.createTag.render(defaults));
+        initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
+    }, {timeout: 500});
+}
+function showProfile() {
+
+    $viewSpace.empty().append(templates.profile.render({user: cUser}));
+    if (cUser.Type === "admin"){
+        $.get("/users", function (users) {
+            console.log(users);
+        });
+    }
+
 }
 function showPopup(html) {
     $.magnificPopup.open({
@@ -324,9 +351,10 @@ function promptUser(title, question, onOk) {
     });
 }
 
-$("#show-tags").click(function() {showTagList()});
-$("#show-tois").click(function() {showToiList()});
-$("#show-contexts").click(function() {showContextList()});
+$("#show-tags").click(showTagList);
+$("#show-tois").click(showToiList);
+$("#show-contexts").click(showContextList);
+$("#show-profile").click(showProfile);
 
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
@@ -480,7 +508,6 @@ $viewSpace.on("click", "#added-tags .tag-cell .mi-button", function () {
     this.parentNode.parentNode.remove();
 });
 
-// #filter-TOI, #filter-context, #filter-tag
 $viewSpace.on("input", "#filter-TOI", function () {
     let searchTerm = this.value;
     let result = searchInData(state.tois, function (toi) {

@@ -4,7 +4,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
 using TOIClasses;
-using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
 using static TOIFeedServer.Extensions;
 
@@ -22,10 +21,11 @@ namespace TOIFeedServer
 
             Console.WriteLine(development ? "Using In-memory db" : "Using MongoDB");
 
-            var dbService = new DatabaseService(development ? DatabaseFactory.DatabaseType.InMemory : DatabaseFactory.DatabaseType.MongoDB);
-            _server.Plugins.Register<DatabaseService, DatabaseService>(dbService);
-            var tagMan = new TagManager(dbService);
-            var toiMan = new ToiManager(dbService);
+            var db = DatabaseFactory.BuildDatabase(development ? DatabaseFactory.DatabaseType.InMemory : DatabaseFactory.DatabaseType.MongoDB);
+            _server.Plugins.Register<Database, Database>(db);
+            var tagMan = new TagManager(db);
+            var toiMan = new ToiManager(db);
+            var usrMan = new UserManager(db);
 
             _server.Get("/tags", async (req, res) =>
             {
@@ -102,7 +102,7 @@ namespace TOIFeedServer
             
             _server.Get("/contexts", async (req, res) =>
             {
-                var all = await dbService.GetAllContexts();
+                var all = await db.Contexts.GetAll();
                 await res.SendJson(all.Result);
             }); 
             _server.Post("/context", async (req, res) =>
@@ -140,7 +140,7 @@ namespace TOIFeedServer
 
         private async void FillMockDatabase()
         {
-            if (_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
+            if (_server.Plugins.Use<Database>().Tois.GetAll().Result.Status != DatabaseStatusCode.NoElement)
             {
                 Console.WriteLine("Sample data already added.");
                 return;
@@ -243,10 +243,10 @@ namespace TOIFeedServer
                 }
             };
 
-            var db = _server.Plugins.Use<DatabaseService>();
-            await db.InsertTag(cTag, btbTag, mTag, fTag);
-            await db.InsertContext(grownCtx, childCtx);
-            await db.InsertToiModel(modelList.ToArray());
+            var db = _server.Plugins.Use<Database>();
+            await db.Tags.Insert(cTag, btbTag, mTag, fTag);
+            await db.Contexts.Insert(grownCtx, childCtx);
+            await db.Tois.Insert(modelList.ToArray());
         }
 
         public void Start()

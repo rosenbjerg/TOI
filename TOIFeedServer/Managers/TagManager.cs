@@ -4,24 +4,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TOIClasses;
-using TOIFeedServer.Database;
 
 namespace TOIFeedServer.Managers
 {
     public class TagManager
     {
-        private readonly DatabaseService _dbService;
+        private readonly Database _db;
 
-        public TagManager(DatabaseService dbService)
+        public TagManager(Database db)
         {
-            _dbService = dbService;
+            _db = db;
         }
 
         public async Task<DbResult<IEnumerable<TagModel>>> GetTags(HashSet<string> ids = null)
         {
             if (ids == null)
-                return await _dbService.GetAllTags();
-            return await _dbService.GetTagsFromIds(ids);
+                return await _db.Tags.GetAll();
+            return await _db.Tags.Find(t => ids.Contains(t.Id));
         }
 
         
@@ -70,14 +69,14 @@ namespace TOIFeedServer.Managers
         {
             var tag = ValidateTagForm(form, false);
             if (tag == null) return null;
-            return await _dbService.InsertTag(tag) != DatabaseStatusCode.Created ? null : tag;
+            return await _db.Tags.Insert(tag) != DatabaseStatusCode.Created ? null : tag;
         }
 
         public async Task<TagModel> UpdateTag(IFormCollection form)
         {
             var tag = ValidateTagForm(form, true);
             if (tag == null) return null;
-            return await _dbService.UpdateTag(tag) != DatabaseStatusCode.Updated ? null : tag;
+            return await _db.Tags.Update(tag.Id, tag) != DatabaseStatusCode.Updated ? null : tag;
         }
 
         public async Task<TagModel> GetTag(IQueryCollection queries)
@@ -86,7 +85,7 @@ namespace TOIFeedServer.Managers
             {
                 //trim query så den er ROBUST!    
                 var id = queries["id"][0];
-                var dbRes = await _dbService.GetTagFromId(id);
+                var dbRes = await _db.Tags.FindOne(id);
                 return dbRes.Result;
             }
             catch (Exception e)
