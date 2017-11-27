@@ -38,7 +38,7 @@ namespace TOIFeedServer
                 var tags = await tagMan.GetTags(tagFilter);
 
                 if (tags != null)
-                    await res.SendJson(tags);
+                    await res.SendJson(tags.Result);
                 else
                     await res.SendString("ERROR", status: 400);
             });
@@ -75,7 +75,7 @@ namespace TOIFeedServer
                 if (req.Queries.ContainsKey("contexts"))
                     contextString = req.Queries["contexts"][0];
                 var tois = await toiMan.GetToisByContext(contextString);
-                await res.SendJson(tois);
+                await res.SendJson(tois.Result);
             });
             _server.Get("/toi", async (req, res) =>
             {
@@ -103,7 +103,7 @@ namespace TOIFeedServer
             _server.Get("/contexts", async (req, res) =>
             {
                 var all = await dbService.GetAllContexts();
-                await res.SendJson(all);
+                await res.SendJson(all.Result);
             }); 
             _server.Post("/context", async (req, res) =>
             {
