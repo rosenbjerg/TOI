@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -17,6 +18,25 @@ namespace TOIFeedServer.Managers
         public ToiManager(DatabaseService dbService)
         {
             _dbService = dbService;
+        }
+
+        private static ToiInformationType InformationTypeFromString(string informationType)
+        {
+            switch (informationType)
+            {
+                case "iframe":
+                    return ToiInformationType.Website;
+                case "video":
+                    return ToiInformationType.Video;
+                case "image":
+                    return ToiInformationType.Image;
+                case "audio":
+                    return ToiInformationType.Audio;
+                case "text":
+                    return ToiInformationType.Text;
+                default:
+                    throw new ArgumentException($"Invalid InformationType: {informationType}");
+            }
         }
 
         private ToiModel ValidateToiForm(IFormCollection form, bool update)
@@ -44,7 +64,8 @@ namespace TOIFeedServer.Managers
                 Url = form["url"][0],
                 Image = form["image"][0],
                 Contexts = contextIds,
-                Tags = tagIds
+                Tags = tagIds,
+                InformationType = InformationTypeFromString(form["type"][0])
             };
 
             return tm;
