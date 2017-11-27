@@ -43,7 +43,7 @@ namespace TOIFeedServer.Managers
             return new TagModel
             {
                 Title = form["title"][0],
-                Id = string.Join('', form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries)).ToUpperInvariant(),
+                Id = string.Join("", form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries)).ToUpperInvariant(),
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
