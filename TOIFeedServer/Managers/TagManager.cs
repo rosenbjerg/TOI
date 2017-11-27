@@ -28,25 +28,16 @@ namespace TOIFeedServer.Managers
 
         private static TagModel ValidateTagForm(IFormCollection form, bool update)
         {
-            var always = new List<string> { "title", "longitude", "latitude", "radius" };
-            var onUpdate = new List<string> {  "type" };
-
-            if (always.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) return null;
-
-            if (!update)
-            {
-                
-            }
-            if (!int.TryParse(form["radius"][0], out var radius) ||
-                !double.TryParse(form["longitude"][0], out var longitude) ||
-                !double.TryParse(form["latitude"], out var latitude) ||
-                !int.TryParse(form["type"], out var type)) 
-                return null;
-            if (radius < 1) 
-                return null;
-            if (string.IsNullOrEmpty(form["id"][0]))
+            var fields = new List<string> { "title", "longitude", "latitude", "radius", "type", "id" };
+            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) 
                 return null;
 
+            if (!int.TryParse(form["radius"][0], out var radius) || 
+                radius < 1 ||
+                !decimal.TryParse(form["longitude"][0].Replace(",", "."), out var longitude) ||
+                !decimal.TryParse(form["latitude"][0].Replace(",", "."), out var latitude))
+                return null;
+            
             return new TagModel
             {
                 Title = form["title"][0],
@@ -54,8 +45,25 @@ namespace TOIFeedServer.Managers
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
-                Type = (TagType)type
+                Type = ParseTagType(form["type"][0])
             };
+        }
+
+        private static TagType ParseTagType(string type)
+        {
+            switch (type)
+            {
+                case "wifi":
+                    return TagType.Wifi;
+                case "ble":
+                    return TagType.Bluetooth;
+                case "gps":
+                    return TagType.Gps;
+                case "nfc":
+                    return TagType.Nfc;
+                default:
+                    return TagType.Gps;
+            }
         }
 
         public async Task<TagModel> CreateTag(IFormCollection form)

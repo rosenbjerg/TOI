@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -19,11 +20,33 @@ namespace TOIFeedServer.Managers
             _dbService = dbService;
         }
 
-        private ToiModel ValidateToiForm(IFormCollection form)
+        private static ToiInformationType InformationTypeFromString(string informationType)
         {
-            var nonEmpty = new List<string> { "title", "url", "type" };
+            switch (informationType)
+            {
+                case "Iframe":
+                    return ToiInformationType.Website;
+                case "Video":
+                    return ToiInformationType.Video;
+                case "Image":
+                    return ToiInformationType.Image;
+                case "Audio":
+                    return ToiInformationType.Audio;
+                case "Text":
+                    return ToiInformationType.Text;
+                default:
+                    throw new ArgumentException($"Invalid InformationType: {informationType}");
+            }
+        }
+
+        private ToiModel ValidateToiForm(IFormCollection form, bool update)
+        {
+            var nonEmpty = new List<string> { "title", "url", "type", "image" };
             var canBeEmpty = new List<string> { "contexts", "tags", "description" };
 
+            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+                return null;
+            
             if (canBeEmpty.Any(field => !form.ContainsKey(field)))
                 return null;
 
@@ -35,13 +58,14 @@ namespace TOIFeedServer.Managers
 
             var tm = new ToiModel
             {
-                Id = Guid.NewGuid().ToString("N"),
+                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
                 Description = form["description"][0],
                 Title = form["title"][0],
                 Url = form["url"][0],
-                Image = form.ContainsKey("image") ? form["image"][0] : "",
+                Image = form["image"][0],
                 Contexts = contextIds,
-                Tags = tagIds
+                Tags = tagIds,
+                InformationType = InformationTypeFromString(form["type"][0])
             };
 
             return tm;
@@ -49,14 +73,14 @@ namespace TOIFeedServer.Managers
 
         public async Task<ToiModel> CreateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form);
+            var toi = ValidateToiForm(form, false);
             if (toi == null) return null;
             return await _dbService.InsertToiModel(toi) == DatabaseStatusCode.Created ? toi : null;
         }
 
         public async Task<ToiModel> UpdateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form);
+            var toi = ValidateToiForm(form, true);
             if (toi == null) return null;
             return await _dbService.UpdateToiModel(toi) == DatabaseStatusCode.Updated ? toi : null;
         }

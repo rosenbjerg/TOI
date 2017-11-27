@@ -38,7 +38,7 @@ namespace TOIFeedServer
                 var tags = await tagMan.GetTags(tagFilter);
 
                 if (tags != null)
-                    await res.SendJson(tags);
+                    await res.SendJson(tags.Result);
                 else
                     await res.SendString("ERROR", status: 400);
             });
@@ -75,7 +75,7 @@ namespace TOIFeedServer
                 if (req.Queries.ContainsKey("contexts"))
                     contextString = req.Queries["contexts"][0];
                 var tois = await toiMan.GetToisByContext(contextString);
-                await res.SendJson(tois);
+                await res.SendJson(tois.Result);
             });
 
             _server.Post("/toi/fromtags", async (req, res) =>
@@ -97,7 +97,7 @@ namespace TOIFeedServer
                     await res.SendJson(toi.Result);
                 }
             });
-            
+
             _server.Get("/toi", async (req, res) =>
             {
                 //TODO implement method for getting a single ToiModel
@@ -120,12 +120,12 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The ToI could not be updated.", status: 400);
             });
-            
+
             _server.Get("/contexts", async (req, res) =>
             {
                 var all = await dbService.GetAllContexts();
-                await res.SendJson(all);
-            }); 
+                await res.SendJson(all.Result);
+            });
             _server.Post("/context", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
@@ -152,7 +152,7 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The context could not be deleted.", status: 400);
             });
-           
+
             if (sampleData)
             {
                 FillMockDatabase();
@@ -163,6 +163,7 @@ namespace TOIFeedServer
         {
             if (_server.Plugins.Use<DatabaseService>().GetAllToiModels().Result.Status != DatabaseStatusCode.NoElement)
             {
+                Console.WriteLine("Sample data already added.");
                 await _server.Plugins.Use<DatabaseService>().TruncateDatabase();
             }
 
@@ -202,7 +203,7 @@ namespace TOIFeedServer
                 Id = "F4:B4:15:05:42:05",
                 Type = TagType.Gps
             };
-            
+
             var modelList = new List<ToiModel>
             {
                 new ToiModel
@@ -216,7 +217,7 @@ namespace TOIFeedServer
                     Tags = new List<string> {mTag.Id},
                     InformationType = ToiInformationType.Website
                 },
-                new ToiModel 
+                new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
                     Description = "Cocio and Tekken!",
