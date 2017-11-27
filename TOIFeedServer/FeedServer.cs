@@ -173,7 +173,8 @@ namespace TOIFeedServer
             var grownCtx = new ContextModel
             {
                 Id = grownGuid,
-                Title = "Grown-up stuff"
+                Title = "Grown-up stuff",
+                Description = "Marks legetøj"
             };
             var childCtx = new ContextModel
             {
@@ -183,25 +184,25 @@ namespace TOIFeedServer
             var fTag = new TagModel
             {
                 Title = "F-Klubben",
-                Id = "FA:C4:D1:03:8D:3D",
+                Id = "FAC4D1038D3D",
                 Type = TagType.Nfc
             };
             var cTag = new TagModel
             {
                 Title = "Cassiopeia",
-                Id = "CC:14:54:01:52:82",
+                Id = "CC1454015282",
                 Type = TagType.Bluetooth
             };
             var mTag = new TagModel
             {
                 Title = "At Marius place",
-                Id = "CB:FF:B9:6C:A4:7D",
+                Id = "CBFFB96CA47D",
                 Type = TagType.Wifi
             };
             var btbTag = new TagModel
             {
                 Title = "By the bin",
-                Id = "F4:B4:15:05:42:05",
+                Id = "F4B415054205",
                 Type = TagType.Gps
             };
 
