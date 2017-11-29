@@ -27,6 +27,7 @@ textarea {
         padding: inherit;
     }
 }
+
 a {
     font-family: Raleway,HelveticaNeue,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 1.3rem;
@@ -148,7 +149,7 @@ ul, li {
     margin: 8px;
 }
 .context {
-    padding: 12px 8px;
+    padding: 14px 10px;
     border-radius: 2px;
     background-color: #EEEEEE;
     display: inline-block;
@@ -226,7 +227,7 @@ ul, li {
 input:invalid {
     outline: 1px #ef9a9a;
 }
-.context-cell .mi-button, .tag-cell .mi-button {
+.context-cell .action-button, .context-cell .info-button, .tag-cell .action-button, .tag-cell .info-button {
     float: right;
     cursor: pointer;
     -webkit-user-select: none;
