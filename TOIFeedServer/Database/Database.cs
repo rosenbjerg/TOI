@@ -10,13 +10,15 @@ namespace TOIFeedServer
         public IDbCollection<ToiModel> Tois { get; }
         public IDbCollection<ContextModel> Contexts { get; }
         public IDbCollection<User> Users { get; }
+        public IDbCollection<StaticFile> Files { get; }
 
-        internal Database(IDbCollection<TagModel> tags, IDbCollection<ToiModel> tois, IDbCollection<ContextModel> contexts, IDbCollection<User> users)
+        internal Database(IDbCollection<TagModel> tags, IDbCollection<ToiModel> tois, IDbCollection<ContextModel> contexts, IDbCollection<User> users, IDbCollection<StaticFile> files)
         {
             Tags = tags;
             Tois = tois;
             Contexts = contexts;
             Users = users;
+            Files = files;
         }
 
         public async Task TruncateDatabase()

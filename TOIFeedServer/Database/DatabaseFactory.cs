@@ -40,7 +40,8 @@ namespace TOIFeedServer
                 new MongoDbCollection<TagModel>(database.GetCollection<TagModel>("tags")),
                 new MongoDbCollection<ToiModel>(database.GetCollection<ToiModel>("tois")),
                 new MongoDbCollection<ContextModel>(database.GetCollection<ContextModel>("contexts")),
-                new MongoDbCollection<User>(database.GetCollection<User>("users")));
+                new MongoDbCollection<User>(database.GetCollection<User>("users")),
+                new MongoDbCollection<StaticFile>(database.GetCollection<StaticFile>("files")));
         }
 
         private static Database BuildInMemoryDatabase()
@@ -49,7 +50,8 @@ namespace TOIFeedServer
                 new InMemoryDbCollection<TagModel>(),
                 new InMemoryDbCollection<ToiModel>(),
                 new InMemoryDbCollection<ContextModel>(),
-                new InMemoryDbCollection<User>());
+                new InMemoryDbCollection<User>(),
+                new InMemoryDbCollection<StaticFile>());
         }
 
         private static Database BuildLiteDatabase()
@@ -59,7 +61,8 @@ namespace TOIFeedServer
                 new LiteDbCollection<TagModel>(ldb.GetCollection<TagModel>("tags")),
                 new LiteDbCollection<ToiModel>(ldb.GetCollection<ToiModel>("tois")),
                 new LiteDbCollection<ContextModel>(ldb.GetCollection<ContextModel>("contexts")),
-                new LiteDbCollection<User>(ldb.GetCollection<User>("users")));
+                new LiteDbCollection<User>(ldb.GetCollection<User>("users")),
+                new LiteDbCollection<StaticFile>(ldb.GetCollection<StaticFile>("files")));
         }
 
         public enum DatabaseType

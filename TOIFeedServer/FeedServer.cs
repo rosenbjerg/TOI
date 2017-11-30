@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
@@ -16,7 +17,14 @@ namespace TOIFeedServer
 
         public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
-            _server = new RedHttpServer(port, "./WebManagement");
+            var uploadsDir = Path.Combine(".", "public", "uploads");
+            if (!Directory.Exists(uploadsDir))
+            {
+                Console.WriteLine("Creating uploads folder.");
+                Directory.CreateDirectory(uploadsDir);
+            }
+
+            _server = new RedHttpServer(port, "./public");
 
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
 

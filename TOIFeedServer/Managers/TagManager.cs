@@ -42,11 +42,11 @@ namespace TOIFeedServer.Managers
         };
         private static TagModel ValidateTagForm(IFormCollection form, out string error)
         {
-            var fields = new List<string> { "title", "longitude", "latitude", "radius", "type", "id" };
+            var fields = new List<string> { "title", "longitude", "latitude", "radius", "type"};
             var missing = fields.Where(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]));
             if (missing.Any())
             {
-                error = "Missing values for: " + String.Join(", ", missing);
+                error = "Missing values for: " + string.Join(", ", missing);
                 return null;
             }
 
@@ -73,12 +73,29 @@ namespace TOIFeedServer.Managers
                 error = "Invalid tag type";
                 return null;
             }
+            
+            if (type != TagType.Gps && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+            {
+                error = "Please supply a valid hardware id";
+                return null;
+            }
+
+            string id;
+            if (type == TagType.Gps)
+            {
+                id = Guid.NewGuid().ToString("N");
+            }
+            else
+            {
+                id = string.Join("", form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries))
+                    .ToUpperInvariant();
+            }
 
             error = string.Empty;
             return new TagModel
             {
                 Title = form["title"][0],
-                Id = string.Join("", form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries)).ToUpperInvariant(),
+                Id = id,
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
