@@ -72,11 +72,19 @@ namespace TOIFeedServer
             });
             _server.Delete("/tag", async(req, res) =>
             {
-                var form = await req.GetFormDataAsync();
-                if (await tagMan.DeleteTag(form))
-                    await res.SendString("OK");
-                else
-                    await res.SendString("The tag could not be deleted.", status: 400);
+                try
+                {
+                    var form = await req.GetFormDataAsync();
+                    if (await tagMan.DeleteTag(form))
+                        await res.SendString("OK");
+                    else
+                        await res.SendString("The tag could not be deleted.", status: 400);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    await res.SendString("ERROR", status: 500);
+                }
             });
 
             _server.Get("/tois", async (req, res) =>

@@ -148,7 +148,21 @@ namespace TOIFeedServer.Managers
         {
             if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
                 return false;
-            return await _db.Tags.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
+            var id = form["id"][0];
+
+            var toisToUpdate = await _db.Tois.Find(t => t.Tags.Contains(id));
+            if (toisToUpdate.Status == DatabaseStatusCode.NoElement)
+                return await _db.Tags.Delete(id) == DatabaseStatusCode.Deleted;
+            var toiList = toisToUpdate.Result.ToList();
+
+            //Delete the tag from all the ToIs that are associated with it
+            foreach (var toi in toiList)
+            {
+                toi.Tags.Remove(id);
+                await _db.Tois.Update(toi.Id, toi);
+            }
+
+            return await _db.Tags.Delete(id) == DatabaseStatusCode.Deleted;
         }
     }
 }
