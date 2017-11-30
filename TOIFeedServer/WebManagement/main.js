@@ -375,6 +375,7 @@ $viewSpace.on("submit", "#create-tag-form", function (ev) {
         toastr["error"]("You must select the type");
         return;
     }
+    console.log(form.get("type"));
     ajax("/tag", "POST", form, function (tag) {
         cache.tags[tag.Id] = tag;
         toastr["success"]("Tag created");

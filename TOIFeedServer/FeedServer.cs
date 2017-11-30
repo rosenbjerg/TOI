@@ -27,6 +27,7 @@ namespace TOIFeedServer
             var tagMan = new TagManager(db);
             var toiMan = new ToiManager(db);
             var usrMan = new UserManager(db);
+            var cMan = new ContextManager(db);
 
             _server.Get("/tags", async (req, res) =>
             {
@@ -69,6 +70,14 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
             });
+            _server.Delete("/tag", async(req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (await tagMan.DeleteTag(form))
+                    await res.SendString("OK");
+                else
+                    await res.SendString("The context could not be deleted.", status: 400);
+            });
 
             _server.Get("/tois", async (req, res) =>
             {
@@ -78,7 +87,6 @@ namespace TOIFeedServer
                 var tois = await toiMan.GetToisByContext(contextString);
                 await res.SendJson(tois.Result);
             });
-
             _server.Post("/toi/fromtags", async (req, res) =>
             {
                 var bString = await req.ParseBodyAsync<string>();
@@ -120,7 +128,6 @@ namespace TOIFeedServer
                     await res.SendJson(toi.Result);
                 }
             });
-
             _server.Post("/toi", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
@@ -140,6 +147,7 @@ namespace TOIFeedServer
                     await res.SendString(toi.Message, status: 400);
             });
 
+
             _server.Get("/contexts", async (req, res) =>
             {
                 var all = await db.Contexts.GetAll();
@@ -148,7 +156,7 @@ namespace TOIFeedServer
             _server.Post("/context", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
-                var ctx = await toiMan.CreateContext(form);
+                var ctx = await cMan.CreateContext(form);
                 if (ctx.Result != null)
                     await res.SendJson(ctx);
                 else
@@ -157,7 +165,7 @@ namespace TOIFeedServer
             _server.Put("/context", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
-                var ctx = await toiMan.UpdateContext(form);
+                var ctx = await cMan.UpdateContext(form);
                 if (ctx.Result != null)
                     await res.SendJson(ctx);
                 else
@@ -166,7 +174,7 @@ namespace TOIFeedServer
             _server.Delete("/context", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
-                if (await toiMan.DeleteContext(form))
+                if (await cMan.DeleteContext(form))
                     await res.SendString("OK");
                 else
                     await res.SendString("The context could not be deleted.", status: 400);

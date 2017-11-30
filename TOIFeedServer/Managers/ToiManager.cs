@@ -36,6 +36,21 @@ namespace TOIFeedServer.Managers
             var toi = await GetToiByTagIds(tags.Result.Select(t => t.Id));
             return toi;
         }
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
+        {
+            DbResult<IEnumerable<ToiModel>> result;
+            if (context == "")
+            {
+                result = await _db.Tois.GetAll();
+            }
+            else
+            {
+                var ids = context.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToHashSet();
+                result = await _db.Tois.Find(t => t.Contexts.Any(ids.Contains));
+            }
+            return result;
+        }
 
         private static bool TryParseInformationType(string informationType, out ToiInformationType type)
         {
@@ -132,73 +147,11 @@ namespace TOIFeedServer.Managers
             return new UserActionResponse<ToiModel>("The ToI was updated", toi);
         }
 
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
-        {
-            DbResult<IEnumerable<ToiModel>> result;
-            if (context == "")
-            {
-                result = await _db.Tois.GetAll();
-            }
-            else
-            {
-                var ids = context.Split(new[] {',', ' '}, StringSplitOptions.RemoveEmptyEntries)
-                    .ToHashSet();
-                result = await _db.Tois.Find(t => t.Contexts.Any(ids.Contains));
-            }
-            return result;
-        }
-        public async Task<UserActionResponse<ContextModel>> CreateContext(IFormCollection form)
-        {
-            var context = ValidateContextForm(form, false, out var error);
-            if (context == null)
-                return new UserActionResponse<ContextModel>(error, null);
-            if(await _db.Contexts.Insert(context) != DatabaseStatusCode.Created)
-                return new UserActionResponse<ContextModel>("Could not create the context", null);
-            return new UserActionResponse<ContextModel>("The context was created", context);
-        }
-
-
-        public async Task<UserActionResponse<ContextModel>> UpdateContext(IFormCollection form)
-        {
-            var context = ValidateContextForm(form, true, out var error);
-            if (context == null)
-                return new UserActionResponse<ContextModel>(error, null);
-            if (await _db.Contexts.Update(context.Id, context) != DatabaseStatusCode.Updated)
-                return new UserActionResponse<ContextModel>("Could not update the context", null);
-            return new UserActionResponse<ContextModel>("The context was updated", context);
-        }
-        private ContextModel ValidateContextForm(IFormCollection form, bool update, out string error)
-        {
-            var nonEmpty = new List<string> { "title", "description" };
-
-            var missing = nonEmpty.Where(field => !form.ContainsKey(field));
-            if (missing.Any())
-            {
-                error = "Missing values for: " + String.Join(", ", missing);
-                return null;
-            }
-
-            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
-            {
-                error = "Please supply an id for the context you wish to update.";
-                return null;
-            }
-
-            var ctx = new ContextModel
-            {
-                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
-                Description = form["description"][0],
-                Title = form["title"][0],
-            };
-            error = string.Empty;
-            return ctx;
-        }
-
-        public async Task<bool> DeleteContext(IFormCollection form)
+        public async Task<bool> DeleteToi(IFormCollection form)
         {
             if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
                 return false;
-            return await _db.Contexts.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
+            return await _db.Tois.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
         }
     }
 }

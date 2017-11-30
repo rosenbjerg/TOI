@@ -143,5 +143,12 @@ namespace TOIFeedServer.Managers
                 return null;
             }
         }
+
+        public async Task<bool> DeleteTag(IFormCollection form)
+        {
+            if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+                return false;
+            return await _db.Tags.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
+        }
     }
 }
