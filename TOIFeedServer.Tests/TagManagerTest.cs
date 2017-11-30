@@ -25,8 +25,8 @@ namespace TOIFeedServer.Tests
                 var form = new FormCollection(new Dictionary<string, StringValues>
                 {
                     {"title", $"Bluetooth Tag {i}"},
-                    {"id", $"F4:B4:15:05:42:0{i}"},
-                    {"type", "0"},
+                    {"id", $"F4B41505420{i}"},
+                    {"type", "Bluetooth"},
                     {"radius", $"3{i}{i}"},
                     {"latitude", $"57.012392{1}"},
                     {"longitude", $"9.991556{i}"}
@@ -80,7 +80,7 @@ namespace TOIFeedServer.Tests
             {
                 {"title", "Bluetooth Tag"},
                 {"id", "F4:B4:15:05:43:05"},
-                {"type", "0"},
+                {"type", "Bluetooth"},
                 {"radius", "300"},
                 {"latitude", "57.0123920"},
                 {"longitude", "9.9915560"}
@@ -93,18 +93,17 @@ namespace TOIFeedServer.Tests
         }
 
         [DataTestMethod]
-        [DataRow("", "FA:C4:D1:03:8D:3D", "1", "300", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "", "3", "300", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "FB:C4:D1:03:8D:3D", "", "300", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "FC:C4:D1:03:8D:3D", "3", "", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "FD:C4:D1:03:8D:3D", "2", "300", "", "9.9915560")]
-        ////[DataRow("Bluetooth Tag", "FE:C4:D1:03:8D:3D", "3", "300", "57.0123920", "")]
-        //[DataRow("Bluetooth Tag", "FF:C4:D1:03:8D:3D", "string_type", "300", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "F1:C4:D1:03:8D:3D", "3", "0", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "F2:C4:D1:03:8D:3D", "1", "100.00", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "F3:C4:D1:03:8D:3D", "2", "wrong_radius", "57.0123920", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "F4:C4:D1:03:8D:3D", "1", "300", "wrong_latitude", "9.9915560")]
-        //[DataRow("Bluetooth Tag", "F5:C4:D1:03:8D:3D", "2", "300", "57.0123920", "wrong_longitude")]
+        [DataRow("", "FA:C4:D1:03:8D:3D", "Wifi", "300", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "", "Wifi", "300", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "FB:C4:D1:03:8D:3D", "WRONG TYPE", "300", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "FC:C4:D1:03:8D:3D", "Wifi", "", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "FD:C4:D1:03:8D:3D", "Wifi", "300", "", "9.9915560")]
+        [DataRow("Bluetooth Tag", "FE:C4:D1:03:8D:3D", "Wifi", "300", "57.0123920", "")]
+        [DataRow("Bluetooth Tag", "FF:C4:D1:03:8D:3D", "string_type", "300", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "F1:C4:D1:03:8D:3D", "Wifi", "0", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "F3:C4:D1:03:8D:3D", "Wifi", "wrong_radius", "57.0123920", "9.9915560")]
+        [DataRow("Bluetooth Tag", "F4:C4:D1:03:8D:3D", "Wifi", "300", "wrong_latitude", "9.9915560")]
+        [DataRow("Bluetooth Tag", "F5:C4:D1:03:8D:3D", "Wifi", "300", "57.0123920", "wrong_longitude")]
         public void CreateTag__Invalid(string title, string id, string type, string radius, string latitude, string longitude)
         {
             var form = new FormCollection(new Dictionary<string, StringValues>
