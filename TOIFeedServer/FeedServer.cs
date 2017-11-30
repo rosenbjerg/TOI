@@ -49,7 +49,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var tag = await tagMan.CreateTag(form);
                 if (tag.Result != null)
-                    await res.SendJson(tag);
+                    await res.SendJson(tag.Result);
                 else
                     await res.SendString(tag.Message, status: 400);
             });
@@ -58,7 +58,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var tag = await tagMan.UpdateTag(form);
                 if (tag.Result != null)
-                    await res.SendJson(tag);
+                    await res.SendJson(tag.Result);
                 else
                     await res.SendString(tag.Message, status: 400);
             });
@@ -133,7 +133,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var toi = await toiMan.CreateToi(form);
                 if (toi.Result != null)
-                    await res.SendJson(toi);
+                    await res.SendJson(toi.Result);
                 else
                     await res.SendString(toi.Message, status: 400);
             });
@@ -142,7 +142,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var toi = await toiMan.UpdateToi(form);
                 if (toi.Result != null)
-                    await res.SendJson(toi);
+                    await res.SendJson(toi.Result);
                 else
                     await res.SendString(toi.Message, status: 400);
             });
@@ -166,7 +166,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var ctx = await cMan.CreateContext(form);
                 if (ctx.Result != null)
-                    await res.SendJson(ctx);
+                    await res.SendJson(ctx.Result);
                 else
                     await res.SendString(ctx.Message, status: 400);
             });
@@ -175,7 +175,7 @@ namespace TOIFeedServer
                 var form = await req.GetFormDataAsync();
                 var ctx = await cMan.UpdateContext(form);
                 if (ctx.Result != null)
-                    await res.SendJson(ctx);
+                    await res.SendJson(ctx.Result);
                 else
                     await res.SendString(ctx.Message, status: 400);
             });
