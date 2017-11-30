@@ -13,7 +13,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="RHttpServer" Version="2.0.5" />
-    <PackageReference Include="TOIClasses" Version="1.0.4" />
+    <PackageReference Include="TOIClasses" Version="1.0.6" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />

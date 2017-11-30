@@ -37,8 +37,8 @@ namespace TOIFeedServer.Managers
 
             if (!int.TryParse(form["radius"][0], out var radius) || 
                 radius < 1 ||
-                !decimal.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var longitude) ||
-                !decimal.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude))
+                !double.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var longitude) ||
+                !double.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude))
                 return null;
             
             return new TagModel
