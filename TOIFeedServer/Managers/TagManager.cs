@@ -38,7 +38,8 @@ namespace TOIFeedServer.Managers
             if (!int.TryParse(form["radius"][0], out var radius) || 
                 radius < 1 ||
                 !double.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var longitude) ||
-                !double.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude))
+                !double.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude) ||
+                    !TryParseTagType(form["type"][0], out var type))
                 return null;
             
             return new TagModel
@@ -48,24 +49,29 @@ namespace TOIFeedServer.Managers
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
-                Type = ParseTagType(form["type"][0])
+                Type = type
             };
         }
 
-        private static TagType ParseTagType(string type)
+        private static bool TryParseTagType(string input, out TagType type)
         {
-            switch (type)
+            switch (input)
             {
-                case "wifi":
-                    return TagType.Wifi;
-                case "ble":
-                    return TagType.Bluetooth;
-                case "gps":
-                    return TagType.Gps;
-                case "nfc":
-                    return TagType.Nfc;
+                case "Wifi":
+                    type = TagType.Wifi;
+                    return true;
+                case "Bluetooth":
+                    type = TagType.Bluetooth;
+                    return true;
+                case "Gps":
+                    type = TagType.Gps;
+                    return true;
+                case "Nfc":
+                    type = TagType.Nfc;
+                    return true;
                 default:
-                    return TagType.Gps;
+                    type = default(TagType);
+                    return false;
             }
         }
 

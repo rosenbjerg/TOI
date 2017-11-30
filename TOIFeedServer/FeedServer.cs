@@ -87,9 +87,9 @@ namespace TOIFeedServer
                 {
                     tags = JsonConvert.DeserializeObject<List<string>>(bString);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    await res.SendString("Exception :(", status: StatusCodes.Status400BadRequest);
+                    await res.SendString("Exception", status: StatusCodes.Status400BadRequest);
                     throw;
                 }
                 if (tags == null)
@@ -107,11 +107,20 @@ namespace TOIFeedServer
                     await res.SendJson(toi.Result);
                 }
             });
-
-            _server.Get("/toi", async (req, res) =>
+            _server.Post("/toi/fromgps", async (req, res) =>
             {
-                //TODO implement method for getting a single ToiModel
+                var gpsLocation = await req.ParseBodyAsync<GpsLocation>();
+                var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
+                if (toi.Status == DatabaseStatusCode.NoElement)
+                {
+                    await res.SendString("Not found", status: StatusCodes.Status404NotFound);
+                }
+                else
+                {
+                    await res.SendJson(toi.Result);
+                }
             });
+
             _server.Post("/toi", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();

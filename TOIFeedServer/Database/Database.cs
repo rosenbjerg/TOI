@@ -1,4 +1,5 @@
-﻿using TOIClasses;
+﻿using System.Threading.Tasks;
+using TOIClasses;
 using TOIFeedServer.Managers;
 
 namespace TOIFeedServer
@@ -18,5 +19,12 @@ namespace TOIFeedServer
             Users = users;
         }
 
+        public async Task TruncateDatabase()
+        {
+            await Tags.DeleteAll();
+            await Tois.DeleteAll();
+            await Contexts.DeleteAll();
+            await Users.DeleteAll();
+        }
     }
 }
