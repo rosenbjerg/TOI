@@ -25,22 +25,40 @@ namespace TOIFeedServer.Managers
             return res;
         }
 
-        private static ToiInformationType InformationTypeFromString(string informationType)
+        public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByGpsLocation(GpsLocation gpsLocations)
+        {
+            var tags = await _db.Tags.Find(t => t.Type == TagType.Gps && t.WithinRange(gpsLocations));
+            if (tags.Status == DatabaseStatusCode.NoElement)
+            {
+                return new DbResult<IEnumerable<ToiModel>>(null, DatabaseStatusCode.NoElement);
+            }
+
+            var toi = await GetToiByTagIds(tags.Result.Select(t => t.Id));
+            return toi;
+        }
+
+        private static bool TryParseInformationType(string informationType, out ToiInformationType type)
         {
             switch (informationType)
             {
-                case "iframe":
-                    return ToiInformationType.Website;
-                case "video":
-                    return ToiInformationType.Video;
-                case "image":
-                    return ToiInformationType.Image;
-                case "audio":
-                    return ToiInformationType.Audio;
-                case "text":
-                    return ToiInformationType.Text;
+                case "Website":
+                    type = ToiInformationType.Website;
+                    return true;
+                case "Video":
+                    type = ToiInformationType.Video;
+                    return true;
+                case "Image":
+                    type = ToiInformationType.Image;
+                    return true;
+                case "Audio":
+                    type = ToiInformationType.Audio;
+                    return true;
+                case "Text":
+                    type = ToiInformationType.Text;
+                    return true;
                 default:
-                    throw new ArgumentException($"Invalid InformationType: {informationType}");
+                    type = ToiInformationType.Website;
+                    return false;
             }
         }
 
@@ -58,8 +76,12 @@ namespace TOIFeedServer.Managers
             if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
                 return null;
 
+            if (!TryParseInformationType(form["type"][0], out var type))
+                return null;
+
             var contextIds = SplitIds(form["contexts"][0]).ToList();
             var tagIds = SplitIds(form["tags"][0]).ToList();
+            
 
             var tm = new ToiModel
             {
@@ -70,7 +92,7 @@ namespace TOIFeedServer.Managers
                 Image = form["image"][0],
                 Contexts = contextIds,
                 Tags = tagIds,
-                InformationType = InformationTypeFromString(form["type"][0])
+                InformationType = type
             };
 
             return tm;

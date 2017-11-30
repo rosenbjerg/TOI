@@ -1,16 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RedHttpServerCore.Request;
-using TOIFeedServer.Database;
 using TOIFeedServer.Managers;
-using TOIClasses;
+using TOIFeedServer;
 
 namespace TOIFeedServer.Tests
 {
@@ -22,9 +16,9 @@ namespace TOIFeedServer.Tests
         [ClassInitialize]
         public static void Initialize(TestContext context)
         {
-            var dbs = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
-            dbs.TruncateDatabase().Wait();
-            _manager = new TagManager(dbs);
+            var _dbs = DatabaseFactory.BuildDatabase(DatabaseFactory.DatabaseType.InMemory);
+            _dbs.TruncateDatabase().Wait();
+            _manager = new TagManager(_dbs);
 
             for (var i = 0; i < 10; i++)
             {
@@ -54,7 +48,7 @@ namespace TOIFeedServer.Tests
             var tagNo = 3;
             var q = new QueryCollection(new Dictionary<string, StringValues>
             {
-                {"id", $"F4:B4:15:05:42:0{tagNo}"}
+                {"id", $"F4B41505420{tagNo}"}
             });
             var tTask = _manager.GetTag(q);
             tTask.Wait();
@@ -70,7 +64,7 @@ namespace TOIFeedServer.Tests
             var tagNo = 999;
             var q = new QueryCollection(new Dictionary<string, StringValues>
             {
-                {"id", $"F4:B4:15:05:42:0{tagNo}"}
+                {"id", $"F4B41505420{tagNo}"}
             });
             var tTask = _manager.GetTag(q);
             tTask.Wait();
