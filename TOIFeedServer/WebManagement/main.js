@@ -25,22 +25,19 @@ let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template", true),
     userPrompt : JsT.loadById("user-prompt-template", true)
 };
-templates.saveEditToi.setFormatter("Tags", function (tags) {
+templates.saveEditToi.setFormatter("toi.Tags", function (tags) {
     if (!tags)
         return "";
     return tags.reduce(function (acc, curr) {
         return acc + templates.tagCell.render({action: "remove_circle", tag: cache.tags[curr]})
     }, "");
 });
-templates.saveEditToi.setFormatter("Contexts", function (contexts) {
+templates.saveEditToi.setFormatter("toi.Contexts", function (contexts) {
     if (!contexts)
         return "";
     return contexts.reduce(function (acc, curr) {
         return acc + templates.contextCell.render({action: "remove_circle", context: cache.contexts[curr]})
     }, "");
-});
-templates.toi.setFormatter("Tags", function (tags) {
-    return tags.length;
 });
 templates.toi.setFormatter("Contexts", function (contexts) {
     return contexts.map(c => cache.contexts[c].Title).join(', ');
@@ -48,6 +45,11 @@ templates.toi.setFormatter("Contexts", function (contexts) {
 templates.saveEditContext.setFormatter("create", function (data) {
     if (data)
         return '<input style="margin-left: 0" class="six columns" type="button" id="remove-context" value="Delete context"/>';
+    return "";
+});
+templates.saveEditToi.setFormatter("create", function (data) {
+    if (data)
+        return '<input style="margin-left: 0" class="six columns" type="button" id="remove-toi" value="Delete ToI"/>';
     return "";
 });
 templates.tag.setFormatter("Type", function (type) {
@@ -191,8 +193,13 @@ function showToiList() {
     });
 }
 function showSaveEditToi(toi) {
-    $viewSpace.empty().append(templates.saveEditToi.render(toi));
-    $viewSpace.find("select").val(toi.InformationType);
+    $viewSpace.empty().append(templates.saveEditToi.render({
+        toi: toi,
+        action: toi ? "Edit" : "New",
+        create: !!toi,
+    }));
+    if (toi)
+        $("#save-edit-toi-form").find("select").val(toi.InformationType);
 }
 function showContextList() {
     getResource("contexts", function () {
@@ -275,10 +282,10 @@ function showCreateTag() {
     navigator.geolocation.getCurrentPosition(function (pos) {
         defaults.latitude = pos.coords.latitude;
         defaults.longitude = pos.coords.longitude;
-        $viewSpace.empty().append(templates.createTag.render(defaults));
+        showPopup(templates.createTag.render(defaults));
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, function (err) {
-        $viewSpace.empty().append(templates.createTag.render(defaults));
+        showPopup(templates.createTag.render(defaults));
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, {timeout: 500});
 }
@@ -365,24 +372,25 @@ $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     }
 
 });
-$viewSpace.on("submit", "#create-tag-form", function (ev) {
+
+
+// Forms in popups are "bound" to body
+$body.on("submit", "#create-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
     if (form.get("type") === "none"){
         toastr["error"]("You must select the type");
         return;
     }
-    console.log(form.get("type"));
     ajax("/tag", "POST", form, function (tag) {
         cache.tags[tag.Id] = tag;
         toastr["success"]("Tag created");
+        showTagList();
         $.magnificPopup.close();
     }, function (data) {
         toastr["error"](data.responseText)
     });
 });
-
-// Forms in popups are "bound" to body
 $body.on("submit", "#edit-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
@@ -406,9 +414,15 @@ $body.on("click", "#remove-context", function () {
             delete cache.contexts[id];
             toastr["success"]("Context deleted");
             showContextList();
+            searchInData(cache.tois, function (toi) {
+                let index = toi.Contexts.indexOf(id);
+                if (index === -1)
+                    return false;
+                toi.Contexts.splice(index, 1);
+                return true;
+            });
             $.magnificPopup.close();
         }, function (resp) {
-            console.log(resp);
             toastr["error"](resp.responseText);
         });
     })
@@ -422,9 +436,15 @@ $body.on("click", "#remove-tag", function () {
             delete cache.tags[id];
             toastr["success"]("Tag deleted");
             showTagList();
+            searchInData(cache.tois, function (toi) {
+                let index = toi.Tags.indexOf(id);
+                if (index === -1)
+                    return false;
+                toi.Tags.splice(index, 1);
+                return true;
+            });
             $.magnificPopup.close();
         }, function (resp) {
-            console.log(resp);
             toastr["error"](resp.responseText);
         });
     })
@@ -432,8 +452,7 @@ $body.on("click", "#remove-tag", function () {
 $body.on("click", "#user-prompt-cancel", function () {
     $.magnificPopup.close();
 });
-
-$viewSpace.on("input", "#add-toi-tag-search input", function () {
+$body.on("input", "#add-toi-tag-search input", function () {
     let searchTerm = this.value;
     let result = searchInData(cache.tags, function (c) {
         return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm) || c.Id.toLowerCase().includes(searchTerm);
@@ -444,7 +463,7 @@ $viewSpace.on("input", "#add-toi-tag-search input", function () {
     }
     $("#tag-search-result").empty().append(str);
 });
-$viewSpace.on("input", "#add-toi-context-search input", function () {
+$body.on("input", "#add-toi-context-search input", function () {
     let searchTerm = this.value;
     let result = searchInData(cache.contexts, function (c) {
         return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm);
@@ -455,24 +474,20 @@ $viewSpace.on("input", "#add-toi-context-search input", function () {
     }
     $("#context-search-result").empty().append(str);
 });
-
-
-$viewSpace.on("click", "#add-toi-context-search .context-cell .action-button", function () {
+$body.on("click", "#add-toi-context-search .context-cell .action-button", function () {
     let context = cache.contexts[$(this.parentNode.parentNode).data("id")];
     $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: context}));
     this.parentNode.parentNode.remove();
 });
-$viewSpace.on("click", "#add-toi-tag-search .tag-cell .action-button", function () {
+$body.on("click", "#add-toi-tag-search .tag-cell .action-button", function () {
     let tag = cache.tags[$(this.parentNode.parentNode).data("id")];
     $("#added-tags").append(templates.tagCell.render({action: "remove_circle", tag: tag}));
     this.parentNode.parentNode.remove();
 });
-
-$viewSpace.on("click", "#added-contexts .action-button, #added-tags .action-button", function () {
+$body.on("click", "#added-contexts .action-button, #added-tags .action-button", function () {
     this.parentNode.parentNode.remove();
 });
-
-$viewSpace.on("click", "#save-edit-toi-form .info-button", function () {
+$body.on("click", "#save-edit-toi-form .info-button", function () {
     let $this = $(this).closest("tr");
     let id = $this.data("id");
     let type = $this.data("type");
@@ -483,6 +498,18 @@ $viewSpace.on("click", "#save-edit-toi-form .info-button", function () {
     }
     else {
         showSaveEditContext(item);
+    }
+});
+$body.on("input", "#create-tag-form select", function () {
+    let hid = $("#hardware-id-wrapper");
+    let hidInput = hid.find("input");
+    if (this.value === "Gps"){
+        hidInput.val("none");
+        hid.hide(100);
+    }
+    else if (hidInput.val() === "none") {
+        hidInput.val("");
+        hid.show(100);
     }
 });
 

@@ -182,7 +182,7 @@ ul, li {
     line-height: unset;
 }
 .modal-popup {
-    max-width: 500px;
+    max-width: 800px;
     background: #FAFAFA;
     padding: 40px 20px 10px;
     margin: auto;
