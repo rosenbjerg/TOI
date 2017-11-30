@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -36,8 +37,8 @@ namespace TOIFeedServer.Managers
 
             if (!int.TryParse(form["radius"][0], out var radius) || 
                 radius < 1 ||
-                !decimal.TryParse(form["longitude"][0].Replace(",", "."), out var longitude) ||
-                !decimal.TryParse(form["latitude"][0].Replace(",", "."), out var latitude))
+                !decimal.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var longitude) ||
+                !decimal.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude))
                 return null;
             
             return new TagModel

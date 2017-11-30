@@ -138,18 +138,18 @@
             <div class="row">
                 <div class="six columns">
                     <label>Title</label>
-                    <input required="required" type="text" value="{{Title}}" name="title" class="u-full-width" id="createTitleInput">
+                    <input required="required" type="text" value="{{Title}}" name="title" class="u-full-width">
                     <label>Image</label>
                     <input required="required" type="url" name="image" class="u-full-width" value="{{Image = https://}}">
                 </div>
                 <div class="six columns">
                     <label>Information</label>
-                    <select name="type" class="u-full-width" name="type" value="{{InformationType}}" id="createTypeInput">
-                        <option value="iframe">Website</option>
-                        <option value="video">Video</option>
-                        <option value="image">Image</option>
-                        <option value="audio">Audio</option>
-                        <option value="text">Text</option>
+                    <select name="type" class="u-full-width" name="type">
+                        <option>Website</option>
+                        <option>Video</option>
+                        <option>Image</option>
+                        <option>Audio</option>
+                        <option>Text</option>
                     </select>
                     <input class="u-full-width" value="{{Url = https://}}" name="url" type="url">
                 </div>

@@ -26,11 +26,15 @@ let modalTemplates = {
     userPrompt : JsT.loadById("user-prompt-template", true)
 };
 templates.saveEditToi.setFormatter("Tags", function (tags) {
+    if (!tags)
+        return "";
     return tags.reduce(function (acc, curr) {
         return acc + templates.tagCell.render({action: "remove_circle", tag: cache.tags[curr]})
     }, "");
 });
 templates.saveEditToi.setFormatter("Contexts", function (contexts) {
+    if (!contexts)
+        return "";
     return contexts.reduce(function (acc, curr) {
         return acc + templates.contextCell.render({action: "remove_circle", context: cache.contexts[curr]})
     }, "");
@@ -188,6 +192,7 @@ function showToiList() {
 }
 function showSaveEditToi(toi) {
     $viewSpace.empty().append(templates.saveEditToi.render(toi));
+    $viewSpace.find("select").val(toi.InformationType);
 }
 function showContextList() {
     getResource("contexts", function () {
