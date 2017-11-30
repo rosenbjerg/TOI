@@ -331,7 +331,7 @@ $viewSpace.on("click", "#create-new-context-inline", function () {
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
     let tag = cache.tags[id];
-    showPopup(modalTemplates.editTag.render(tag));
+    showPopup(modalTemplates.editTag.render({tag: tag, icon: getMaterialIcon(tag.Type)}));
     initMapPicker(tag);
 });
 $viewSpace.on("click", ".toi", function () {

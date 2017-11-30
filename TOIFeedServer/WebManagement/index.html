@@ -96,27 +96,27 @@
 </template>
 
 <template id="edit-tag-template">
-    <h3>Edit tag</h3>
-    <form id="edit-tag-form" data-id="{{Id}}" data-type="{{Type}}">
+    <h3><i class="material-icons" style="font-size: inherit;">{{icon}}</i> Edit tag</h3>
+    <form id="edit-tag-form" data-id="{{tag.Id}}" data-type="{{tag.Type}}">
         <label>Tag name</label>
-        <input required="required" class="u-full-width" value="{{Title}}" name="title" type="text">
+        <input required="required" class="u-full-width" value="{{tag.Title}}" name="title" type="text">
         <label>Hardware ID</label>
-        <input required="required" class="u-full-width" type="text" value="{{Id}}" readonly="readonly" disabled="disabled"/>
+        <input required="required" class="u-full-width" type="text" value="{{tag.Id}}" readonly="readonly" disabled="disabled"/>
         <label>Location (Optional)</label>
         <input class="u-full-width locationNameInput" type="text"/>
         <div class="mapPicker u-full-width"></div>
         <div class="row">
             <div class="four columns">
                 <label>Latitude</label>
-                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude}}" type="number" step="any"/>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{tag.Latitude}}" type="number" step="any"/>
             </div>
             <div class="four columns">
                 <label>Longitude</label>
-                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude}}" type="number" step="any"/>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{tag.Longitude}}" type="number" step="any"/>
             </div>
             <div class="four columns">
                 <label>Radius</label>
-                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius}}" type="number" min="1"/>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{tag.Radius}}" type="number" min="1"/>
             </div>
         </div>
         <input style="margin-left: 0" class="six columns" type="button" id="remove-tag" value="Delete"/>
