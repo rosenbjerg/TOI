@@ -119,7 +119,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateTag(form);
             task.Wait();
 
-            Assert.IsNull(task.Result);
+            Assert.IsNull(task.Result.Result, task.Result.Message);
         }
     }
 }

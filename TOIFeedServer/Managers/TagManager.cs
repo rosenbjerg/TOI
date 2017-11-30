@@ -8,6 +8,17 @@ using TOIClasses;
 
 namespace TOIFeedServer.Managers
 {
+    public struct UserActionResponse<T>
+    {
+        public string Message;
+        public T Result;
+
+        public UserActionResponse(string message, T result)
+        {
+            Message = message;
+            Result = result;
+        }
+    }
     public class TagManager
     {
         private readonly Database _db;
@@ -25,23 +36,45 @@ namespace TOIFeedServer.Managers
         }
 
         
-        private static readonly char[] TrimChars = new char[]
+        private static readonly char[] TrimChars = 
         {
             ':', ' ', '-', ',', '.'
         };
-        private static TagModel ValidateTagForm(IFormCollection form, bool update)
+        private static TagModel ValidateTagForm(IFormCollection form, out string error)
         {
             var fields = new List<string> { "title", "longitude", "latitude", "radius", "type", "id" };
-            if (fields.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]))) 
+            var missing = fields.Where(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]));
+            if (missing.Any())
+            {
+                error = "Missing values for: " + String.Join(", ", missing);
                 return null;
+            }
 
-            if (!int.TryParse(form["radius"][0], out var radius) || 
-                radius < 1 ||
-                !double.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var longitude) ||
-                !double.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var latitude) ||
-                    !TryParseTagType(form["type"][0], out var type))
+            if (!int.TryParse(form["radius"][0], out var radius) ||
+                radius < 1)
+            {
+                error = "Invalid radius";
                 return null;
-            
+            }
+            if (!double.TryParse(form["longitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var longitude) || longitude < -180 || longitude > 180)
+            {
+                error = "Invalid longitude";
+                return null;
+            }
+            if(!double.TryParse(form["latitude"][0].Replace(",", "."), NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var latitude) || latitude < -85.05115 || latitude > 85)
+            {
+                error = "Invalid latitude";
+                return null;
+            }
+            if (!TryParseTagType(form["type"][0], out var type))
+            {
+                error = "Invalid tag type";
+                return null;
+            }
+
+            error = string.Empty;
             return new TagModel
             {
                 Title = form["title"][0],
@@ -75,18 +108,24 @@ namespace TOIFeedServer.Managers
             }
         }
 
-        public async Task<TagModel> CreateTag(IFormCollection form)
+        public async Task<UserActionResponse<TagModel>> CreateTag(IFormCollection form)
         {
-            var tag = ValidateTagForm(form, false);
-            if (tag == null) return null;
-            return await _db.Tags.Insert(tag) != DatabaseStatusCode.Created ? null : tag;
+            var tag = ValidateTagForm(form, out var error);
+            if (tag == null)
+                return new UserActionResponse<TagModel>(error, null);
+            if(await _db.Tags.Insert(tag) != DatabaseStatusCode.Created)
+                return new UserActionResponse<TagModel>("Whoops! Could not create the tag", null);
+            return new UserActionResponse<TagModel>("Tag created succesfully.", tag);
         }
 
-        public async Task<TagModel> UpdateTag(IFormCollection form)
+        public async Task<UserActionResponse<TagModel>> UpdateTag(IFormCollection form)
         {
-            var tag = ValidateTagForm(form, true);
-            if (tag == null) return null;
-            return await _db.Tags.Update(tag.Id, tag) != DatabaseStatusCode.Updated ? null : tag;
+            var tag = ValidateTagForm(form, out var error);
+            if (tag == null)
+                return new UserActionResponse<TagModel>(error, null);
+            if (await _db.Tags.Update(tag.Id, tag) != DatabaseStatusCode.Updated)
+                return new UserActionResponse<TagModel>("Whoops! Could not update the tag", null);
+            return new UserActionResponse<TagModel>("Tag updated succesfully.", tag);
         }
 
         public async Task<TagModel> GetTag(IQueryCollection queries)
@@ -103,6 +142,13 @@ namespace TOIFeedServer.Managers
                 Console.WriteLine(e.Message + " " + e.StackTrace);
                 return null;
             }
+        }
+
+        public async Task<bool> DeleteTag(IFormCollection form)
+        {
+            if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
+                return false;
+            return await _db.Tags.Delete(form["id"][0]) == DatabaseStatusCode.Deleted;
         }
     }
 }
