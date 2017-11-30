@@ -415,12 +415,12 @@ $body.on("click", "#remove-context", function () {
 });
 $body.on("click", "#remove-tag", function () {
     let id = $(this.parentNode).data("id");
-    promptUser("Delete context?", "Are you sure you want to delete this context?", function () {
+    promptUser("Delete tag?", "Are you sure you want to delete this tag?", function () {
         let form = new FormData();
         form.append("id", id);
-        ajax("/context", "DELETE", form, function () {
+        ajax("/tag", "DELETE", form, function () {
             delete cache.tags[id];
-            toastr["success"]("Context deleted");
+            toastr["success"]("Tag deleted");
             showContextList();
             $.magnificPopup.close();
         }, function (resp) {
