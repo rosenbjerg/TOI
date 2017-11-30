@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TOIClasses;
-using TOIFeedServer;
 
 namespace TOIFeedServer.Tests
 {

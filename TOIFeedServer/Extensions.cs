@@ -14,7 +14,7 @@ namespace TOIFeedServer
         public static bool WithinRange(this TagModel tm, GpsLocation loc)
         {
             var a = tm.Latitude - loc.Latitude;
-            var b = tm.Longitude - loc.Longtitude;
+            var b = tm.Longitude - loc.Longitude;
             var dist = Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
             //Calculate the distance in meter, 111.325 km pr. degree
             var distInM = dist * 111.325 * 1000;

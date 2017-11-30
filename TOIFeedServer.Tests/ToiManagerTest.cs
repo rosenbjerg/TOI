@@ -130,7 +130,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.CreateToi(form);
             task.Wait();
 
-            Assert.IsNull(task.Result);
+            Assert.IsNull(task.Result.Result, task.Result.Message);
         }
 
         [DataTestMethod]
@@ -158,7 +158,7 @@ namespace TOIFeedServer.Tests
             var task = _manager.UpdateToi(form);
             task.Wait();
 
-            Assert.IsNull(task.Result);
+            Assert.IsNull(task.Result.Result, task.Result.Message);
         }
 
         public void UpdateToi__Valid()
@@ -182,7 +182,7 @@ namespace TOIFeedServer.Tests
             var t2 = _manager.UpdateToi(new FormCollection(fDict));
             t2.Wait();
 
-            Assert.AreEqual(3, t2.Result.Tags.Count);
+            Assert.AreEqual(3, t2.Result.Result.Tags.Count);
         }
     }
 }

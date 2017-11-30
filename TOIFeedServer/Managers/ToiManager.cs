@@ -62,22 +62,36 @@ namespace TOIFeedServer.Managers
             }
         }
 
-        private ToiModel ValidateToiForm(IFormCollection form, bool update)
+        private ToiModel ValidateToiForm(IFormCollection form, bool update, out string error)
         {
             var nonEmpty = new List<string> { "title", "url", "type", "image" };
             var canBeEmpty = new List<string> { "contexts", "tags", "description" };
 
             if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+            {
+                error = "Please supply an id";
                 return null;
-            
-            if (canBeEmpty.Any(field => !form.ContainsKey(field)))
-                return null;
+            }
 
-            if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
+            var missing = canBeEmpty.Where(field => !form.ContainsKey(field));
+            if (missing.Any())
+            {
+                error = "Missing values for: " + String.Join(", ", missing);
                 return null;
+            }
+
+            missing = nonEmpty.Where(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]));
+            if (missing.Any())
+            {
+                error = "Missing values for: " + String.Join(", ", missing);
+                return null;
+            }
 
             if (!TryParseInformationType(form["type"][0], out var type))
+            {
+                error = "Invalid information type: " + form["type"][0];
                 return null;
+            }
 
             var contextIds = SplitIds(form["contexts"][0]).ToList();
             var tagIds = SplitIds(form["tags"][0]).ToList();
@@ -94,22 +108,28 @@ namespace TOIFeedServer.Managers
                 Tags = tagIds,
                 InformationType = type
             };
-
+            error = string.Empty;
             return tm;
         }
 
-        public async Task<ToiModel> CreateToi(IFormCollection form)
+        public async Task<UserActionResponse<ToiModel>> CreateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form, false);
-            if (toi == null) return null;
-            return await _db.Tois.Insert(toi) == DatabaseStatusCode.Created ? toi : null;
+            var toi = ValidateToiForm(form, false, out var error);
+            if (toi == null)
+                return new UserActionResponse<ToiModel>(error, null);
+            if (await _db.Tois.Insert(toi) != DatabaseStatusCode.Created)
+                return new UserActionResponse<ToiModel>("Could not create the ToI", null);
+            return  new UserActionResponse<ToiModel>("The ToI was created", toi);
         }
 
-        public async Task<ToiModel> UpdateToi(IFormCollection form)
+        public async Task<UserActionResponse<ToiModel>> UpdateToi(IFormCollection form)
         {
-            var toi = ValidateToiForm(form, true);
-            if (toi == null) return null;
-            return await _db.Tois.Update(toi.Id, toi) == DatabaseStatusCode.Updated ? toi : null;
+            var toi = ValidateToiForm(form, true, out var error);
+            if (toi == null)
+                return new UserActionResponse<ToiModel>(error, null);
+            if (await _db.Tois.Update(toi.Id, toi) != DatabaseStatusCode.Updated)
+                return new UserActionResponse<ToiModel>("Could not update the ToI", null);
+            return new UserActionResponse<ToiModel>("The ToI was updated", toi);
         }
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
@@ -127,28 +147,42 @@ namespace TOIFeedServer.Managers
             }
             return result;
         }
-        public async Task<ContextModel> CreateContext(IFormCollection form)
+        public async Task<UserActionResponse<ContextModel>> CreateContext(IFormCollection form)
         {
-            var context = ValidateContextForm(form, false);
-            if (context == null) return null;
-            return await _db.Contexts.Insert(context) == DatabaseStatusCode.Created ? context : null;
+            var context = ValidateContextForm(form, false, out var error);
+            if (context == null)
+                return new UserActionResponse<ContextModel>(error, null);
+            if(await _db.Contexts.Insert(context) != DatabaseStatusCode.Created)
+                return new UserActionResponse<ContextModel>("Could not create the context", null);
+            return new UserActionResponse<ContextModel>("The context was created", context);
         }
 
 
-        public async Task<ContextModel> UpdateContext(IFormCollection form)
+        public async Task<UserActionResponse<ContextModel>> UpdateContext(IFormCollection form)
         {
-            var context = ValidateContextForm(form, true);
-            if (context == null) return null;
-            return await _db.Contexts.Update(context.Id, context) == DatabaseStatusCode.Updated ? context : null;
+            var context = ValidateContextForm(form, true, out var error);
+            if (context == null)
+                return new UserActionResponse<ContextModel>(error, null);
+            if (await _db.Contexts.Update(context.Id, context) != DatabaseStatusCode.Updated)
+                return new UserActionResponse<ContextModel>("Could not update the context", null);
+            return new UserActionResponse<ContextModel>("The context was updated", context);
         }
-        private ContextModel ValidateContextForm(IFormCollection form, bool update)
+        private ContextModel ValidateContextForm(IFormCollection form, bool update, out string error)
         {
             var nonEmpty = new List<string> { "title", "description" };
 
-            if (nonEmpty.Any(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0])))
+            var missing = nonEmpty.Where(field => !form.ContainsKey(field));
+            if (missing.Any())
+            {
+                error = "Missing values for: " + String.Join(", ", missing);
                 return null;
+            }
+
             if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+            {
+                error = "Please supply an id for the context you wish to update.";
                 return null;
+            }
 
             var ctx = new ContextModel
             {
@@ -156,7 +190,7 @@ namespace TOIFeedServer.Managers
                 Description = form["description"][0],
                 Title = form["title"][0],
             };
-
+            error = string.Empty;
             return ctx;
         }
 
