@@ -113,8 +113,9 @@ namespace TOIFeedServer.Managers
             var tag = ValidateTagForm(form, out var error);
             if (tag == null)
                 return new UserActionResponse<TagModel>(error, null);
-            if(await _db.Tags.Insert(tag) != DatabaseStatusCode.Created)
-                return new UserActionResponse<TagModel>("Whoops! Could not create the tag", null);
+
+            if(await _db.Tags.Insert(tag) == DatabaseStatusCode.AlreadyContainsElement)
+                return new UserActionResponse<TagModel>("Another tag with that id already exists", null);
             return new UserActionResponse<TagModel>("Tag created succesfully.", tag);
         }
 
