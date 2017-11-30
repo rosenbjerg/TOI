@@ -421,7 +421,7 @@ $body.on("click", "#remove-tag", function () {
         ajax("/tag", "DELETE", form, function () {
             delete cache.tags[id];
             toastr["success"]("Tag deleted");
-            showContextList();
+            showTagList();
             $.magnificPopup.close();
         }, function (resp) {
             console.log(resp);
