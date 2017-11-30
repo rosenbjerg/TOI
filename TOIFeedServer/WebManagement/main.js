@@ -235,7 +235,6 @@ function showSaveEditContext(context, onSaveCallback) {
         }
         else {
             ajax("/context", "POST", form, function (context) {
-                console.log(context);
                 cache.contexts[context.Id] = context;
                 toastr["success"]("Context saved");
                 if (onSaveCallback)
@@ -274,13 +273,11 @@ function showCreateTag() {
         longitude: 9.7409053
     };
     navigator.geolocation.getCurrentPosition(function (pos) {
-        console.log("got real coordinates");
         defaults.latitude = pos.coords.latitude;
         defaults.longitude = pos.coords.longitude;
         $viewSpace.empty().append(templates.createTag.render(defaults));
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, function (err) {
-        console.log(err);
         $viewSpace.empty().append(templates.createTag.render(defaults));
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, {timeout: 500});
@@ -392,6 +389,7 @@ $body.on("submit", "#edit-tag-form", function (ev) {
     form.append("type", $(this).data("type"));
     ajax("/tag", "PUT", form, function (tag) {
         cache.tags[tag.Id] = tag;
+        showTagList();
         toastr["success"]("Changes to tag has been saved");
         $.magnificPopup.close();
     }, function (data) {
@@ -403,8 +401,24 @@ $body.on("click", "#remove-context", function () {
     promptUser("Delete context?", "Are you sure you want to delete this context?", function () {
         let form = new FormData();
         form.append("id", id);
-        ajax("context", "DELETE", form, function () {
+        ajax("/context", "DELETE", form, function () {
             delete cache.contexts[id];
+            toastr["success"]("Context deleted");
+            showContextList();
+            $.magnificPopup.close();
+        }, function (resp) {
+            console.log(resp);
+            toastr["error"](resp.responseText);
+        });
+    })
+});
+$body.on("click", "#remove-tag", function () {
+    let id = $(this.parentNode).data("id");
+    promptUser("Delete context?", "Are you sure you want to delete this context?", function () {
+        let form = new FormData();
+        form.append("id", id);
+        ajax("/context", "DELETE", form, function () {
+            delete cache.tags[id];
             toastr["success"]("Context deleted");
             showContextList();
             $.magnificPopup.close();
