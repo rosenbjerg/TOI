@@ -48,7 +48,8 @@ input[type=submit] {
 h3 {
     font-family: 'Comfortaa', sans-serif;
 }
-#login-form {
+#login-form,
+#register-form {
     max-width: 500px;
     margin:auto;
 }
@@ -248,7 +249,7 @@ input:invalid {
     margin-top: 4px;
  }
 
-#create-new-tag, #create-new-toi, #create-new-context {
+#create-new-tag, #create-new-toi, #create-new-context, #upload-file {
     float: right;
     border: none;
     line-height: 45px;

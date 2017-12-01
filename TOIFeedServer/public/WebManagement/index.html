@@ -50,7 +50,23 @@
         <input class="u-full-width" required="required" name="username" type="text">
         <label>Password</label>
         <input class="u-full-width" required="required" name="password" type="password">
-        <input class="button-primary" type="submit" value="Login" style="float:right;">
+        <input id="login-submit" class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
+</template>
+<template id="register-template">
+    <h3 class="u-full-width" style="text-align: center">Register</h3>
+
+    <form id="register-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Email</label>
+        <input class="u-full-width" required="required" name="email" type="email">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <label>Confirm Password</label>
+        <input class="u-full-width" required="required" name="confirmPassword" type="password">
+        <input id="register-cancel" type="button", value="Back">
+        <input id="register-submit" class="button-primary" type="submit" value="Confirm" style="float:right;">
     </form>
 </template>
 

@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using RedHttpServerCore;
 using TOIClasses;
 using TOIFeedServer.Managers;
 using Newtonsoft.Json;
+using RedHttpServerCore.Request;
+using RedHttpServerCore.Response;
 using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer
@@ -31,8 +35,26 @@ namespace TOIFeedServer
             var cMan = new ContextManager(db);
             var fMan = new StaticFileManager(db);
 
+            Func<RRequest, RResponse, Task<bool>> CheckAuthentication =  async (req, res) =>
+            {
+                if (!req.Cookies.ContainsKey("token"))
+                {
+                    await res.SendString("Unauthorized", status: StatusCodes.Status401Unauthorized);
+                    return false;
+                }
+
+                var token = req.Cookies["token"];
+
+                if (usrMan.VerifyToken(token))
+                    return true;
+                await res.SendString("Unauthrized", status: StatusCodes.Status401Unauthorized);
+                return false;
+            };
+
             _server.Get("/tags", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 string ids = null;
                 if (req.Queries.ContainsKey("ids"))
                 {
@@ -48,6 +70,8 @@ namespace TOIFeedServer
             });
             _server.Post("/tag", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var tag = await tagMan.CreateTag(form);
                 if (tag.Result != null)
@@ -57,6 +81,8 @@ namespace TOIFeedServer
             });
             _server.Put("/tag", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var tag = await tagMan.UpdateTag(form);
                 if (tag.Result != null)
@@ -64,16 +90,18 @@ namespace TOIFeedServer
                 else
                     await res.SendString(tag.Message, status: 400);
             });
-            _server.Get("/tag", async (req, res) =>
-            {
-                var tag = await tagMan.GetTag(req.Queries);
-                if (tag != null)
-                    await res.SendJson(tag);
-                else
-                    await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
-            });
+            //_server.Get("/tag", async (req, res) =>
+            //{
+            //    var tag = await tagMan.GetTag(req.Queries);
+            //    if (tag != null)
+            //        await res.SendJson(tag);
+            //    else
+            //        await res.SendString("The tag could not be found.", status: StatusCodes.Status404NotFound);
+            //});
             _server.Delete("/tag", async(req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 try
                 {
                     var form = await req.GetFormDataAsync();
@@ -105,9 +133,10 @@ namespace TOIFeedServer
                 {
                     tags = JsonConvert.DeserializeObject<List<string>>(bString);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    await res.SendString("Exception", status: StatusCodes.Status400BadRequest);
+                    await res.SendString("Exception", status: StatusCodes.Status500InternalServerError);
+                    Console.WriteLine(e);
                     throw;
                 }
                 if (tags == null)
@@ -140,6 +169,8 @@ namespace TOIFeedServer
             });
             _server.Post("/toi", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var toi = await toiMan.CreateToi(form);
                 if (toi.Result != null)
@@ -149,6 +180,8 @@ namespace TOIFeedServer
             });
             _server.Put("/toi", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var toi = await toiMan.UpdateToi(form);
                 if (toi.Result != null)
@@ -158,6 +191,8 @@ namespace TOIFeedServer
             });
             _server.Delete("/toi", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 if (await toiMan.DeleteToi(form))
                     await res.SendString("OK");
@@ -173,6 +208,8 @@ namespace TOIFeedServer
             });
             _server.Post("/context", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var ctx = await cMan.CreateContext(form);
                 if (ctx.Result != null)
@@ -182,6 +219,8 @@ namespace TOIFeedServer
             });
             _server.Put("/context", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var ctx = await cMan.UpdateContext(form);
                 if (ctx.Result != null)
@@ -191,6 +230,8 @@ namespace TOIFeedServer
             });
             _server.Delete("/context", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 if (await cMan.DeleteContext(form))
                     await res.SendString("OK");
@@ -200,17 +241,23 @@ namespace TOIFeedServer
 
             _server.Get("/files", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var all = await fMan.AllStaticFiles();
                 await res.SendJson(all);
             });
             _server.Post("/files", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var fileUploads = await fMan.UploadFiles(form);
                 await res.SendJson(fileUploads);
             });
             _server.Put("/files", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var succeeded = await fMan.UpdateStaticFile(form);
                 if (succeeded.Result == null)
@@ -224,6 +271,8 @@ namespace TOIFeedServer
             });
             _server.Delete("/files", async (req, res) =>
             {
+                if (!await CheckAuthentication(req, res)) return;
+
                 var form = await req.GetFormDataAsync();
                 var deleted = await fMan.DeleteStaticFile(form);
                 if (deleted.Result)
@@ -233,6 +282,46 @@ namespace TOIFeedServer
                 else
                 {
                     await res.SendString(deleted.Message, status: StatusCodes.Status400BadRequest);
+                }
+            });
+
+            _server.Post("/login", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                if (!form.ContainsKey("username") || !form.ContainsKey("password"))
+                {
+                    await res.SendString("Either the username or password is missing", status: StatusCodes.Status400BadRequest);
+                    return;
+                }
+
+                var loggedIn = await usrMan.Login(form["username"][0], form["password"][0]);
+                if (!loggedIn.Result)
+                {
+                    await res.SendString(loggedIn.Message, status: StatusCodes.Status401Unauthorized);
+                }
+                else
+                {
+                    res.AddHeader("Set-Cookie", loggedIn.Message);
+                    await res.SendString("Logged in");
+                }
+            });
+            _server.Post("/register", async (req, res) =>
+            {
+                if (!await CheckAuthentication(req, res)) return;
+
+                var form = await req.GetFormDataAsync();
+
+                var created = await usrMan.CreateUser(form);
+                if (created.Result != null)
+                {
+                    var user = created.Result;
+                    var token = await usrMan.Login(user.Username, user.Password);
+                    res.AddHeader("Set-Cookie", token.Message);
+                    await res.SendString(created.Message);
+                }
+                else
+                {
+                    await res.SendString(created.Message, status: StatusCodes.Status400BadRequest);
                 }
             });
             
@@ -353,6 +442,13 @@ namespace TOIFeedServer
             await db.Tags.Insert(cTag, btbTag, mTag, fTag);
             await db.Contexts.Insert(grownCtx, childCtx);
             await db.Tois.Insert(modelList.ToArray());
+            await db.Users.Insert(new User
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Username = "sw706",
+                Email = "sw706@cs.aau.dk",
+                Password = BCrypt.Net.BCrypt.HashPassword("Cocio")
+            });
         }
 
         public void Start()

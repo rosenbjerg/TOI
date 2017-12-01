@@ -9,6 +9,7 @@ let cache = {
 };
 let templates = {
     login : JsT.loadById("login-template", true),
+    register: JsT.loadById("register-template", true),
     createTag : JsT.loadById("create-tag-template", true),
     saveEditToi : JsT.loadById("save-edit-toi-template", true),
     list : JsT.loadById("list-template", true),
@@ -94,7 +95,17 @@ function ajax(url, method, data, success, error) {
         contentType: false,
         type: method.toUpperCase(),
         success: success,
-        error: error
+        error: function (jqXHR) {
+            if(jqXHR.status === 401) {
+                return;
+            }
+            error();
+        },
+        statusCode: {
+            401: function () {
+                showLogin();
+            }
+        }
     });
 }
 function searchInData(collection, compareFunc, max) {
@@ -152,7 +163,8 @@ function diffMinutes(dt2, dt1) {
 function getResource(resource, doneCallback, processData) {
     let updated = resource + "Updated";
     if (!cache[updated] || diffMinutes(new Date(), cache[updated]) > 1){
-        $.get("/" + resource, function (data) {
+        ajax("/" + resource, "GET", null,
+            function (data) {
             if (processData)
                 data = processData(data);
 
@@ -164,7 +176,10 @@ function getResource(resource, doneCallback, processData) {
             }
             if (doneCallback)
                 doneCallback();
-        });
+        },
+            function() {
+                toastr["error"]("Could not fetch tags");
+            });
     }
     else {
         if (doneCallback)
@@ -173,6 +188,7 @@ function getResource(resource, doneCallback, processData) {
 }
 
 function showLogin() {
+    $(".header-menu").hide();
     $viewSpace.empty().append(templates.login.render());
 }
 function showToiList() {
@@ -346,6 +362,21 @@ $viewSpace.on("click", "#create-new-context-inline", function () {
     showSaveEditContext(undefined, function (newContext) {
         $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: newContext}));
     });
+});
+$viewSpace.on("click", "#create-user", function() {
+    $viewSpace.empty().append(templates.register.render());
+});
+$viewSpace.on("submit", "#login-form", function (ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    ajax("/login", "POST", form,
+        function() {
+            $(".header-menu").show();
+            showToiList();
+        },
+        function() {
+            toastr["error"]("Either the username or password was wrong");
+        });
 });
 
 $viewSpace.on("click", ".tag", function () {
@@ -568,9 +599,10 @@ function renderAll(array, template) {
     return str;
 }
 
-showLogin();
-
 getResource("contexts", function () {
     getResource("tois")
 });
-getResource("tags");
+getResource("tags",
+    function() {
+        showToiList();
+    });
