@@ -18,7 +18,8 @@ let templates = {
     contextCell : JsT.loadById("context-table-cell", true),
     saveEditContext : JsT.loadById("save-edit-context-template", true),
     context : JsT.loadById("context-template", true),
-    profile : JsT.loadById("profile-template")
+    profile : JsT.loadById("profile-template", true),
+    file : JsT.loadById("file-box-template", true)
 
 };
 let modalTemplates = {
@@ -297,6 +298,24 @@ function showProfile() {
         });
     }
 }
+function showFiles() {
+    getResource("files", function() {
+        let l = "";
+        for (let x in cache.files){
+            if (cache.files.hasOwnProperty(x))
+                l += templates.file.render(cache.files[x]);
+        }
+        $viewSpace.empty().append(templates.list.render({
+            createText: "Upload File",
+            createButtonId: "upload-file",
+            title: "Files",
+            list: l,
+            thing: "file"
+        }));
+        $(".header-menu-button.active").removeClass("active");
+        $("#show-files").addClass("active");
+    });
+}
 function showPopup(html) {
     $.magnificPopup.open({
         items: {
@@ -318,6 +337,7 @@ $("#show-tags").click(showTagList);
 $("#show-tois").click(showToiList);
 $("#show-contexts").click(showContextList);
 $("#show-profile").click(showProfile);
+$("#show-files").click(showFiles);
 
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});

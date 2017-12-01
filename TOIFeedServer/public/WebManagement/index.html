@@ -36,6 +36,7 @@
             <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
             <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
             <div class="header-menu-button" id="show-profile" tabindex="4">Profile</div>
+            <div class="header-menu-button" id="show-files" tabindex="5">Files</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -292,6 +293,23 @@
         <input class="u-full-width" type="password" name="pwd2" required="required" pattern="Repeat password">
         <input class="u-full-width button-primary" type="submit" value="Change password">
     </form>
+</template>
+
+<template id="file-box-template">
+    <li class="file" data-id="{{Id}}">
+        <table>
+            <tbody>
+            <tr aria-rowspan="3">
+                <td title="{{Type}}"><i class="material-icons">{{{Type}}}</i></td>
+            </tr>
+            <tr>
+                <td>{{Title}}</td>
+                <td>{{Description}}</td>
+                <td>{{Uploaded}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </li>
 </template>
 
 <script src="main.js"></script>
