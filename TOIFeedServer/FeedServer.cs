@@ -17,13 +17,6 @@ namespace TOIFeedServer
 
         public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
-            var uploadsDir = Path.Combine(".", "public", "uploads");
-            if (!Directory.Exists(uploadsDir))
-            {
-                Console.WriteLine("Creating uploads folder.");
-                Directory.CreateDirectory(uploadsDir);
-            }
-
             _server = new RedHttpServer(port, "./public");
 
             _server.Get("/hello", async (req, res) => { await res.SendString("Hello World"); });
@@ -36,6 +29,7 @@ namespace TOIFeedServer
             var toiMan = new ToiManager(db);
             var usrMan = new UserManager(db);
             var cMan = new ContextManager(db);
+            var fMan = new StaticFileManager(db);
 
             _server.Get("/tags", async (req, res) =>
             {
@@ -203,6 +197,45 @@ namespace TOIFeedServer
                 else
                     await res.SendString("The context could not be deleted.", status: 400);
             });
+
+            _server.Get("/files", async (req, res) =>
+            {
+                var all = await fMan.AllStaticFiles();
+                await res.SendJson(all);
+            });
+            _server.Post("/files", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var fileUploads = await fMan.UploadFiles(form);
+                await res.SendJson(fileUploads);
+            });
+            _server.Put("/files", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var succeeded = await fMan.UpdateStaticFile(form);
+                if (succeeded.Result == null)
+                {
+                    await res.SendString(succeeded.Message, status: StatusCodes.Status400BadRequest);
+                }
+                else
+                {
+                    await res.SendJson(succeeded.Result);
+                }
+            });
+            _server.Delete("/files", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var deleted = await fMan.DeleteStaticFile(form);
+                if (deleted.Result)
+                {
+                    await res.SendString(deleted.Message);
+                }
+                else
+                {
+                    await res.SendString(deleted.Message, status: StatusCodes.Status400BadRequest);
+                }
+            });
+            
 
             if (sampleData)
             {

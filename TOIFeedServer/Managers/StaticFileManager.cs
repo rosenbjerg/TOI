@@ -13,10 +13,14 @@ namespace TOIFeedServer.Managers
     class StaticFileManager
     {
         private Database _db;
+        public const string UploadDir = "./public/uploads";
 
         public StaticFileManager(Database db)
         {
             _db = db;
+            if (Directory.Exists(UploadDir)) return;
+            Console.WriteLine("Creating uploads folder.");
+            Directory.CreateDirectory(UploadDir);
         }
 
         public async Task<IEnumerable<StaticFile>> AllStaticFiles()
@@ -29,15 +33,15 @@ namespace TOIFeedServer.Managers
             return  await _db.Files.FindOne(f => f.Id == id);
         }
 
-        private StaticFile ValidateStaticFileForm(IFormCollection form, out string error, int? number = null)
+        private static StaticFile ValidateStaticFileForm(IFormCollection form, out string error, int? number = null)
         {
             var fileNumber = (number != null) ? number.ToString() : "";
-            var fields = new [] {$"title{fileNumber}", $"description{fileNumber}"};
+            var fields = new [] {$"title{fileNumber}", $"description{fileNumber}", $"file{fileNumber}"};
 
             var missing = fields.Where(f => !form.ContainsKey(f) || string.IsNullOrEmpty(form[f][0]));
             if (missing.Any())
             {
-                error = "Missing values for: " + String.Join(", ", missing);
+                error = "Missing values for: " + string.Join(", ", missing);
                 return null;
             }
 
@@ -47,7 +51,7 @@ namespace TOIFeedServer.Managers
                 Id = Guid.NewGuid().ToString("N"),
                 Description = form["description"][0]
             };
-            error = String.Empty;
+            error = string.Empty;
             return sf;
         }
 
@@ -60,30 +64,15 @@ namespace TOIFeedServer.Managers
                 return new UserActionResponse<StaticFile>(error, null);
             sf.Filetype = Path.GetExtension(form.Files[0].FileName);
 
-            try
-            {
-                var filePath = Path.Combine(".", "uploads", $"{sf.Id}.{sf.Filetype}");
-                File.Delete(filePath);
-                using (var fileReplace = File.Create(filePath))
-                {
-                    await form.Files[0].CopyToAsync(fileReplace);
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e);
-                return new UserActionResponse<StaticFile>("Could not store the file", null);
-            }
-
-            if (await _db.Files.Update(sf.Id, sf) != DatabaseStatusCode.Updated)
-                return new UserActionResponse<StaticFile>("The file has been stored, but not the details about it", null);
-            return new UserActionResponse<StaticFile>("Your file was updated", sf);
+            return await _db.Files.Update(sf.Id, sf) != DatabaseStatusCode.Updated 
+                ? new UserActionResponse<StaticFile>("The file has been stored, but not the details about it", null) 
+                : new UserActionResponse<StaticFile>("Your file was updated", sf);
         }
 
-        public async Task<UserActionResponse<bool>> UploadFile(IFormCollection form)
+        public async Task<UserActionResponse<IEnumerable<StaticFile>>> UploadFiles(IFormCollection form)
         {
             if(form.Files.Count == 0)
-                return new UserActionResponse<bool>("No files have been selected", false);
+                return new UserActionResponse<IEnumerable<StaticFile>>("No files have been selected", null);
             var sfs = new List<StaticFile>();
 
             //Iterate through the files and check that the supplied information about them is valid
@@ -91,49 +80,42 @@ namespace TOIFeedServer.Managers
             {
                 var sf = ValidateStaticFileForm(form, out var error, i);
                 if (sf == null)
-                    return new UserActionResponse<bool>(error, false);
+                    continue;
                 sf.Filetype = Path.GetExtension(form.Files[i].FileName);
-                sfs.Add(sf);
+                
+                try
+                {
+                    using (var upload = File.Create(Path.Combine(UploadDir, $"{sf.Id}.{sf.Filetype}")))
+                    {
+                        await form.Files[i].CopyToAsync(upload);
+                    }
+                    sfs.Add(sf);
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
             //Insert the form handles
             await _db.Files.Insert(sfs.ToArray());
 
-            //Write all the files to the uploads folder
-            var writeError = string.Empty;
-            for (var i = 0; i < form.Files.Count; i++)
-            {
-                try
-                {
-                    using (var upload = File.Create(Path.Combine(".", "uploads", $"{sfs[i].Id}.{sfs[i].Filetype}")))
-                    {
-                        await form.Files[i].CopyToAsync(upload);
-                    }
-                }
-                catch (IOException e)
-                {
-                    writeError = "One or more form uploads failed";
-                    Console.WriteLine(e.Message);
-                }
-            }
-
-            return new UserActionResponse<bool>(writeError, string.IsNullOrEmpty(writeError));
+            return new UserActionResponse<IEnumerable<StaticFile>>($"{sfs.Count} / {form.Files.Count} files uploaded successfully", sfs);
         }
 
-        public async Task<bool> DeleteStaticFile(IFormCollection form)
+        public async Task<UserActionResponse<bool>> DeleteStaticFile(IFormCollection form)
         {
             if (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
-                return false;
+                return new UserActionResponse<bool>("Could not find an id", false);
             var id = form["id"][0];
 
             var fileRes = await _db.Files.FindOne(f => f.Id == id);
             if (fileRes.Status == DatabaseStatusCode.NoElement)
-                return false;
+                return new UserActionResponse<bool>("There is no file with that id", false);
             var file = fileRes.Result;
-            File.Delete(Path.Combine(".", "uploads", $"{file.Id}.{file.Filetype}"));
-            if (await _db.Files.Delete(id) != DatabaseStatusCode.Deleted)
-                return false;
-
-            return true;
+            File.Delete(Path.Combine(UploadDir, file.GetFilename()));
+            return await _db.Files.Delete(id) == DatabaseStatusCode.Deleted 
+                ? new UserActionResponse<bool>("The item was deleted", true)
+                : new UserActionResponse<bool>("The file was partially deleted", false);
         }
     }
 }
