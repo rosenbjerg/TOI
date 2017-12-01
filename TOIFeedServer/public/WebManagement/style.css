@@ -133,10 +133,30 @@ ul, li {
     list-style: none;
 }
 
-.tag, .toi, .context {
+.tag, .toi, .context, .file {
     -webkit-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
     -moz-box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
     box-shadow: 4px 4px 23px -6px rgba(66,66,66,0.67);
+}
+
+.file {
+    padding: 12px 8px;
+    border-radius: 2px;
+    background-color: #EEEEEE;
+    display: inline-block;
+    transition: background-color 50ms;
+    cursor: pointer;
+    /*min-width: 55px;*/
+    margin: 8px;
+
+    width: 264px;
+}
+
+.file a {
+    font-size: 40px;
+    text-decoration: none;
+    padding-left: 10px;
+    color: #424242;
 }
 
 .tag {
@@ -163,7 +183,7 @@ ul, li {
     background-color: #E0E0E0;
     transition: background-color 150ms;
 }
-.tag *, .toi *, .context * {
+.tag *, .toi *, .context *, .file * {
     padding: 0;
     margin: 0;
     -webkit-user-select: none;
@@ -171,7 +191,7 @@ ul, li {
     -ms-user-select: none;
     user-select: none;
 }
-.tag table, .tag tr, .toi table, .toi tr {
+.tag table, .tag tr, .toi table, .toi tr, .file table, .file tr {
     table-layout: fixed;
     border: hidden;
     border-collapse: collapse;
@@ -211,7 +231,7 @@ ul, li {
     border-radius: 2px;
     border: solid 1px #BDBDBD;
 }
-.toi table {
+.toi table, .file table {
     width: 100%;
 }
 #add-toi-tag-search {
@@ -245,7 +265,7 @@ input:invalid {
     display: inline-block;
     /*margin-bottom: 18px;*/
 }
-#filter-TOI, #filter-context, #filter-tag {
+#filter-TOI, #filter-context, #filter-tag, #filter-file {
     margin-top: 4px;
  }
 
@@ -256,6 +276,21 @@ input:invalid {
     font-size: 38px;
     padding: 0;
     margin: 0;
+}
+#add-file-to-batch-form {
+    border-bottom: thin solid #E0E0E0;
+}
+input[type=file]::-webkit-file-upload-button {
+    margin-bottom: 1rem;
+    height: 38px;
+    padding: 0 30px;
+    color: #555;
+    text-align: center;
+    background-color: transparent;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 .tag-type-image {
@@ -271,4 +306,15 @@ input:invalid {
 }
 .list-header .middle {
     grid-column: 3 / 7;
+}
+
+.file-upload-list li {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+.file-batch td {
+    max-width: 10px;
+}
+.file-batch td:last-child {
+width: 10%;
 }

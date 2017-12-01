@@ -47,7 +47,7 @@ namespace TOIFeedServer
 
                 if (usrMan.VerifyToken(token))
                     return true;
-                await res.SendString("Unauthrized", status: StatusCodes.Status401Unauthorized);
+                await res.SendString("Unauthorized", status: StatusCodes.Status401Unauthorized);
                 return false;
             };
 

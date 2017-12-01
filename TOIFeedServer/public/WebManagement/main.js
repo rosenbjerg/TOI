@@ -20,8 +20,10 @@ let templates = {
     saveEditContext : JsT.loadById("save-edit-context-template", true),
     context : JsT.loadById("context-template", true),
     profile : JsT.loadById("profile-template", true),
-    file : JsT.loadById("file-box-template", true)
-
+    file : JsT.loadById("file-box-template", true),
+    fileUploadBox: JsT.loadById("file-upload-box-template", true),
+    fileUploadHeader: JsT.loadById("file-upload-header", true),
+    fileUploadBatch: JsT.loadById("file-upload-batch", true),
 };
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template", true),
@@ -127,6 +129,26 @@ function getMaterialIcon(input) {
             return "gps_fixed";
         default:
             return input.toLowerCase();
+    }
+}
+function getMaterialFileIcon(input) {
+    switch (input.toLowerCase()) {
+        case "png":
+        case "jpg":
+        case "jpeg":
+        case "bmp":
+        case "svg":
+            return "photo";
+        case "mp4":
+        case "webm":
+            return "ondemand_video";
+        case "mp3":
+        case "ogg":
+            return "audiotrack";
+        case "txt":
+            return "description";
+        default:
+            return "insert_drive_file";
     }
 }
 function initMapPicker(pos) {
@@ -315,22 +337,25 @@ function showProfile() {
     }
 }
 function showFiles() {
-    getResource("files", function() {
-        let l = "";
-        for (let x in cache.files){
-            if (cache.files.hasOwnProperty(x))
-                l += templates.file.render(cache.files[x]);
-        }
-        $viewSpace.empty().append(templates.list.render({
-            createText: "Upload File",
-            createButtonId: "upload-file",
-            title: "Files",
-            list: l,
-            thing: "file"
-        }));
-        $(".header-menu-button.active").removeClass("active");
-        $("#show-files").addClass("active");
-    });
+    let l = "";
+    for (let x in cache.files){
+        if (cache.files.hasOwnProperty(x))
+            l += templates.file.render(cache.files[x]);
+    }
+    $viewSpace.empty().append(templates.list.render({
+        createText: "Upload File",
+        createButtonId: "upload-file",
+        title: "Files",
+        list: l,
+        thing: "file"
+    }));
+    $(".header-menu-button.active").removeClass("active");
+    $("#show-files").addClass("active");
+}
+function showFilesUpload() {
+    showPopup(templates.fileUploadBox.render({
+        uploadHeader: templates.fileUploadHeader.render()
+    }));
 }
 function showPopup(html) {
     $.magnificPopup.open({
@@ -366,6 +391,8 @@ $viewSpace.on("click", "#create-new-context-inline", function () {
 $viewSpace.on("click", "#create-user", function() {
     $viewSpace.empty().append(templates.register.render());
 });
+$viewSpace.on("click", "#upload-file", function() {showFilesUpload()});
+
 $viewSpace.on("submit", "#login-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
@@ -424,6 +451,49 @@ $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
 
 });
 
+$body.on("submit", "#add-file-to-batch-form", function (ev) {
+    ev.preventDefault();
+    let $this = $(this);
+    let batchList = $("#file-upload-list");
+
+    let title = $this.find("input[type=text]");
+    let desc = $this.find("textarea");
+    let file = $this.find("input[type=file]");
+    let count = batchList.find("li").length;
+    let hiddenForm = $("#file-upload-form");
+
+    title.attr("name", "title" + count);
+    desc.attr("name", "description" + count);
+    file.attr("name", "file" + count);
+
+    title.appendTo(hiddenForm);
+    desc.appendTo(hiddenForm);
+    file.appendTo(hiddenForm);
+    $this.empty().append(templates.fileUploadHeader.render());
+    batchList.append(templates.fileUploadBatch.render({
+        Number: count,
+        Title: title.val(),
+        Description: desc.val(),
+        Filename: file.val()
+    }))
+});
+$body.on("submit", "#file-upload-form", function(ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    ajax("/files", "POST", form,
+        function(fileUpload) {
+        let files = fileUpload.Result;
+        //Cache all the files that was created
+            for (let i in files) {
+                cache.files[files[i].Id] = files[i];
+            }
+            toastr["success"](fileUpload.Message);
+            $.magnificPopup.close();
+        },
+        function() {
+            toastr["error"]("An error occured");
+        })
+});
 
 // Forms in popups are "bound" to body
 $body.on("submit", "#create-tag-form", function (ev) {
@@ -605,4 +675,12 @@ getResource("contexts", function () {
 getResource("tags",
     function() {
         showToiList();
+    });
+getResource("files",
+    null,
+    function(files) {
+        for(let i in files) {
+            files[i].Icon = getMaterialFileIcon(files[i].Filetype);
+        }
+        return files;
     });

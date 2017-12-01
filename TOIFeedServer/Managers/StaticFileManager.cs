@@ -33,10 +33,9 @@ namespace TOIFeedServer.Managers
             return  await _db.Files.FindOne(f => f.Id == id);
         }
 
-        private static StaticFile ValidateStaticFileForm(IFormCollection form, out string error, int? number = null)
+        private static StaticFile ValidateStaticFileForm(IFormCollection form, out string error, string number = "")
         {
-            var fileNumber = (number != null) ? number.ToString() : "";
-            var fields = new [] {$"title{fileNumber}", $"description{fileNumber}", $"file{fileNumber}"};
+            var fields = new [] {$"title{number}", $"description{number}"};
 
             var missing = fields.Where(f => !form.ContainsKey(f) || string.IsNullOrEmpty(form[f][0]));
             if (missing.Any())
@@ -47,9 +46,9 @@ namespace TOIFeedServer.Managers
 
             var sf = new StaticFile
             {
-                Title = form["title"][0],
+                Title = form[$"title{number}"][0],
                 Id = Guid.NewGuid().ToString("N"),
-                Description = form["description"][0]
+                Description = form[$"description{number}"][0]
             };
             error = string.Empty;
             return sf;
@@ -62,7 +61,6 @@ namespace TOIFeedServer.Managers
             var sf = ValidateStaticFileForm(form, out var error);
             if(sf == null)
                 return new UserActionResponse<StaticFile>(error, null);
-            sf.Filetype = Path.GetExtension(form.Files[0].FileName);
 
             return await _db.Files.Update(sf.Id, sf) != DatabaseStatusCode.Updated 
                 ? new UserActionResponse<StaticFile>("The file has been stored, but not the details about it", null) 
@@ -73,33 +71,34 @@ namespace TOIFeedServer.Managers
         {
             if(form.Files.Count == 0)
                 return new UserActionResponse<IEnumerable<StaticFile>>("No files have been selected", null);
-            var sfs = new List<StaticFile>();
-
-            //Iterate through the files and check that the supplied information about them is valid
-            for (var i = 0; i < form.Files.Count; i++)
+            var succeededUploads = new List<StaticFile>();
+            foreach (var formFile in form.Files)
             {
-                var sf = ValidateStaticFileForm(form, out var error, i);
-                if (sf == null)
+                var no = formFile.Name.Substring(4);
+
+                var staticFile = ValidateStaticFileForm(form, out var error, no);
+                if (staticFile == null)
                     continue;
-                sf.Filetype = Path.GetExtension(form.Files[i].FileName);
-                
+                staticFile.Filetype = Path.GetExtension(formFile.FileName).TrimStart('.');
+
                 try
                 {
-                    using (var upload = File.Create(Path.Combine(UploadDir, $"{sf.Id}.{sf.Filetype}")))
+                    using (var upload = File.Create(Path.Combine(UploadDir, staticFile.GetFilename())))
                     {
-                        await form.Files[i].CopyToAsync(upload);
+                        await formFile.CopyToAsync(upload);
                     }
-                    sfs.Add(sf);
+                    succeededUploads.Add(staticFile);
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
+
             }
             //Insert the form handles
-            await _db.Files.Insert(sfs.ToArray());
+            await _db.Files.Insert(succeededUploads.ToArray());
 
-            return new UserActionResponse<IEnumerable<StaticFile>>($"{sfs.Count} / {form.Files.Count} files uploaded successfully", sfs);
+            return new UserActionResponse<IEnumerable<StaticFile>>($"{succeededUploads.Count} / {form.Files.Count} files uploaded successfully", succeededUploads);
         }
 
         public async Task<UserActionResponse<bool>> DeleteStaticFile(IFormCollection form)

@@ -260,8 +260,8 @@
         <table>
             <tbody>
             <tr>
-                <td>
-                    <strong class="truncate" title="{{Title}}">{{Title}}</strong>
+                <td class="truncate">
+                    <strong title="{{Title}}">{{Title}}</strong>
                 </td>
                 <td rowspan="4">
                     <img src="{{Image}}" alt="No image">
@@ -315,17 +315,69 @@
     <li class="file" data-id="{{Id}}">
         <table>
             <tbody>
-            <tr aria-rowspan="3">
-                <td title="{{Type}}"><i class="material-icons">{{{Type}}}</i></td>
+            <tr>
+                <td rowspan="2" style="width: 60px;">
+                    <a href="/uploads/{{Id}}.{{Filetype}}" target="_blank" class="material-icons">{{Icon}}</a>
+                </td>
+                <td class="truncate">
+                    <strong title="{{Title}}">{{Title}}</strong>
+                </td>
             </tr>
             <tr>
-                <td>{{Title}}</td>
-                <td>{{Description}}</td>
-                <td>{{Uploaded}}</td>
+                <td class="truncate" title="{{Description}}">{{Description}}</td>
             </tr>
             </tbody>
         </table>
     </li>
+</template>
+
+<script type="text/template" id="file-upload-box-template">
+    <div>
+        <form class="row" id="add-file-to-batch-form">
+            {{{ uploadHeader }}}
+        </form>
+        <div class="row">
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <td>Title</td>
+                        <td>Description</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="file-upload-list">
+
+                </tbody>
+            </table>
+            <form id="file-upload-form" style="display: none">
+
+            </form>
+            <input class="button-primary" type="submit" form="file-upload-form" value="Upload">
+        </div>
+
+    </div>
+</script>
+
+<template id="file-upload-header">
+    <input required="required" class="u-full-width" type="text" placeholder="File title">
+    <textarea class="u-full-width" placeholder="File description"></textarea>
+
+    <div class="ten columns" style="margin-left: 0;">
+        <input type="file" required="required" class="u-full-width">
+    </div>
+    <div class="two columns">
+        <button style="float: right;" type="submit" form="add-file-to-batch-form" class="material-icons">add_circle_outline</button>
+    </div>
+</template>
+
+<template id="file-upload-batch">
+    <tr class="row file-batch" data-no="{{ Number }}">
+        <td class="truncate">{{ Title }}</td>
+        <td class="truncate">{{ Description }}</td>
+        <td>
+            <i class="material-icons">remove_circle_outline</i>
+        </td>
+    </tr>
 </template>
 
 <script src="main.js"></script>
