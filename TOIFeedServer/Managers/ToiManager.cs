@@ -47,7 +47,7 @@ namespace TOIFeedServer.Managers
             {
                 var ids = context.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .ToHashSet();
-                result = await _db.Tois.Find(t => t.Contexts.Any(ids.Contains));
+                result = await _db.Tois.Find(t => t.Contexts.Any(i => ids.Contains(i)));
             }
             return result;
         }
@@ -110,7 +110,7 @@ namespace TOIFeedServer.Managers
 
             var contextIds = SplitIds(form["contexts"][0]).ToList();
             var tagIds = SplitIds(form["tags"][0]).ToList();
-            
+
 
             var tm = new ToiModel
             {
