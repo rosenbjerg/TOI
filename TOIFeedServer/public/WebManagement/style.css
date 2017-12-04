@@ -128,8 +128,11 @@ h3 {
     -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
 }
 
-input:invalid, input:focus:invalid {
+input:invalid, textarea:invalid, select:invalid {
     border: 1px solid #ef9a9a;
+}
+input:invalid:focus, textarea:invalid:focus, select:invalid:focus {
+    border: 1px solid #ef5350;
 }
 input[type=file]::-webkit-file-upload-button {
     margin-bottom: 1rem;
