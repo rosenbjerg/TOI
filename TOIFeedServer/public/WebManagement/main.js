@@ -63,7 +63,6 @@ templates.tagCell.setFormatter("tag.Type", function (type) {
     return getMaterialIcon(type);
 });
 
-
 let cUser = {
     Username: "admin",
     Email: "test@test.dk",
@@ -86,7 +85,6 @@ toastr.options = {
     "showMethod": "fadeIn",
     "hideMethod": "fadeOut"
 };
-
 
 function ajax(url, method, data, success, error) {
     $.ajax({
@@ -171,7 +169,7 @@ function initMapPicker(pos) {
             latitudeInput: $(".latitudeInput"),
             longitudeInput: $(".longitudeInput"),
             radiusInput: $(".radiusInput"),
-            locationTitleInput: $(".locationTitleInput")
+            locationNameInput: $(".locationNameInput")
         },
         zoom: zoom
     });
@@ -199,14 +197,37 @@ function getResource(resource, doneCallback, processData) {
             if (doneCallback)
                 doneCallback();
         },
-            function() {
-                toastr["error"]("Could not fetch tags");
-            });
+        function() {
+            toastr["error"]("Could not fetch " + resource);
+        });
     }
     else {
         if (doneCallback)
             doneCallback();
     }
+}
+function renderAll(array, template) {
+    let str = "";
+    for (let i in array){
+        if (array.hasOwnProperty(i))
+            str += template.render(array[i]);
+    }
+    return str;
+}
+function loadAll() {
+    getResource("contexts", function () {
+        getResource("tags", function() {
+            getResource("tois", function () {
+                showToiList();
+            });
+        });
+    });
+    getResource("files", null, function(files) {
+        for(let i in files) {
+            files[i].Icon = getMaterialFileIcon(files[i].Filetype);
+        }
+        return files;
+    });
 }
 
 function showLogin() {
@@ -215,17 +236,12 @@ function showLogin() {
 }
 function showToiList() {
     getResource("tois", function () {
-        let l = "";
-        for (let x in cache.tois) {
-            if (cache.tois.hasOwnProperty(x))
-                l += templates.toi.render(cache.tois[x]);
-        }
         $viewSpace.empty().append(templates.list.render({
             createText: "New ToI",
             createButtonId: "create-new-toi",
             title: "ToIs",
-            list: l,
-            thing: "TOI"
+            list: renderAll(cache.tois, templates.toi),
+            thing: "ToI"
         }));
         $(".header-menu-button.active").removeClass("active");
         $("#show-tois").addClass("active");
@@ -242,16 +258,11 @@ function showSaveEditToi(toi) {
 }
 function showContextList() {
     getResource("contexts", function () {
-        let l = "";
-        for (let x in cache.contexts) {
-            if (cache.contexts.hasOwnProperty(x))
-                l += templates.context.render(cache.contexts[x]);
-        }
         $viewSpace.empty().append(templates.list.render({
             createText: "New context",
             createButtonId: "create-new-context",
             title: "Contexts",
-            list: l,
+            list: renderAll(cache.contexts, templates.context),
             thing: "context"
         }));
         $(".header-menu-button.active").removeClass("active");
@@ -296,16 +307,11 @@ function showSaveEditContext(context, onSaveCallback) {
 }
 function showTagList() {
     getResource("tags", function () {
-        let l = "";
-        for (let x in cache.tags){
-            if (cache.tags.hasOwnProperty(x))
-                l += templates.tag.render(cache.tags[x]);
-        }
         $viewSpace.empty().append(templates.list.render({
             createText: "New tag",
             createButtonId: "create-new-tag",
             title: "Tags",
-            list: l,
+            list: renderAll(cache.tags, templates.tag),
             thing: "tag"
         }));
         $(".header-menu-button.active").removeClass("active");
@@ -321,10 +327,14 @@ function showCreateTag() {
     navigator.geolocation.getCurrentPosition(function (pos) {
         defaults.latitude = pos.coords.latitude;
         defaults.longitude = pos.coords.longitude;
-        showPopup(templates.createTag.render(defaults));
+        showPopup(templates.createTag.render(defaults), function () {
+            $(".pac-container").remove();
+        });
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, function (err) {
-        showPopup(templates.createTag.render(defaults));
+        showPopup(templates.createTag.render(defaults), function () {
+            $(".pac-container").remove();
+        });
         initMapPicker(defaults.latitude, defaults.longitude, defaults.radius);
     }, {timeout: 500});
 }
@@ -357,11 +367,14 @@ function showFilesUpload() {
         uploadHeader: templates.fileUploadHeader.render()
     }));
 }
-function showPopup(html) {
+function showPopup(html, onClose) {
     $.magnificPopup.open({
         items: {
             type: 'inline',
             src: "<div class='modal-popup'>" + html +"</div>"
+        },
+        callbacks: {
+            close: onClose
         }
     });
 }
@@ -399,17 +412,19 @@ $viewSpace.on("submit", "#login-form", function (ev) {
     ajax("/login", "POST", form,
         function() {
             $(".header-menu").show();
-            showToiList();
+            loadAll();
         },
         function() {
-            toastr["error"]("Either the username or password was wrong");
+            toastr["error"]("Wrong username or password");
         });
 });
 
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
     let tag = cache.tags[id];
-    showPopup(modalTemplates.editTag.render({tag: tag, icon: getMaterialIcon(tag.Type)}));
+    showPopup(modalTemplates.editTag.render({tag: tag, icon: getMaterialIcon(tag.Type)}), function () {
+        $(".pac-container").remove();
+    });
     initMapPicker(tag);
 });
 $viewSpace.on("click", ".toi", function () {
@@ -434,7 +449,7 @@ $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
         ajax("/toi", "PUT", form, function (toi) {
             cache.tois[toi.Id] = toi;
             toastr["success"]("ToI updated");
-            showSaveEditToi();
+            showToiList();
         }, function (data) {
             toastr["error"](data.responseText);
         });
@@ -483,7 +498,7 @@ $body.on("submit", "#file-upload-form", function(ev) {
     ajax("/files", "POST", form,
         function(fileUpload) {
         let files = fileUpload.Result;
-        //Cache all the files that was created
+            //Cache all the files that was created
             for (let i in files) {
                 cache.files[files[i].Id] = files[i];
             }
@@ -519,7 +534,7 @@ $body.on("submit", "#edit-tag-form", function (ev) {
     form.append("type", $(this).data("type"));
     ajax("/tag", "PUT", form, function (tag) {
         cache.tags[tag.Id] = tag;
-        showTagList();
+        showCreateTag();
         toastr["success"]("Changes to tag has been saved");
         $.magnificPopup.close();
     }, function (data) {
@@ -614,7 +629,12 @@ $body.on("click", "#save-edit-toi-form .info-button", function () {
     let type = $this.data("type");
     let item = cache[type + "s"][id];
     if (type === "tag"){
-        showPopup(modalTemplates.editTag.render(item));
+        showPopup(modalTemplates.editTag.render({
+            icon: getMaterialIcon(item.Type),
+            tag: item
+        }), function () {
+            $(".pac-container").remove();
+        });
         initMapPicker(item);
     }
     else {
@@ -634,7 +654,7 @@ $body.on("input", "#create-tag-form select", function () {
     }
 });
 
-$viewSpace.on("input", "#filter-TOI", function () {
+$viewSpace.on("input", "#filter-ToI", function () {
     let searchTerm = this.value;
     let result = searchInData(cache.tois, function (toi) {
         return toi.Title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -660,27 +680,4 @@ $viewSpace.on("input", "#filter-tag", function () {
     $("#list-ul").empty().append(l);
 });
 
-
-function renderAll(array, template) {
-    let str = "";
-    for (let i = 0, max = array.length; i < max; i++) {
-        str += template.render(array[i]);
-    }
-    return str;
-}
-
-getResource("contexts", function () {
-    getResource("tois")
-});
-getResource("tags",
-    function() {
-        showToiList();
-    });
-getResource("files",
-    null,
-    function(files) {
-        for(let i in files) {
-            files[i].Icon = getMaterialFileIcon(files[i].Filetype);
-        }
-        return files;
-    });
+loadAll();

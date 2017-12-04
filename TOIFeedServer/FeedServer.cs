@@ -35,21 +35,21 @@ namespace TOIFeedServer
             var cMan = new ContextManager(db);
             var fMan = new StaticFileManager(db);
 
-            Func<RRequest, RResponse, Task<bool>> CheckAuthentication =  async (req, res) =>
+            async Task<bool> CheckAuthentication(RRequest req, RResponse res)
             {
                 if (!req.Cookies.ContainsKey("token"))
                 {
                     await res.SendString("Unauthorized", status: StatusCodes.Status401Unauthorized);
                     return false;
                 }
-
+                
                 var token = req.Cookies["token"];
 
                 if (usrMan.VerifyToken(token))
                     return true;
                 await res.SendString("Unauthorized", status: StatusCodes.Status401Unauthorized);
                 return false;
-            };
+            }
 
             _server.Get("/tags", async (req, res) =>
             {

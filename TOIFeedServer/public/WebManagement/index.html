@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TOI Management</title>
+    <title>ToI Manager</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
     <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>
-    <script src="js/locationpicker.jquery.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-locationpicker/0.1.12/locationpicker.jquery.min.js" async="async"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
 
@@ -30,11 +30,11 @@
 <body>
 <div class="container">
     <div class="header">
-        <h3>TOI Manager</h3>
+        <h3>ToI Manager</h3>
         <div class="header-menu">
             <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
-            <div class="header-menu-button" id="show-contexts" tabindex="2">Contexts</div>
-            <div class="header-menu-button" id="show-tags" tabindex="3">Tags</div>
+            <div class="header-menu-button" id="show-tags" tabindex="2">Tags</div>
+            <div class="header-menu-button" id="show-contexts" tabindex="3">Contexts</div>
             <div class="header-menu-button" id="show-profile" tabindex="4">Profile</div>
             <div class="header-menu-button" id="show-files" tabindex="5">Files</div>
         </div>
@@ -90,7 +90,7 @@
                 </select>
             </div>
             <label>Location name (optional)</label>
-            <input class="u-full-width locationNameInput" type="text"/>
+            <input class="u-full-width locationNameInput" type="text" form="noform"/>
             <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
             <label>Pick location or type in coordinates</label>
             <div class="mapPicker u-full-width"></div>
@@ -120,7 +120,7 @@
         <label>Hardware ID</label>
         <input required="required" class="u-full-width" type="text" value="{{tag.Id}}" readonly="readonly" disabled="disabled"/>
         <label>Location (Optional)</label>
-        <input class="u-full-width locationNameInput" type="text"/>
+        <input class="u-full-width locationNameInput" type="text" form="noform"/>
         <div class="mapPicker u-full-width"></div>
         <div class="row">
             <div class="four columns">
@@ -154,7 +154,7 @@
 </template>
 
 <script type="text/template" id="save-edit-toi-template">
-        <h3 class="u-full-width">{{action}} TOI</h3>
+        <h3 class="u-full-width">{{action}} ToI</h3>
         <form id="save-edit-toi-form" data-id="{{toi.Id}}">
             <div class="row">
                 <div class="six columns">
@@ -209,7 +209,7 @@
                 </div>
             </div>
             {{{ create }}}
-            <input class="six columns button-primary" type="submit" value="Save TOI"/>
+            <input class="six columns button-primary" type="submit" value="Save ToI"/>
         </form>
 </script>
 
@@ -268,7 +268,9 @@
                 </td>
             </tr>
             <tr>
-                <td class="truncate" title="{{Description}}">{{Description}}</td>
+                <td>
+                    <p class="truncate" title="{{Description}}">{{Description}}</p>
+                </td>
             </tr>
             <tr>
                 <td class="truncate">
