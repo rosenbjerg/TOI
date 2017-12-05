@@ -32,7 +32,8 @@ namespace TOIFeedServer
                 {
                     builder.ConfigureCluster(settings =>
                         settings.With(serverSelectionTimeout: TimeSpan.FromSeconds(5)));
-                }
+                },
+                Credentials = new[] {MongoCredential.CreateCredential("TOI", "toi", "Tuborg Classic")}
             };
             var client = new MongoClient(clientSettings);
             var database = client.GetDatabase("TOI");
