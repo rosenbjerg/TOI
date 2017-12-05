@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TOIFeedServer;
 
 namespace TOIFeedRepo.Database
 {
-    internal class FeedRepoDatabase
+    internal class DatabaseFactory
     {
-        public IDbCollection<Feed> Feeds { get; }
     }
 }

@@ -35,4 +35,5 @@ namespace TOIFeedRepo
                 Console.ReadLine();
             Console.WriteLine("Server closed");
         }
+    }
 }
