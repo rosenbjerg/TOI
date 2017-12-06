@@ -355,25 +355,37 @@ namespace TOIFeedServer
             {
                 Title = "F-Klubben",
                 Id = "FAC4D1038D3D",
-                Type = TagType.Nfc
+                Type = TagType.Nfc,
+                Latitude = 57,
+                Longitude = 9.9,
+                Radius = 1
             };
             var cTag = new TagModel
             {
                 Title = "Cassiopeia",
                 Id = "CC1454015282",
-                Type = TagType.Bluetooth
+                Type = TagType.Gps,
+                Latitude = 57,
+                Longitude = 9.9,
+                Radius = 5
             };
             var mTag = new TagModel
             {
                 Title = "At Marius place",
                 Id = "CBFFB96CA47D",
-                Type = TagType.Wifi
+                Type = TagType.Wifi,
+                Latitude = 57.01608357948024,
+                Longitude = 9.985376190429633,
+                Radius = 50
             };
-            var btbTag = new TagModel
+            var bmdcTag = new TagModel
             {
-                Title = "By the bin",
+                Title = "Business Model Design Center",
                 Id = "F4B415054205",
-                Type = TagType.Gps
+                Type = TagType.Gps,
+                Latitude = 57.01794675337907,
+                Longitude = 9.97747976708979,
+                Radius = 10
             };
 
             var modelList = new List<ToiModel>
@@ -414,12 +426,12 @@ namespace TOIFeedServer
                 new ToiModel
                 {
                     Id = Guid.NewGuid().ToString("N"),
-                    Description = "This hosts many interesting items that have been disposed during the week. If it stands untouched too long it will deteriorate into a pile of smelly goo.",
-                    Title = "Out Scraldespand",
-                    Image = "https://i.imgur.com/2Ivtb0i.jpg",
-                    Url = "https://gist.github.com/Joklost/7efd0e7b3cafd26ea61b2d7c71961a59",
+                    Description = "Yea! You can train your creativity.",
+                    Title = "Academy for Creativity",
+                    Image = "http://academyforcreativity.com/wp-content/uploads/2017/04/my-logo@2x-1.png-1-e1493053107456.png",
+                    Url = "https://academyforcreativity.com",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {btbTag.Id},
+                    Tags = new List<string> {bmdcTag.Id},
                     InformationType = ToiInformationType.Text
                 },
 
@@ -431,13 +443,13 @@ namespace TOIFeedServer
                     Image = "https://i5.walmartimages.com/asr/fa1be18a-e37d-4387-b6bd-3c4fba36e1fa_1.a6268444b1193d23137622d8ff7c58b4.jpeg",
                     Url = "http://www.fklub.dk/",
                     Contexts = new List<string> {grownCtx.Id},
-                    Tags = new List<string> {cTag.Id, btbTag.Id, mTag.Id, fTag.Id},
+                    Tags = new List<string> {cTag.Id, bmdcTag.Id, mTag.Id, fTag.Id},
                     InformationType = ToiInformationType.Website
                 }
             };
 
             var db = _server.Plugins.Use<Database>();
-            await db.Tags.Insert(cTag, btbTag, mTag, fTag);
+            await db.Tags.Insert(cTag, bmdcTag, mTag, fTag);
             await db.Contexts.Insert(grownCtx, childCtx);
             await db.Tois.Insert(modelList.ToArray());
             await db.Users.Insert(new User

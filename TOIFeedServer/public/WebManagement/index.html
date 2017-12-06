@@ -75,10 +75,6 @@
         <form id="create-tag-form">
             <label>Title</label>
             <input required="required" name="title" class="u-full-width" type="text" placeholder="Title"/>
-            <div id="hardware-id-wrapper">
-                <label>Hardware ID</label>
-                <input required="required" name="id" class="u-full-width" type="text" pattern="^[0-9a-fA-F]{2}([: -]?[0-9a-fA-F]{2})+$" placeholder="F.x. FA:C4:D1:03:8D:3D"/>
-            </div>
             <div class="row">
                 <label>Type</label>
                 <select name="type" class="u-full-width">
@@ -88,6 +84,10 @@
                     <option value="Wifi">Wi-Fi</option>
                     <option value="Gps">GPS</option>
                 </select>
+            </div>
+            <div id="hardware-id-wrapper">
+                <label>Hardware ID</label>
+                <input name="id" class="u-full-width" type="text" placeholder="F.x. FA:C4:D1:03:8D:3D"/>
             </div>
             <label>Location name (optional)</label>
             <input class="u-full-width locationNameInput" type="text" form="noform"/>

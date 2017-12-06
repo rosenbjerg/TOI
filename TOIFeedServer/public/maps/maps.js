@@ -1,15 +1,11 @@
 "use strict";
 let _map = null;
 
-function initMap() {
-    _map = new google.maps.Map(document.getElementById('context-map'), {
-        zoom: 4,
-        center: {
-            lat: 57,
-            lng: 9.9
-        }
-    });
+let templates = {
+    infobox: JsT.loadById("marker-infowindow-template", true)
+};
 
+function initMap() {
     loadContextToIs(onToILoaded);
 }
 
@@ -33,14 +29,23 @@ function loadContextToIs(callback) {
 }
 
 function onToILoaded(tois) {
+    console.log(tois);
     let mapCentered = false;
     for (let i in tois) {
         let url = "/tags?ids=" + tois[i].Tags.join(",");
         ajax(url, "GET", null,
             function (tags) {
                 console.log(tags);
-                if(!mapCentered)
-                    _map.center = {lat: tags[0].Latitude, lng: tags[0].Longitude};
+                if(!mapCentered && tags.length > 0) {
+                    _map = new google.maps.Map(document.getElementById('context-map'), {
+                        zoom: 12,
+                        center: {
+                            lat: tags[0].Latitude,
+                            lng: tags[0].Longitude
+                        }
+                    });
+                    mapCentered = true;
+                }
                 addMarkers(tois[i], tags);
             },
             function () {
@@ -52,14 +57,27 @@ function onToILoaded(tois) {
 
 function addMarkers(toi, tags) {
     for (let i in tags) {
-        new google.maps.Marker({
+        let toiInfoWindow = new google.maps.InfoWindow({
+            content: templates.infobox.render( toi )
+        });
+
+        let marker = new google.maps.Marker({
             position: {
                 lat: tags[i].Latitude,
-                lng: tags[i].Longitude
+                lng: tags[i].Longitude,
+                title: toi.title
             },
             map: _map
         });
+
+        marker.addListener('click', function () {
+            toiInfoWindow.open(_map, marker);
+        });
     }
+}
+
+function _createInfoWindow(title, description) {
+
 }
 
 function ajax(url, method, data, success, error) {

@@ -81,14 +81,13 @@ namespace TOIFeedServer.Managers
             }
 
             string id;
-            if (type == TagType.Gps)
+            if (type == TagType.Gps && !form.ContainsKey("id"))
             {
                 id = Guid.NewGuid().ToString("N");
             }
             else
             {
-                id = string.Join("", form["id"][0].Split(TrimChars, StringSplitOptions.RemoveEmptyEntries))
-                    .ToUpperInvariant();
+                id = form["id"];
             }
 
             error = string.Empty;
