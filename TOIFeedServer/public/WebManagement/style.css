@@ -278,6 +278,10 @@ ul, li {
     background-color: #dcdcdc;
     transition: background-color 100ms;
 }
+.tag-cell td:nth-child(2) {
+    max-width: 100px;
+}
+
 #create-new-context-inline {
     text-align: right;
     display: inline-block;
