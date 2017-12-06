@@ -53,8 +53,6 @@ namespace TOIFeedServer
 
             _server.Get("/tags", async (req, res) =>
             {
-                if (!await CheckAuthentication(req, res)) return;
-
                 string ids = null;
                 if (req.Queries.ContainsKey("ids"))
                 {

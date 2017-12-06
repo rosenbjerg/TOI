@@ -215,14 +215,15 @@ function renderAll(array, template) {
     return str;
 }
 function loadAll() {
-    getResource("contexts", function () {
-        getResource("tags", function() {
-            getResource("tois", function () {
-                showToiList();
+    getResource("files", function () {
+        getResource("contexts", function () {
+            getResource("tags", function() {
+                getResource("tois", function () {
+                    showToiList();
+                });
             });
         });
-    });
-    getResource("files", null, function(files) {
+    }, function(files) {
         for(let i in files) {
             files[i].Icon = getMaterialFileIcon(files[i].Filetype);
         }

@@ -14,8 +14,8 @@ function initMap() {
 }
 
 function loadContextToIs(callback) {
-    var url = new URL(window.location);
-    var contextId = url.searchParams.get("context");
+    let url = new URL(window.location);
+    let contextId = url.searchParams.get("context");
     if(!contextId)
     {
         console.error("No context id was found in the url!");
