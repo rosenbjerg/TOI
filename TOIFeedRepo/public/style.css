@@ -1,0 +1,139 @@
+html, body {
+    background-color: #FAFAFA;
+}
+textarea {
+    max-width: 100%;
+    min-width: 100%;
+}
+.mapPicker {
+    height: 400px;
+}
+.list-header h3 {
+    font-size: 22px;
+    line-height: 46px;
+}
+@media (min-width: 550px){
+    .container {
+        width: inherit;
+    }
+    .list-header h3 {
+        font-size: 30px;
+    }
+
+}
+@media (min-width: 400px){
+    .container {
+        width: inherit;
+        padding: inherit;
+    }
+}
+
+a {
+    font-family: Raleway,HelveticaNeue,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+table {
+    border-collapse: collapse;
+}
+table tr {
+    border-bottom: solid 1px #E0E0E0;
+}
+table td, table th {
+    border: none;
+}
+input[type=submit] {
+    float: right;
+}
+h3 {
+    font-family: 'Comfortaa', sans-serif;
+}
+#login-form,
+#register-form {
+    max-width: 500px;
+    margin:auto;
+}
+
+#viewSpace {
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-top: 32px;
+}
+
+.header, .header-bgc {
+    /*min-height: 5rem;*/
+    margin-bottom: 0;
+}
+.header * {
+    margin-top: 10px;
+    color: #FAFAFA;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.header h3 {
+    padding-left: 12px;
+    font-family: 'Comfortaa', serif;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-right: 16px;
+    display: inline-block;
+}
+.header-menu, .header-menu-button {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 13pt;
+    display: inline-block;
+}
+.header {
+    padding: 16px 8px 8px;
+    border-radius: 3px;
+    box-shadow: 4px 4px 30px -4px rgba(66,66,66,0.67);
+    margin-top: 13px;
+    background-color: rgba(21,101,192,1);
+}
+.header-menu-button {
+    cursor: pointer;
+    display: inline-block;
+    padding: 1px 15px;
+    transition: background-color 50ms;
+    border: none;
+    border-radius: 1px;
+    margin: 4px 1px 1px;
+    outline: none;
+}
+.header-menu-button:hover {
+    transition: background-color 150ms;
+    background-color: rgba(144,202,249 ,0.3)
+}
+.header-menu-button.active {
+    transition: background-color 150ms;
+    background-color: rgba(144,202,249 ,0.3);
+}
+
+.empty-placeholder:empty::after{
+    content: attr(data-empty-message);
+    font-size: 10pt;
+    height: 20px;
+    color: #818181;
+    white-space: nowrap;
+}
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -moz-binding: url('assets/xml/ellipsis.xml#ellipsis');
+}
+
+input:invalid, textarea:invalid, select:invalid {
+    border: 1px solid #ef9a9a;
+}
+input:invalid:focus, textarea:invalid:focus, select:invalid:focus {
+    border: 1px solid #ef5350;
+}
+ul, li {
+    list-style: none;
+}

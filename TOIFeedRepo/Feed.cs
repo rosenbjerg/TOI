@@ -11,7 +11,7 @@ namespace TOIFeedRepo
         public string BaseUrl { get; set; }
         private string ApiKey { get; set; }
         public GpsLocation LocationCenter { get; set; }
-        public int Radius { get; set; }
+        public double Radius { get; set; }
         public bool IsActive { get; set; }
 
         public bool WithinRange(GpsLocation location)

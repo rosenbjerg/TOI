@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ToI Manager</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
+    <!--<script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-locationpicker/0.1.12/locationpicker.jquery.min.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|Roboto|Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h3>ToI FeedRepo API</h3>
+    </div>
+    <div id="viewSpace"></div>
+</div>
+
+<template id="login-template">
+    <h3 class="u-full-width" style="text-align: center">Login</h3>
+
+    <form id="login-form">
+        <label>API Key</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <input id="create-key-button" type="button" value="Create API key">
+        <input id="login-submit" class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
+</template>
+<template id="register-template">
+    <h3 class="u-full-width" style="text-align: center">Register</h3>
+
+    <form id="register-form">
+        <label>Display Name</label>
+        <input class="u-full-width" required="required" name="title" type="text">
+        <label>Description (optional)</label>
+        <textarea class="u-full-width" name="description"></textarea>
+        <label>Url</label>
+        <input class="u-full-width" required="required" name="baseUrl" type="url">
+
+        <label>Pick location or type in coordinates</label>
+        <div class="mapPicker u-full-width"></div>
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" name="radius" class="u-full-width radiusInput" type="number" min="1"/>
+            </div>
+        </div>
+
+        <label>Contact Email</label>
+        <input class="u-full-width" required="required" name="contactEmail" type="email">
+
+        <input id="register-cancel" type="button" value="Back">
+        <input id="register-submit" class="button-primary" type="submit" value="Confirm" style="float:right;">
+    </form>
+</template>
+<script src="main.js"></script>
+</body>
