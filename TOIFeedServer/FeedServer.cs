@@ -42,7 +42,7 @@ namespace TOIFeedServer
                     await res.SendString("Unauthorized", status: StatusCodes.Status401Unauthorized);
                     return false;
                 }
-                
+
                 var token = req.Cookies["token"];
 
                 if (usrMan.VerifyToken(token))
@@ -154,16 +154,28 @@ namespace TOIFeedServer
             });
             _server.Post("/toi/fromgps", async (req, res) =>
             {
-                var gpsLocation = await req.ParseBodyAsync<GpsLocation>();
-                var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
-                if (toi.Status == DatabaseStatusCode.NoElement)
+                var bString = await req.ParseBodyAsync<string>();
+                Console.WriteLine(bString);
+                var gpsLocation = JsonConvert.DeserializeObject<GpsLocation>(bString);
+
+                try
                 {
-                    await res.SendString("Not found", status: StatusCodes.Status404NotFound);
+                    var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
+                    if (toi.Status == DatabaseStatusCode.NoElement)
+                    {
+                        await res.SendString("Not found", status: StatusCodes.Status404NotFound);
+                    }
+                    else
+                    {
+                        await res.SendJson(toi.Result);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    await res.SendJson(toi.Result);
+                    Console.WriteLine(e);
                 }
+
+               
             });
             _server.Post("/toi", async (req, res) =>
             {
@@ -322,7 +334,7 @@ namespace TOIFeedServer
                     await res.SendString(created.Message, status: StatusCodes.Status400BadRequest);
                 }
             });
-            
+
 
             if (sampleData)
             {
