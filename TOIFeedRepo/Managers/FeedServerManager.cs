@@ -8,14 +8,16 @@ using TOIFeedServer;
 using TOIFeedServer.Managers;
 using FormValidator;
 using Microsoft.AspNetCore.Http;
-using FormValidator = FormValidator.FormValidator;
 
 namespace TOIFeedRepo.Managers
 {
     internal class FeedServerManager
     {
-        private global::FormValidator.FormValidator _registerFormValidator { get; }
-        private FeedRepoDatabase _db { get; }
+        private readonly FormValidator.FormValidator _registerFormValidator;
+        private readonly FormValidator.FormValidator _updateFormValidator;
+        private readonly FeedRepoDatabase _db;
+        private readonly ApiKeyGenerator _keygen;
+
 
         public FeedServerManager(FeedRepoDatabase db)
         {
@@ -29,6 +31,17 @@ namespace TOIFeedRepo.Managers
                 .RequiresRational("radius", 0, double.MaxValue)
                 .RequiresString("contactEmail")
                 .Build();
+            _updateFormValidator = FormValidatorBuilder
+                .New()
+                .RequiresString("title")
+                .RequiresString("baseUrl")
+                .RequiresString("active", val => val == "true" || val == "false")
+                .RequiresRational("latitude", -85.05115, 85)
+                .RequiresRational("longitude", -180, 180)
+                .RequiresRational("radius", 0, double.MaxValue)
+                .RequiresString("contactEmail")
+                .Build();
+            _keygen = new ApiKeyGenerator(db);
         }
 
         public async Task<IEnumerable<Feed>> AllActiveFeeds()
@@ -53,24 +66,47 @@ namespace TOIFeedRepo.Managers
             //TODO generate API key!
             var feed = new Feed
             {
-                Id = Guid.Empty.ToString("N"),
-                Title = form["title"],
-                BaseUrl = form["baseUrl"],
+                Id = _keygen.GenerateNew(),
+                Title = form["title"][0],
+                BaseUrl = form["baseUrl"][0],
                 IsActive = false,
                 LocationCenter = new GpsLocation
                 {
-                    Longitude = double.Parse(form["longitude"]),
-                    Latitude = double.Parse(form["longitude"])
+                    Longitude = double.Parse(form["longitude"][0]),
+                    Latitude = double.Parse(form["longitude"][0])
                 },
-                Radius = double.Parse(form["radius"])
+                Radius = double.Parse(form["radius"][0])
             };
             if (form.ContainsKey("description"))
-                feed.Description = form["description"];
+                feed.Description = form["description"][0];
 
             var dbResult = _db.Feeds.Insert(feed);
             return dbResult.Result == DatabaseStatusCode.Ok
                 ? new UserActionResponse<Feed>("Your feed has been created.", feed) 
                 : new UserActionResponse<Feed>("The feed could not be inserted in the database.", null);
+        }
+
+        public async Task<UserActionResponse<Feed>> UpdateFeed(IFormCollection form)
+        {
+            if (!_updateFormValidator.Validate(form))
+            {
+                return new UserActionResponse<Feed>("One of the required fields are missing", null);
+            }
+            var feed = new Feed
+            {
+                Id = form["title"][0],
+                Title = form["title"][0],
+                BaseUrl = form["baseUrl"][0],
+                IsActive = false,
+                LocationCenter = new GpsLocation
+                {
+                    Longitude = double.Parse(form["longitude"][0]),
+                    Latitude = double.Parse(form["longitude"][0])
+                },
+                Radius = double.Parse(form["radius"])
+            };
+            if (form.ContainsKey("description"))
+                feed.Description = form["description"];
         }
     }
 }

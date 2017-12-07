@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using TOIClasses;
 
 namespace TOIFeedServer.Managers
@@ -28,11 +29,26 @@ namespace TOIFeedServer.Managers
             _db = db;
         }
 
-        public async Task<DbResult<IEnumerable<TagModel>>> GetTags(HashSet<string> ids = null)
+        public async Task<DbResult<IEnumerable<TagModel>>> GetTags(IQueryCollection query)
         {
-            if (ids == null)
-                return await _db.Tags.GetAll();
-            return await _db.Tags.Find(t => ids.Contains(t.Id));
+            HashSet<string> ids, contexts;
+            if (query.ContainsKey("ids"))
+            {
+                ids = Extensions.SplitIds(query["ids"][0]).ToHashSet();
+                return await _db.Tags.Find(t => ids.Contains(t.Id));
+            }
+            if (query.ContainsKey("contexts"))
+            {
+                contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
+                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(contexts.Contains));
+                if (toisSearch.Status == DatabaseStatusCode.NoElement)
+                    return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
+                var tagIds = toisSearch.Result
+                    .SelectMany(toi => toi.Tags)
+                    .ToHashSet();
+                return await _db.Tags.Find(tag => tagIds.Contains(tag.Id));
+            }
+            return await _db.Tags.GetAll();
         }
 
         

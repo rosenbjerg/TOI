@@ -53,13 +53,7 @@ namespace TOIFeedServer
 
             _server.Get("/tags", async (req, res) =>
             {
-                string ids = null;
-                if (req.Queries.ContainsKey("ids"))
-                {
-                    ids = req.Queries["ids"][0];
-                }
-                var tagFilter = ids != null ? SplitIds(ids).ToHashSet() : null;
-                var tags = await tagMan.GetTags(tagFilter);
+                var tags = await tagMan.GetTags(req.Queries);
 
                 if (tags != null)
                     await res.SendJson(tags.Result);
