@@ -256,6 +256,19 @@ function showSaveEditToi(toi) {
     }));
     if (toi)
         $("#save-edit-toi-form").find("select").val(toi.InformationType);
+
+    let allTags = searchInData(cache.tags, function (){return true;});
+    let allContexts = searchInData(cache.contexts, function() {return true;});
+    let str = "";
+    for (let i in allTags){
+        str += templates.tagCell.render({action: "add_circle", tag: allTags[i]});
+    }
+    $("#tag-search-result").empty().append(str);
+    str = "";
+    for (let i in allContexts){
+        str += templates.contextCell.render({action: "add_circle", context: allContexts[i]});
+    }
+    $("#context-search-result").empty().append(str);
 }
 function showContextList() {
     getResource("contexts", function () {
@@ -590,10 +603,11 @@ $body.on("click", "#user-prompt-cancel", function () {
     $.magnificPopup.close();
 });
 $body.on("input", "#add-toi-tag-search input", function () {
-    let searchTerm = this.value;
+    let searchTerm = this.value.toLowerCase();
     let result = searchInData(cache.tags, function (c) {
         return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm) || c.Id.toLowerCase().includes(searchTerm);
     });
+
     let str = "";
     for (let i in result){
         str += templates.tagCell.render({action: "add_circle", tag: result[i]});

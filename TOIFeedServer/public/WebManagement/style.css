@@ -20,11 +20,20 @@ textarea {
         font-size: 30px;
     }
 
+    #add-toi-tag-search table,
+    #add-toi-context-search table {
+        display: table;
+    }
 }
 @media (min-width: 400px){
     .container {
         width: inherit;
         padding: inherit;
+    }
+
+    #add-toi-tag-search table,
+    #add-toi-context-search table {
+        display: table;
     }
 }
 
@@ -266,6 +275,26 @@ ul, li {
     margin-left:0;
 }
 
+#add-toi-context-search table {
+    max-height: 300px;
+    overflow-y: auto;
+    display:inherit;
+}#add-toi-tag-search table {
+    max-height: 416px;
+    overflow-y: auto;
+     display: inherit;
+}
+#add-toi-tag-search tbody,
+#add-toi-context-search tbody {
+    display: table;
+    width: 100%;
+}
+
+#add-toi-context-search td,
+#add-toi-tag-search td{
+    max-width: 125px;
+}
+
 .context-cell .action-button, .context-cell .info-button, .tag-cell .action-button, .tag-cell .info-button {
     float: right;
     cursor: pointer;
@@ -277,9 +306,6 @@ ul, li {
 .tag-cell:hover, .context-cell:hover {
     background-color: #dcdcdc;
     transition: background-color 100ms;
-}
-.tag-cell td:nth-child(2) {
-    max-width: 100px;
 }
 
 #create-new-context-inline {
