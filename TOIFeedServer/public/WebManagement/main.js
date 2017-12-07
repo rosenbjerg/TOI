@@ -535,9 +535,9 @@ $body.on("submit", "#edit-tag-form", function (ev) {
     form.append("type", $(this).data("type"));
     ajax("/tag", "PUT", form, function (tag) {
         cache.tags[tag.Id] = tag;
-        showCreateTag();
         toastr["success"]("Changes to tag has been saved");
         $.magnificPopup.close();
+        showTagList();
     }, function (data) {
         toastr["error"](data.responseText);
     })

@@ -40,7 +40,7 @@ namespace TOIFeedServer.Managers
         {
             ':', ' ', '-', ',', '.'
         };
-        private static TagModel ValidateTagForm(IFormCollection form, out string error)
+        private static TagModel ValidateTagForm(IFormCollection form, out string error, bool update = false)
         {
             var fields = new List<string> { "title", "longitude", "latitude", "radius", "type"};
             var missing = fields.Where(field => !form.ContainsKey(field) || string.IsNullOrEmpty(form[field][0]));
@@ -81,7 +81,7 @@ namespace TOIFeedServer.Managers
             }
 
             string id;
-            if (type == TagType.Gps && !form.ContainsKey("id"))
+            if (type == TagType.Gps && !update)
             {
                 id = Guid.NewGuid().ToString("N");
             }
@@ -137,7 +137,7 @@ namespace TOIFeedServer.Managers
 
         public async Task<UserActionResponse<TagModel>> UpdateTag(IFormCollection form)
         {
-            var tag = ValidateTagForm(form, out var error);
+            var tag = ValidateTagForm(form, out var error, true);
             if (tag == null)
                 return new UserActionResponse<TagModel>(error, null);
             if (await _db.Tags.Update(tag.Id, tag) != DatabaseStatusCode.Updated)
