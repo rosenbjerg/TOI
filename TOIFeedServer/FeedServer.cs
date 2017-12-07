@@ -155,27 +155,17 @@ namespace TOIFeedServer
             _server.Post("/toi/fromgps", async (req, res) =>
             {
                 var bString = await req.ParseBodyAsync<string>();
-                Console.WriteLine(bString);
                 var gpsLocation = JsonConvert.DeserializeObject<GpsLocation>(bString);
 
-                try
+                var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
+                if (toi.Status == DatabaseStatusCode.NoElement)
                 {
-                    var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
-                    if (toi.Status == DatabaseStatusCode.NoElement)
-                    {
-                        await res.SendString("Not found", status: StatusCodes.Status404NotFound);
-                    }
-                    else
-                    {
-                        await res.SendJson(toi.Result);
-                    }
+                    await res.SendString("Not found", status: StatusCodes.Status404NotFound);
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
+                    await res.SendJson(toi.Result);
                 }
-
-               
             });
             _server.Post("/toi", async (req, res) =>
             {
