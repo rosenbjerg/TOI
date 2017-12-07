@@ -256,7 +256,6 @@ ul, li {
     max-width: 120px;
     float: right;
     border-radius: 2px;
-    border: solid 1px #BDBDBD;
 }
 .toi table, .file table {
     width: 100%;

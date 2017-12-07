@@ -29,24 +29,21 @@ function loadContextToIs(callback) {
 }
 
 function onToILoaded(tois) {
+    let bounds = new google.maps.LatLngBounds();
+    _map = new google.maps.Map(document.getElementById('context-map'));
+    google.maps.event.addListenerOnce(_map, "idle", function() {
+        console.log("Zooming to ToI location");
+        _map.fitBounds(bounds);
+        _map.panToBounds(bounds);
+    });
+
     console.log(tois);
-    let mapCentered = false;
     for (let i in tois) {
         let url = "/tags?ids=" + tois[i].Tags.join(",");
         ajax(url, "GET", null,
             function (tags) {
                 console.log(tags);
-                if(!mapCentered && tags.length > 0) {
-                    _map = new google.maps.Map(document.getElementById('context-map'), {
-                        zoom: 12,
-                        center: {
-                            lat: tags[0].Latitude,
-                            lng: tags[0].Longitude
-                        }
-                    });
-                    mapCentered = true;
-                }
-                addMarkers(tois[i], tags);
+                addMarkers(tois[i], tags, bounds);
             },
             function () {
                 console.error("TAG ERROR!");
@@ -55,29 +52,25 @@ function onToILoaded(tois) {
     }
 }
 
-function addMarkers(toi, tags) {
+function addMarkers(toi, tags, bounds) {
     for (let i in tags) {
         let toiInfoWindow = new google.maps.InfoWindow({
             content: templates.infobox.render( toi )
         });
 
+        let loc = new google.maps.LatLng (tags[i].Latitude, tags[i].Longitude);
         let marker = new google.maps.Marker({
-            position: {
-                lat: tags[i].Latitude,
-                lng: tags[i].Longitude,
-                title: toi.title
-            },
+            position: loc,
+            title: toi.title,
             map: _map
         });
 
         marker.addListener('click', function () {
             toiInfoWindow.open(_map, marker);
         });
+
+        bounds.extend(loc);
     }
-}
-
-function _createInfoWindow(title, description) {
-
 }
 
 function ajax(url, method, data, success, error) {
