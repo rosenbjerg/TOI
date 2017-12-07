@@ -38,13 +38,14 @@ namespace TOIFeedServer.Managers
 
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByGpsLocation(GpsLocation gpsLocations)
         {
-            var tags = await _db.Tags.Find(t => t.Type == TagType.Gps && WithinRange(t, gpsLocations));
-            if (tags.Status == DatabaseStatusCode.NoElement)
+            var allTags = await _db.Tags.GetAll();
+            if (allTags.Status == DatabaseStatusCode.NoElement)
             {
                 return new DbResult<IEnumerable<ToiModel>>(null, DatabaseStatusCode.NoElement);
             }
-
-            var toi = await GetToiByTagIds(tags.Result.Select(t => t.Id));
+            var tags = allTags.Result.Where(t => t.Type == TagType.Gps && WithinRange(t, gpsLocations));
+         
+            var toi = await GetToiByTagIds(tags.Select(t => t.Id));
             return toi;
         }
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
