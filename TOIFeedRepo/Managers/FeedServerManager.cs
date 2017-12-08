@@ -33,6 +33,7 @@ namespace TOIFeedRepo.Managers
                 .Build();
             _updateFormValidator = FormValidatorBuilder
                 .New()
+                .RequiresString("id")
                 .RequiresString("title")
                 .RequiresString("baseUrl")
                 .RequiresString("active", val => val == "true" || val == "false")
@@ -94,7 +95,7 @@ namespace TOIFeedRepo.Managers
             }
             var feed = new Feed
             {
-                Id = form["title"][0],
+                Id = form["id"][0],
                 Title = form["title"][0],
                 BaseUrl = form["baseUrl"][0],
                 IsActive = false,
