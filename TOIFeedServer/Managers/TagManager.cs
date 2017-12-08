@@ -9,10 +9,10 @@ using TOIClasses;
 
 namespace TOIFeedServer.Managers
 {
-    public struct UserActionResponse<T>
+    public class UserActionResponse<T>
     {
-        public string Message;
-        public T Result;
+        public string Message { get; }
+        public T Result { get; }
 
         public UserActionResponse(string message, T result)
         {

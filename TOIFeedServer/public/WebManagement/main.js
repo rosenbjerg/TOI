@@ -23,11 +23,13 @@ let templates = {
     file : JsT.loadById("file-box-template", true),
     fileUploadBox: JsT.loadById("file-upload-box-template", true),
     fileUploadHeader: JsT.loadById("file-upload-header", true),
-    fileUploadBatch: JsT.loadById("file-upload-batch", true),
+    fileUploadBatch: JsT.loadById("file-upload-batch", true)
 };
 let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template", true),
-    userPrompt : JsT.loadById("user-prompt-template", true)
+    userPrompt : JsT.loadById("user-prompt-template", true),
+    fileEdit: JsT.loadById("file-edit-template", true),
+    fileSelect: JsT.loadById("choose-file-template", true)
 };
 templates.saveEditToi.setFormatter("toi.Tags", function (tags) {
     if (!tags)
@@ -99,7 +101,7 @@ function ajax(url, method, data, success, error) {
             if(jqXHR.status === 401) {
                 return;
             }
-            error();
+            error(jqXHR);
         },
         statusCode: {
             401: function () {
@@ -224,6 +226,7 @@ function loadAll() {
             });
         });
     }, function(files) {
+        console.log(files);
         for(let i in files) {
             files[i].Icon = getMaterialFileIcon(files[i].Filetype);
         }
@@ -361,16 +364,11 @@ function showProfile() {
     }
 }
 function showFiles() {
-    let l = "";
-    for (let x in cache.files){
-        if (cache.files.hasOwnProperty(x))
-            l += templates.file.render(cache.files[x]);
-    }
     $viewSpace.empty().append(templates.list.render({
         createText: "Upload File",
         createButtonId: "upload-file",
         title: "Files",
-        list: l,
+        list: renderAll(cache.files, templates.file),
         thing: "file"
     }));
     $(".header-menu-button.active").removeClass("active");
@@ -419,6 +417,47 @@ $viewSpace.on("click", "#create-user", function() {
     $viewSpace.empty().append(templates.register.render());
 });
 $viewSpace.on("click", "#upload-file", function() {showFilesUpload()});
+$viewSpace.on("click", "#remove-toi", function () {
+    promptUser("Delete ToI?", "Are you sure you want to delete this ToI?", function () {
+        let form = new FormData();
+        form.append("id", $(this).parent().data("id"));
+
+        ajax("/toi", "DELETE", form,
+            function () {
+                showToiList();
+                toastr["success"]("The ToI was deleted");
+            },
+            function (resp) {
+                toastr["error"](resp.responseText);
+            })
+    });
+});
+$viewSpace.on("click", "#delete-file", function() {
+    promptUser("Delete file?", "Are you sure you want to delete this file?", function () {
+        let form = new FormData();
+        form.append("id", $(this).parent().data("id"));
+
+        ajax("/files", "DELETE", form,
+            function () {
+                showFiles();
+                toastr["success"]("The file was deleted");
+            },
+            function (resp) {
+                toastr["error"](resp.responseText);
+            })
+    });
+});
+$viewSpace.on("click", "#choose-file-button", function() {
+    showPopup(modalTemplates.fileSelect.render({
+        list: renderAll(cache.files, templates.file),
+    }));
+    $(".file-select-list").on("click", ".file", function () {
+        let file = cache.files[$(this).data("id")];
+        $("#information-url").val(`${window.location.protocol}//${window.location.host}/uploads/${file.Id}.${file.Filetype}`);
+
+        $.magnificPopup.close();
+    });
+});
 
 $viewSpace.on("submit", "#login-form", function (ev) {
     ev.preventDefault();
@@ -449,13 +488,31 @@ $viewSpace.on("click", ".context", function () {
     let id = $(this).data("id");
     showSaveEditContext(cache.contexts[id]);
 });
+$viewSpace.on("click", ".file", function () {
+    let id = $(this).data("id");
+    let file = cache.files[id];
+    showPopup(modalTemplates.fileEdit.render(file));
+
+    document.getElementById("copy-url").onclick = function () {
+        let id = $("#copy-url").closest("form").data("id");
+        let file = cache.files[id];
+        let url = `${window.location.protocol}//${window.location.host}/${file.Id}.${file.Filetype}`;
+        let temp = $("<input>");
+        $body.append(temp);
+        temp.val(url).select();
+        let copied = document.execCommand('copy');
+        temp.remove();
+        copied ? toastr["success"]("Copied to clipboard") : toastr["error"]("Could not copy");
+    };
+
+});
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
     let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
     let form = new FormData(this);
     let id = $(this).data("id");
-    if (id)
+    if(id)
         form.append("id", id);
     form.append("tags", tags);
     form.append("contexts", contexts);
@@ -488,6 +545,10 @@ $body.on("submit", "#add-file-to-batch-form", function (ev) {
     let title = $this.find("input[type=text]");
     let desc = $this.find("textarea");
     let file = $this.find("input[type=file]");
+
+    if(!title.val() || !file.val())
+        return;
+
     let count = batchList.find("li").length;
     let hiddenForm = $("#file-upload-form");
 
@@ -508,16 +569,20 @@ $body.on("submit", "#add-file-to-batch-form", function (ev) {
 });
 $body.on("submit", "#file-upload-form", function(ev) {
     ev.preventDefault();
+    $("#add-file-to-batch-form").submit();
     let form = new FormData(this);
     ajax("/files", "POST", form,
         function(fileUpload) {
-        let files = fileUpload.Result;
+            console.log(fileUpload);
+            let files = fileUpload.Result;
             //Cache all the files that was created
             for (let i in files) {
+                files[i].Icon = getMaterialFileIcon(files[i].Filetype);
                 cache.files[files[i].Id] = files[i];
             }
             toastr["success"](fileUpload.Message);
             $.magnificPopup.close();
+            showFiles();
         },
         function() {
             toastr["error"]("An error occured");
@@ -554,6 +619,24 @@ $body.on("submit", "#edit-tag-form", function (ev) {
     }, function (data) {
         toastr["error"](data.responseText);
     })
+});
+$body.on("submit", "#edit-file-form", function (ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    let id = $(this).data("id");
+    form.append("id", id);
+    form.append("filetype", cache.files[id].Filetype);
+    ajax("/files", "PUT", form,
+        function (resp) {
+            resp.Result.Icon = getMaterialFileIcon(resp.Result.Filetype);
+            cache.files[resp.Result.Id] = resp.Result;
+            toastr["success"](resp.Message);
+            $.magnificPopup.close();
+            showFiles();
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        })
 });
 $body.on("click", "#remove-context", function () {
     let id = $(this.parentNode).data("id");
@@ -667,6 +750,9 @@ $body.on("input", "#create-tag-form select", function () {
         hidInput.val("");
         hid.show(100);
     }
+});
+$body.on("click", "#copy-url", function () {
+
 });
 
 $viewSpace.on("input", "#filter-ToI", function () {

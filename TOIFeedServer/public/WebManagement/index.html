@@ -172,7 +172,8 @@
                         <option>Audio</option>
                         <option>Text</option>
                     </select>
-                    <input class="u-full-width" value="{{toi.Url = https://}}" name="url" type="url">
+                    <input id="information-url" class="u-full-width" value="{{toi.Url = https://}}" name="url" type="url">
+                    <button class="u-full-width" type="button" id="choose-file-button">Choose File</button>
                 </div>
             </div>
             <div class="row">
@@ -355,7 +356,6 @@
             </form>
             <input class="button-primary" type="submit" form="file-upload-form" value="Upload">
         </div>
-
     </div>
 </script>
 
@@ -379,6 +379,35 @@
             <i class="material-icons">remove_circle_outline</i>
         </td>
     </tr>
+</template>
+
+<template id="file-edit-template">
+    <div>
+        <i class="material-icons edit-file-icon">{{Icon}}</i>
+        <h3 class="file-edit-title">File</h3>
+    </div>
+    <form id="edit-file-form" data-id="{{Id}}">
+
+        <label>Title</label>
+        <input required="required" class="u-full-width" type="text" name="title" value="{{Title}}">
+        <label>Description</label>
+        <textarea class="u-full-width" name="description">{{Description}}</textarea>
+        <label>Filename</label>
+        <div class="row">
+            <input class="nine columns" form="noform" type="url"  value="{{Id}}.{{Filetype}}" readonly="readonly" disabled="true">
+            <input id="copy-url" type="button" class="three columns" value="Copy Url">
+        </div>
+        <button id="delete-file" type="button">Delete File</button>
+        <button style="float: right;" type="submit" class="button-primary">Update</button>
+    </form>
+</template>
+
+<template id="choose-file-template">
+    <div class="list-header">
+        <h3 style="display: inline-block" class="first truncate">Files</h3>
+        <input id="filter-file" class="middle" type="search" placeholder="Filter files">
+    </div>
+    <ul class="empty-placeholder file-select-list" data-empty-message="No files to show" id="list-ul">{{{list}}}</ul>
 </template>
 
 <script src="main.js"></script>

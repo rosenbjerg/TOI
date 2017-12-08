@@ -353,3 +353,11 @@ ul, li {
 .file-batch td:last-child {
 width: 10%;
 }
+.edit-file-icon {
+    display: inline-block;
+    font-size: 2.9em;
+}
+.file-edit-title {
+    display: inline-block;
+    vertical-align: top;
+}

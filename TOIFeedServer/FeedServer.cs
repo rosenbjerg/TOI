@@ -260,7 +260,7 @@ namespace TOIFeedServer
                 }
                 else
                 {
-                    await res.SendJson(succeeded.Result);
+                    await res.SendJson(succeeded);
                 }
             });
             _server.Delete("/files", async (req, res) =>

@@ -33,9 +33,9 @@ namespace TOIFeedServer.Managers
             return  await _db.Files.FindOne(f => f.Id == id);
         }
 
-        private static StaticFile ValidateStaticFileForm(IFormCollection form, out string error, string number = "")
+        private static StaticFile ValidateStaticFileForm(IFormCollection form, out string error, string number = "", bool update = false)
         {
-            var fields = new [] {$"title{number}", $"description{number}"};
+            var fields = new [] {$"title{number}"};
 
             var missing = fields.Where(f => !form.ContainsKey(f) || string.IsNullOrEmpty(form[f][0]));
             if (missing.Any())
@@ -44,33 +44,45 @@ namespace TOIFeedServer.Managers
                 return null;
             }
 
+            if (update && (!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0])))
+            {
+                error = "No id could be found for the form";
+                return null;
+            }
+            if (update && (!form.ContainsKey("filetype") || string.IsNullOrEmpty(form["filetype"][0])))
+            {
+                error = "Please supply a filetype";
+                return null;
+            }
+
             var sf = new StaticFile
             {
                 Title = form[$"title{number}"][0],
-                Id = Guid.NewGuid().ToString("N"),
-                Description = form[$"description{number}"][0]
+                Id = update ? form["id"][0] : Guid.NewGuid().ToString("N"),
             };
+            if (form.ContainsKey($"description{number}"))
+                sf.Description = form[$"description{number}"][0];
+
             error = string.Empty;
             return sf;
         }
 
         public async Task<UserActionResponse<StaticFile>> UpdateStaticFile(IFormCollection form)
         {
-            if(!form.ContainsKey("id") || string.IsNullOrEmpty(form["id"][0]))
-                return new UserActionResponse<StaticFile>("No id could be found for the form", null);
-            var sf = ValidateStaticFileForm(form, out var error);
+            var sf = ValidateStaticFileForm(form, out var error, update: true);
             if(sf == null)
                 return new UserActionResponse<StaticFile>(error, null);
-
-            return await _db.Files.Update(sf.Id, sf) != DatabaseStatusCode.Updated 
-                ? new UserActionResponse<StaticFile>("The file has been stored, but not the details about it", null) 
+            sf.Filetype = form["filetype"][0];
+            var update = await _db.Files.Update(sf.Id, sf);
+            return update != DatabaseStatusCode.Updated 
+                ? new UserActionResponse<StaticFile>("Could not update the file", null) 
                 : new UserActionResponse<StaticFile>("Your file was updated", sf);
         }
 
-        public async Task<UserActionResponse<IEnumerable<StaticFile>>> UploadFiles(IFormCollection form)
+        public async Task<UserActionResponse<List<StaticFile>>> UploadFiles(IFormCollection form)
         {
             if(form.Files.Count == 0)
-                return new UserActionResponse<IEnumerable<StaticFile>>("No files have been selected", null);
+                return new UserActionResponse<List<StaticFile>>("No files have been selected", null);
             var succeededUploads = new List<StaticFile>();
             foreach (var formFile in form.Files)
             {
@@ -79,11 +91,12 @@ namespace TOIFeedServer.Managers
                 var staticFile = ValidateStaticFileForm(form, out var error, no);
                 if (staticFile == null)
                     continue;
-                staticFile.Filetype = Path.GetExtension(formFile.FileName).TrimStart('.');
+                staticFile.Filetype = Path.GetExtension(formFile.FileName).TrimStart('.').ToLowerInvariant();
 
+                var filepath = Path.Combine(UploadDir, staticFile.GetFilename());
                 try
                 {
-                    using (var upload = File.Create(Path.Combine(UploadDir, staticFile.GetFilename())))
+                    using (var upload = File.Create(filepath))
                     {
                         await formFile.CopyToAsync(upload);
                     }
@@ -92,13 +105,15 @@ namespace TOIFeedServer.Managers
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
+                    if(File.Exists(filepath))
+                        File.Delete(filepath);
                 }
 
             }
             //Insert the form handles
             await _db.Files.Insert(succeededUploads.ToArray());
 
-            return new UserActionResponse<IEnumerable<StaticFile>>($"{succeededUploads.Count} / {form.Files.Count} files uploaded successfully", succeededUploads);
+            return new UserActionResponse<List<StaticFile>>($"{succeededUploads.Count} / {form.Files.Count} files uploaded successfully", succeededUploads);
         }
 
         public async Task<UserActionResponse<bool>> DeleteStaticFile(IFormCollection form)
