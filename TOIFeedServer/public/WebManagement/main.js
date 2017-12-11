@@ -668,7 +668,7 @@ $body.on("submit", "#api-key-form", function(ev) {
     ev.preventDefault();
 
     let form = new FormData(this);
-    ajax("/feed/register", "POST", form,
+    ajax("/feed/registerowner", "POST", form,
         function(feed) {
             cache.feed = feed;
             toastr["success"]("Your feed is now active");

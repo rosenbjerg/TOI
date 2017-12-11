@@ -114,6 +114,21 @@ namespace TOIFeedRepo
                 }
             });
 
+            _server.Post("/register", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var apiKey = await auth.RequestApiKey(form);
+
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    await res.SendString("Could not create an Api Key", status: 400);
+                }
+                else
+                {
+                    await res.SendString(apiKey);
+                }
+            });
+
             _server.Post("/feed/register", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();

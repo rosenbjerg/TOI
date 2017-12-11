@@ -436,12 +436,12 @@ namespace TOIFeedServer
                     await res.SendString(frBody, status: 400);
                 }
             });
-            _server.Post("/feed/register", async (req, res) =>
+            _server.Post("/feed/registerowner", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var frForm = form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]));
 
-                var fRes = await httpClient.PostAsync(FeedRepo + "feed/register", new FormUrlEncodedContent(frForm));
+                var fRes = await httpClient.PostAsync(FeedRepo + "/register", new FormUrlEncodedContent(frForm));
                 if (fRes.IsSuccessStatusCode)
                 {
                     var feedInfo =
@@ -454,7 +454,6 @@ namespace TOIFeedServer
                 {
                     await res.SendString(await fRes.Content.ReadAsStringAsync(), status: (int) fRes.StatusCode);
                 }
-
             });
 
 
