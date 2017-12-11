@@ -228,7 +228,13 @@ function loadAll() {
                 });
             });
         });
-        getResource("feed");
+        ajax("/feed", "GET", null,
+            function (feed) {
+                cache.feed = feed;
+            },
+            function (resp) {
+                toastr["error"](resp);
+            });
     }, function(files) {
         for(let i in files) {
             files[i].Icon = getMaterialFileIcon(files[i].Filetype);
@@ -563,16 +569,64 @@ $viewSpace.on("click", ".file", function () {
     };
 
 });
+<<<<<<< HEAD
+=======
+$viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
+    ev.preventDefault();
+    let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
+    let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
+    let form = new FormData(this);
+    let id = $(this).data("id");
+    if(id)
+        form.append("id", id);
+    form.append("tags", tags);
+    form.append("contexts", contexts);
+    if (id) {
+        ajax("/toi", "PUT", form, function (toi) {
+            cache.tois[toi.Id] = toi;
+            toastr["success"]("ToI updated");
+            showToiList();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+    else {
+        ajax("/toi", "POST", form, function (toi) {
+            cache.tois[toi.Id] = toi;
+            toastr["success"]("ToI created");
+            showSaveEditToi();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+
+});
+$viewSpace.on("submit", "#update-feed-form", function(ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    ajax("/feed", "PUT", form,
+        function (resp) {
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+            showProfile();
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+});
+>>>>>>> 5652fdba7250c41bc11c46987e129282dd0d522f
 $viewSpace.on("click", "#feed-change-location", function() {
     showPopup(modalTemplates.feedLocationPicker.render(cache.feed));
+    initMapPicker(cache.feed);
 });
 $viewSpace.on("click", "#feed-deactivate", function() {
     promptUser("Deactivate?", "Are you sure you wish to deactivate your feed?", function () {
         ajax("/feed/deactivate", "POST", null,
             function(resp) {
-                showProfile();
+                $.magnificPopup.close();
                 cache.feed = resp.Result;
                 toastr["success"](resp.Message);
+                showProfile();
             },
             function (resp) {
                 toastr["error"](resp.responseText);
@@ -583,9 +637,10 @@ $viewSpace.on("click", "#feed-activate", function () {
     if(cache.feed.Id) {
         ajax("/feed/activate", "POST", null,
             function (resp) {
-                showProfile();
+                $.magnificPopup.close();
                 cache.feed = resp.Result;
                 toastr["success"](resp.Message);
+                showProfile();
             },
             function (resp) {
                 toastr["error"](resp.responseText);
@@ -595,6 +650,7 @@ $viewSpace.on("click", "#feed-activate", function () {
         showPopup(modalTemplates.apiKeyRegister.render());
     }
 });
+<<<<<<< HEAD
 
 $viewSpace.on("input", "#filter-ToI", function () {
     let searchTerm = this.value;
@@ -620,6 +676,22 @@ $viewSpace.on("input", "#filter-tag", function () {
     });
     let l = renderAll(result, templates.tag);
     $("#list-ul").empty().append(l);
+=======
+$body.on("submit", "#pick-feed-location", function (ev) {
+    ev.preventDefault();
+
+    let form = new FormData(this);
+    ajax("/feed/location", "PUT", form,
+        function (resp) {
+            showProfile();
+            $.magnificPopup.close();
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+>>>>>>> 5652fdba7250c41bc11c46987e129282dd0d522f
 });
 
 
