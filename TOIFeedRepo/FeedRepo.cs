@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -116,16 +117,23 @@ namespace TOIFeedRepo
 
             _server.Post("/register", async (req, res) =>
             {
-                var form = await req.GetFormDataAsync();
-                var apiKey = await auth.RequestApiKey(form);
+                try
+                {
+                    var form = await req.GetFormDataAsync();
+                    var apiKey = await auth.RequestApiKey(form);
 
-                if (!string.IsNullOrEmpty(apiKey))
-                {
-                    await res.SendString("Could not create an Api Key", status: 400);
+                    if (!string.IsNullOrEmpty(apiKey))
+                    {
+                        await res.SendString("Could not create an Api Key", status: 400);
+                    }
+                    else
+                    {
+                        await res.SendString(apiKey);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    await res.SendString(apiKey);
+                    Console.WriteLine(e);
                 }
             });
 
