@@ -565,9 +565,9 @@ $viewSpace.on("submit", "#update-feed-form", function(ev) {
     let form = new FormData(this);
     ajax("/feed", "PUT", form,
         function (resp) {
-            showProfile();
             cache.feed = resp.Result;
             toastr["success"](resp.Message);
+            showProfile();
         },
         function (resp) {
             toastr["error"](resp.responseText);
@@ -575,14 +575,16 @@ $viewSpace.on("submit", "#update-feed-form", function(ev) {
 });
 $viewSpace.on("click", "#feed-change-location", function() {
     showPopup(modalTemplates.feedLocationPicker.render(cache.feed));
+    initMapPicker(cache.feed);
 });
 $viewSpace.on("click", "#feed-deactivate", function() {
     promptUser("Deactivate?", "Are you sure you wish to deactivate your feed?", function () {
         ajax("/feed/deactivate", "POST", null,
             function(resp) {
-                showProfile();
+                $.magnificPopup.close();
                 cache.feed = resp.Result;
                 toastr["success"](resp.Message);
+                showProfile();
             },
             function (resp) {
                 toastr["error"](resp.responseText);
@@ -593,9 +595,10 @@ $viewSpace.on("click", "#feed-activate", function () {
     if(cache.feed.Id) {
         ajax("/feed/activate", "POST", null,
             function (resp) {
-                showProfile();
+                $.magnificPopup.close();
                 cache.feed = resp.Result;
                 toastr["success"](resp.Message);
+                showProfile();
             },
             function (resp) {
                 toastr["error"](resp.responseText);
@@ -605,9 +608,11 @@ $viewSpace.on("click", "#feed-activate", function () {
         showPopup(modalTemplates.apiKeyRegister.render());
     }
 });
-$body.on("submit", "pick-feed-location", function () {
+$body.on("submit", "#pick-feed-location", function (ev) {
+    ev.preventDefault();
+
     let form = new FormData(this);
-    ajax("/feed/location", "PUT", null,
+    ajax("/feed/location", "PUT", form,
         function (resp) {
             showProfile();
             $.magnificPopup.close();

@@ -352,14 +352,14 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
                     await res.SendString(frBody, status: 400);
                 }
             });
-            _server.Post("/feed/deativate", async (req, res) =>
+            _server.Post("/feed/deactivate", async (req, res) =>
             {
                 if (string.IsNullOrEmpty(db.ApiKey))
                 {
@@ -378,7 +378,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
@@ -404,7 +404,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
@@ -429,7 +429,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
