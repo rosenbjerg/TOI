@@ -569,8 +569,6 @@ $viewSpace.on("click", ".file", function () {
     };
 
 });
-<<<<<<< HEAD
-=======
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
     let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
@@ -614,7 +612,6 @@ $viewSpace.on("submit", "#update-feed-form", function(ev) {
             toastr["error"](resp.responseText);
         });
 });
->>>>>>> 5652fdba7250c41bc11c46987e129282dd0d522f
 $viewSpace.on("click", "#feed-change-location", function() {
     showPopup(modalTemplates.feedLocationPicker.render(cache.feed));
     initMapPicker(cache.feed);
@@ -650,7 +647,6 @@ $viewSpace.on("click", "#feed-activate", function () {
         showPopup(modalTemplates.apiKeyRegister.render());
     }
 });
-<<<<<<< HEAD
 
 $viewSpace.on("input", "#filter-ToI", function () {
     let searchTerm = this.value;
@@ -671,12 +667,12 @@ $viewSpace.on("input", "#filter-context", function () {
 $viewSpace.on("input", "#filter-tag", function () {
     let searchTerm = this.value;
     let result = searchInData(cache.tags, function (tag) {
-        return  tag.Id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        return tag.Id.toLowerCase().includes(searchTerm.toLowerCase()) ||
             tag.Title.toLowerCase().includes(searchTerm.toLowerCase());
     });
     let l = renderAll(result, templates.tag);
     $("#list-ul").empty().append(l);
-=======
+}
 $body.on("submit", "#pick-feed-location", function (ev) {
     ev.preventDefault();
 
@@ -691,7 +687,6 @@ $body.on("submit", "#pick-feed-location", function (ev) {
         function (resp) {
             toastr["error"](resp.responseText);
         });
->>>>>>> 5652fdba7250c41bc11c46987e129282dd0d522f
 });
 
 
