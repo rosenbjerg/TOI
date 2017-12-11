@@ -56,7 +56,7 @@ namespace TOIFeedRepo
                 Title = "Unnamed Feed",
                 IsActive = false
             });
-            return feedInserted != DatabaseStatusCode.Ok ? null : key;
+            return feedInserted != DatabaseStatusCode.Created ? null : key;
         }
     }
 }
