@@ -1,11 +1,13 @@
 "use strict";
 
+const FeedRepo = "http://ssh.windelborg.info:7575/";
 let $viewSpace = $("#viewSpace");
 let $body = $("body");
 let cache = {
     tags: {},
     tois: {},
     contexts: {},
+    feed: {}
 };
 let templates = {
     login : JsT.loadById("login-template", true),
@@ -29,7 +31,9 @@ let modalTemplates = {
     editTag : JsT.loadById("edit-tag-template", true),
     userPrompt : JsT.loadById("user-prompt-template", true),
     fileEdit: JsT.loadById("file-edit-template", true),
-    fileSelect: JsT.loadById("choose-file-template", true)
+    fileSelect: JsT.loadById("choose-file-template", true),
+    feedLocationPicker: JsT.loadById("feed-pick-location", true),
+    apiKeyRegister: JsT.loadById("api-key-template", true)
 };
 templates.saveEditToi.setFormatter("toi.Tags", function (tags) {
     if (!tags)
@@ -356,7 +360,12 @@ function showCreateTag() {
     }, {timeout: 500});
 }
 function showProfile() {
-    $viewSpace.empty().append(templates.profile.render({user: cUser}));
+    $viewSpace.empty().append(templates.profile.render({
+        user: cUser,
+        feed:cache.feed,
+        deactivateStyle: cache.feed && cache.feed.IsActive ? "block" : "none",
+        activateStyle: !cache.feed || cache.feed.IsActive ? "none" : "block"
+    }));
     if (cUser.Type === "admin"){
         $.get("/users", function (users) {
             console.log(users);
@@ -390,6 +399,9 @@ function showPopup(html, onClose) {
         }
     });
 }
+function showAdministration() {
+    $viewSpace.empty().append(templates.administration.render());
+}
 
 function promptUser(title, question, onOk) {
     showPopup(modalTemplates.userPrompt.render({
@@ -404,6 +416,7 @@ $("#show-tois").click(showToiList);
 $("#show-contexts").click(showContextList);
 $("#show-profile").click(showProfile);
 $("#show-files").click(showFiles);
+$("#show-administration").click(showAdministration);
 
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
@@ -460,10 +473,13 @@ $viewSpace.on("click", "#choose-file-button", function() {
 });
 
 $viewSpace.on("submit", "#login-form", function (ev) {
+    $(this).find("input[type=submit]").val("<i class='material-icons spin'>cached</i>");
+
     ev.preventDefault();
     let form = new FormData(this);
     ajax("/login", "POST", form,
-        function() {
+        function(feedInfo) {
+            cache.feed = feedInfo;
             $(".header-menu").show();
             loadAll();
         },
@@ -536,6 +552,64 @@ $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     }
 
 });
+$viewSpace.on("submit", "#update-feed-form", function(ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    ajax("/feed", "PUT", form,
+        function (resp) {
+            showProfile();
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+});
+$viewSpace.on("click", "#feed-change-location", function() {
+    showPopup(modalTemplates.feedLocationPicker.render(cache.feed));
+});
+$viewSpace.on("click", "#feed-deactivate", function() {
+    promptUser("Deactivate?", "Are you sure you wish to deactivate your feed?", function () {
+        ajax("/feed/deactivate", "POST", null,
+            function(resp) {
+                showProfile();
+                cache.feed = resp.Result;
+                toastr["success"](resp.Message);
+            },
+            function (resp) {
+                toastr["error"](resp.responseText);
+            });
+    });
+});
+$viewSpace.on("click", "#feed-activate", function () {
+    if(cache.feed) {
+        ajax("/feed/activate", "POST", null,
+            function (resp) {
+                showProfile();
+                cache.feed = resp.Result;
+                toastr["success"](resp.Message);
+            },
+            function (resp) {
+                toastr["error"](resp.responseText);
+            });
+    }
+    else {
+        showPopup(modalTemplates.apiKeyRegister.render());
+    }
+});
+$body.on("submit", "pick-feed-location", function () {
+    let form = new FormData(this);
+    ajax("/feed/location", "PUT", null,
+        function (resp) {
+            showProfile();
+            $.magnificPopup.close();
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+});
 
 $body.on("submit", "#add-file-to-batch-form", function (ev) {
     ev.preventDefault();
@@ -587,6 +661,21 @@ $body.on("submit", "#file-upload-form", function(ev) {
         function() {
             toastr["error"]("An error occured");
         })
+});
+$body.on("submit", "#api-key-form", function(ev) {
+    ev.preventDefault();
+
+    let form = new FormData(this);
+    ajax("/feed/register", "POST", form,
+        function(feed) {
+            cache.feed = feed;
+            toastr["success"]("Your feed is now active");
+            showProfile();
+            $.magnificPopup.close();
+        },
+        function (resp) {
+            toastr["error"](resp);
+        });
 });
 
 // Forms in popups are "bound" to body

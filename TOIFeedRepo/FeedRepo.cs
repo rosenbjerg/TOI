@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using FormValidator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 using RedHttpServerCore;
 using TOIClasses;
 using TOIFeedRepo.Database;
 using TOIFeedRepo.Managers;
 using TOIFeedServer;
+using TOIFeedServer.Managers;
 
 namespace TOIFeedRepo
 {
@@ -25,10 +26,6 @@ namespace TOIFeedRepo
 
             var fMan = new FeedServerManager(db);
             var auth = new Authenticator(db);
-            
-            
-            
-            
             
             _server.Get("/feeds", async (req, res) =>
             {
@@ -55,6 +52,21 @@ namespace TOIFeedRepo
                     await res.SendJson("No active feeds", StatusCodes.Status204NoContent);
                 }
             });
+            _server.Get("/feed", async (req, res) =>
+            {
+
+                if (!req.Queries.ContainsKey("apiKey") || string.IsNullOrEmpty(req.Queries["apiKey"][0]))
+                {
+                    await res.SendString("Please supply an API key", status: StatusCodes.Status401Unauthorized);
+                }
+                var id = req.Queries["apiKey"][0];
+
+                var feed = await fMan.GetFeedServer(id);
+                if (feed == null)
+                    await res.SendString("Invalid ApiKey", status: 401);
+                else
+                    await res.SendJson(feed);
+            });
             _server.Post("/feed", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
@@ -69,33 +81,40 @@ namespace TOIFeedRepo
                     await res.SendString(createFeedResult.Message, status: StatusCodes.Status400BadRequest);
                 }
             });
-            
-            _server.Get("/feed/status", async (req, res) =>
-            {
-                if (!req.Queries.TryGetValue("apikey", out var apiKey))
-                {
-                    await res.SendString("Invalid request (missing API key)", status: 401);
-                    return;
-                }
-                var server = auth.GetFeedServer(apiKey);
-                
-                if (server != null)
-                    await res.SendJson(server);
-                else
-                    await res.SendString("Invalid request (invalid API key)", status: 404);
 
-            });
-            _server.Post("/feed/update", async (req, res) =>
+            _server.Put("/feed/update", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var createFeedResult = await fMan.UpdateFeed(form);
-                if (server != null)
-                    await res.SendJson(server);
+                if (createFeedResult.Result != null)
+                    await res.SendJson(createFeedResult);
                 else
-                    await res.SendString("Invalid request (invalid API key)", status: 404);
-
+                    await res.SendString(createFeedResult.Message, status: 404);
             });
-            _server.Post("/feed/create", async (req, res) =>
+            _server.Put("/feed/active", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var updateResult = await fMan.UpdateActivation(form);
+                if (updateResult.Result != null)
+                    await res.SendJson(updateResult);
+                else
+                {
+                    await res.SendJson(updateResult.Message, 400);
+                }
+            });
+            _server.Put("/feed/location", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var updateResult = await fMan.UpdatePosition(form);
+                if (updateResult.Result != null)
+                    await res.SendJson(updateResult);
+                else
+                {
+                    await res.SendJson(updateResult.Message, 400);
+                }
+            });
+
+            _server.Put("/feed/register", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var createFeedResult = await fMan.RegisterFeed(form);
@@ -109,67 +128,11 @@ namespace TOIFeedRepo
                     await res.SendString(createFeedResult.Message, status: StatusCodes.Status400BadRequest);
                 }
             });
-            
-            _server.Post("/requestapikey", async (req, res) =>
-            {
-                var form = await req.GetFormDataAsync();
-                var ok = auth.RequestApiKey(form);
-
-            });
         }
 
         public void Start()
         {
             _server.Start();
         }
-    }
-
-    class Authenticator
-    {
-        private ApiKeyGenerator _keygen;
-        private FormValidator.FormValidator _requestFormValidator;
-        private FeedRepoDatabase _db;
-
-        public Authenticator(FeedRepoDatabase db)
-        {
-            _db = db;
-            _keygen = new ApiKeyGenerator(db);
-            _requestFormValidator = FormValidatorBuilder.New()
-                .RequiresString("email")
-                .RequiresString("type")
-                .RequiresString("name")
-                .RequiresString("street")
-                .RequiresString("zip", 4)
-                .RequiresString("city")
-                .RequiresString("country")
-                .Build();
-
-        }
-
-        public bool RequestApiKey(IFormCollection form)
-        {
-            if (!_requestFormValidator.Validate(form))
-                return false;
-            var customer = new Customer();
-            
-        }
-
-
-        public Feed GetFeedServer(StringValues apiKey)
-        {
-            return _db.Feeds.FindOne(apiKey);
-            
-        }
-    }
-
-    class Customer
-    {
-        public string Email { get; set; }
-        public string Type { get; set; }
-        public string Name { get; set; }
-        public string Street { get; set; }
-        public string Zip { get; set; }
-        public string City { get; set; }
-        public string Country { get; set; }
     }
 }

@@ -35,8 +35,8 @@
             <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
             <div class="header-menu-button" id="show-tags" tabindex="2">Tags</div>
             <div class="header-menu-button" id="show-contexts" tabindex="3">Contexts</div>
-            <div class="header-menu-button" id="show-profile" tabindex="4">Profile</div>
-            <div class="header-menu-button" id="show-files" tabindex="5">Files</div>
+            <div class="header-menu-button" id="show-files" tabindex="4">Files</div>
+            <div class="header-menu-button" id="show-profile" tabindex="5">Settings</div>
         </div>
     </div>
     <div id="viewSpace"></div>
@@ -157,13 +157,29 @@
         <h3 class="u-full-width">{{action}} ToI</h3>
         <form id="save-edit-toi-form" data-id="{{toi.Id}}">
             <div class="row">
-                <div class="six columns">
+                <div class="six columns divided-left">
                     <label>Title</label>
                     <input required="required" type="text" value="{{toi.Title}}" name="title" class="u-full-width">
                     <label>Image</label>
                     <input required="required" type="url" name="image" class="u-full-width" value="{{toi.Image = https://}}">
+
+                    <hr>
+
+                    <div class="u-full-width">
+                        <label>Tags</label>
+                        <table class="u-full-width">
+                            <tbody id="added-tags" class="empty-placeholder u-full-width truncate" data-empty-message="No tags added to ToI">{{{ toi.Tags }}}</tbody>
+                        </table>
+                        <div id="add-toi-tag-search">
+                            <label>Find tags</label>
+                            <input class="u-full-width" type="search" placeholder="Search for tags by typing here" form="noform">
+                            <table class="u-full-width">
+                                <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="six columns">
+                <div class="six columns divided-right">
                     <label>Information</label>
                     <select name="type" class="u-full-width" name="type">
                         <option>Website</option>
@@ -174,43 +190,32 @@
                     </select>
                     <input id="information-url" class="u-full-width" value="{{toi.Url = https://}}" name="url" type="url">
                     <button class="u-full-width" type="button" id="choose-file-button">Choose File</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="six columns">
-                    <label>Tags</label>
-                    <table class="u-full-width">
-                        <tbody id="added-tags" class="empty-placeholder u-full-width truncate" data-empty-message="No tags added to ToI">{{{ toi.Tags }}}</tbody>
-                    </table>
-                    <div id="add-toi-tag-search">
-                        <label>Find tags</label>
-                        <input class="u-full-width" type="search" placeholder="Search for tags by typing here" form="noform">
-                        <table class="u-full-width">
-                            <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
-                        </table>
+
+                    <div class="u-full-width">
+                        <label>Short description</label>
+                        <textarea class="u-full-width" name="description" rows="10">{{toi.Description}}</textarea>
                     </div>
-                </div>
-                <div class="six columns">
-                    <label>Short description</label>
-                    <textarea class="u-full-width" name="description" rows="10">{{toi.Description}}</textarea>
-                </div>
-                <div class="six columns">
-                    <label>Contexts</label>
-                    <table class="u-full-width">
-                        <tbody id="added-contexts" class="empty-placeholder u-full-width" data-empty-message="No contexts added to ToI">{{{ toi.Contexts }}}</tbody>
-                    </table>
-                    <div id="add-toi-context-search">
-                        <label>Add contexts</label>
-                        <input style="margin-bottom: 2px;" class="u-full-width" type="search" placeholder="Search for contexts by typing here" form="noform">
-                        <a class="u-full-width" id="create-new-context-inline">Create new context</a>
+                    <div class="u-full-width">
+                        <hr style="margin-top: 0;">
+                        <label>Contexts</label>
                         <table class="u-full-width">
-                            <tbody  id="context-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
+                            <tbody id="added-contexts" class="empty-placeholder u-full-width" data-empty-message="No contexts added to ToI">{{{ toi.Contexts }}}</tbody>
                         </table>
+                        <div id="add-toi-context-search">
+                            <label>Add contexts</label>
+                            <input style="margin-bottom: 2px;" class="u-full-width" type="search" placeholder="Search for contexts by typing here" form="noform">
+                            <a class="u-full-width" id="create-new-context-inline">Create new context</a>
+                            <table class="u-full-width">
+                                <tbody  id="context-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            {{{ create }}}
-            <input class="six columns button-primary" type="submit" value="Save ToI"/>
+            <div class="row" style="margin-top: 2%;">
+                {{{ create }}}
+                <input style="margin: 0;" class="six columns button-primary" type="submit" value="Save ToI"/>
+            </div>
         </form>
 </script>
 
@@ -301,16 +306,45 @@
 </template>
 
 <template id="profile-template">
-    <h3>Profile</h3>
-    <form style="margin-left: 0" class="six columns" id="change-email-form">
-        <input class="u-full-width" type="email" required="required" name="email" value="{{user.Email}}">
-        <input class="u-full-width button-primary" type="submit" value="Change email">
-    </form>
-    <form class="six columns" id="change-password-form">
-        <input class="u-full-width" type="password" name="pwd1" required="required" pattern=".{6,}" placeholder="Password (min. 6 characters)">
-        <input class="u-full-width" type="password" name="pwd2" required="required" pattern="Repeat password">
-        <input class="u-full-width button-primary" type="submit" value="Change password">
-    </form>
+    <h3>Settings</h3>
+    <div style="margin-left: 0" class="six columns divided-left">
+        <h4>Profile Settings</h4>
+        <div class="row">
+            <form class="u-full-width" id="change-email-form">
+                <label>Change Email</label>
+                <input class="u-full-width" type="email" required="required" name="email" value="{{user.Email}}">
+                <input class="u-full-width button-primary" type="submit" value="Change email">
+            </form>
+        </div>
+        <hr>
+        <div class="row">
+            <form class="u-full-width" id="change-password-form">
+                <label>Change Password</label>
+                <input class="u-full-width" type="password" name="pwd1" required="required" pattern=".{6,}" placeholder="Password (min. 6 characters)">
+                <input class="u-full-width" type="password" name="pwd2" required="required" pattern="Repeat password">
+                <input class="u-full-width button-primary" type="submit" value="Change password">
+            </form>
+        </div>
+    </div>
+    <div class="six columns divided-right">
+        <h4>Server Settings</h4>
+        <div class="row">
+            <form calss="u-full-width" id="update-feed-form">
+                <label>Display Name</label>
+                <input class="u-full-width" type="text" name="displayName" required="required" placeholder="Display Name" value="{{feed.Title}}">
+                <label>Description</label>
+                <textarea name="description" value="{{feed.Description}}"></textarea>
+                <label>Base Url</label>
+                <input name="baseUrl" class="u-full-width" type="url" required="required" value="{{feed.BaseUrl=http://localhost:7474/}}">
+                <input type="submit" class="u-full-width button-primary" value="Update Feed">
+            </form>
+        </div>
+        <div style="margin-top: 4%" class="row">
+            <button id="feed-change-location" class="u-full-width">Change Feed Location</button>
+            <button style="display: {{deactivateStyle}}" id="feed-deactivate" class="u-full-width">Deactivate Feed</button>
+            <button style="display: {{activateStyle}}" id="feed-activate" class="u-full-width">Activate Feed</button>
+        </div>
+    </div>
 </template>
 
 <template id="file-box-template">
@@ -408,6 +442,57 @@
         <input id="filter-file" class="middle" type="search" placeholder="Filter files">
     </div>
     <ul class="empty-placeholder file-select-list" data-empty-message="No files to show" id="list-ul">{{{list}}}</ul>
+</template>
+
+<template id="feed-pick-location">
+    <h3>Pick Feed Location</h3>
+    <form class="row" id="pick-feed-location">
+        <div class="mapPicker u-full-width"></div>
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude=57,012392}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude=9,991555999999946}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius=50}}" type="number" min="1"/>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template id="api-key-template">
+    <h3>Activate Feed Server</h3>
+    <form class="row" id="api-key-form">
+        <div class="six columns">
+            <label>Name</label>
+            <input class="u-full-width" type="text" required="required" name="name">
+            <label>Email</label>
+            <input class="u-full-width" type="email" required="required" name="email">
+            <label>Organization Type</label>
+            <select name="type" class="u-full-width">
+                <option>Company</option>
+                <option>Private business</option>
+                <option>Union</option>
+                <option>Other</option>
+            </select>
+        </div>
+        <div class="six columns">
+            <label>Street</label>
+            <input class="u-full-width" type="text" required="required" name="street">
+            <label>City</label>
+            <input class="u-full-width" type="text" required="required" name="city">
+            <label>Zip</label>
+            <input class="u-full-width" type="number" required="required" name="zip">
+            <label>Country</label>
+            <input class="u-full-width" type="text" required="required" name="country">
+            <input type="submit" class="six columns" value="Activate">
+        </div>
+    </form>
 </template>
 
 <script src="main.js"></script>

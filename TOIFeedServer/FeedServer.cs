@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http;
 using RedHttpServerCore;
 using TOIClasses;
 using TOIFeedServer.Managers;
@@ -18,6 +23,7 @@ namespace TOIFeedServer
     public class FeedServer
     {
         private readonly RedHttpServer _server;
+        private const string FeedRepo = "http://ssh.windelborg.info:7575/";
 
         public FeedServer(bool development, bool sampleData = false, int port = 7474)
         {
@@ -34,6 +40,7 @@ namespace TOIFeedServer
             var usrMan = new UserManager(db);
             var cMan = new ContextManager(db);
             var fMan = new StaticFileManager(db);
+            var httpClient = new HttpClient();
 
             async Task<bool> CheckAuthentication(RRequest req, RResponse res)
             {
@@ -295,8 +302,19 @@ namespace TOIFeedServer
                 }
                 else
                 {
+                    try
+                    {
+                        var feedInfo = await httpClient.GetAsync(FeedRepo + "feed?apiKey=" + db.ApiKey);
+                        var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
+                        await res.SendString(feedInfoStr);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to connect to Feed Repo");
+                        Console.WriteLine(e);
+                    }
+
                     res.AddHeader("Set-Cookie", loggedIn.Message);
-                    await res.SendString("Logged in");
                 }
             });
             _server.Post("/register", async (req, res) =>
@@ -317,6 +335,129 @@ namespace TOIFeedServer
                 {
                     await res.SendString(created.Message, status: StatusCodes.Status400BadRequest);
                 }
+            });
+
+            _server.Put("/feed/location", async (req, res) =>
+            {
+                if (string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("The feed server has not been registered yet.", status: 400);
+                    return;
+                }
+
+                var form = await req.GetFormDataAsync();
+                var form2 = form
+                    .Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]))
+                    .Append(new KeyValuePair<string, string>("apiKey", db.ApiKey));
+
+                var frRes = await httpClient.PutAsync(FeedRepo + "feed/location", new FormUrlEncodedContent(form2));
+                var frBody = await frRes.Content.ReadAsStringAsync();
+
+                if (frRes.IsSuccessStatusCode)
+                {
+                    await res.SendString(frBody);
+                }
+                else
+                {
+                    await res.SendString(frBody, status: 400);
+                }
+            });
+            _server.Post("/feed/deativate", async (req, res) =>
+            {
+                if (string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("The feed server has not been registered yet.", status: 400);
+                    return;
+                }
+
+                var form = new Dictionary<string, string>
+                {
+                    {"active", "false"},
+                    {"apiKey", db.ApiKey }
+                };
+                
+                var frRes = await httpClient.PutAsync(FeedRepo + "feed/active", new FormUrlEncodedContent(form));
+                var frBody = await frRes.Content.ReadAsStringAsync();
+
+                if (frRes.IsSuccessStatusCode)
+                {
+                    await res.SendString(frBody);
+                }
+                else
+                {
+                    await res.SendString(frBody, status: 400);
+                }
+            });
+            _server.Post("/feed/activate", async (req, res) =>
+            {
+                if (string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("The feed server has not been registered yet.", status: 400);
+                    return;
+                }
+
+                var form = new Dictionary<string, string>
+                {
+                    {"active", "true"},
+                    {"apiKey", db.ApiKey }
+                };
+
+                var frRes = await httpClient.PutAsync(FeedRepo + "feed/active", new FormUrlEncodedContent(form));
+                var frBody = await frRes.Content.ReadAsStringAsync();
+
+                if (frRes.IsSuccessStatusCode)
+                {
+                    await res.SendString(frBody);
+                }
+                else
+                {
+                    await res.SendString(frBody, status: 400);
+                }
+            });
+            _server.Put("/feed", async (req, res) =>
+            {
+                if (string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("The feed server has not been registered yet.", status: 400);
+                    return;
+                }
+
+                var form = await req.GetFormDataAsync();
+                var form2 = form
+                    .Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]))
+                    .Append(new KeyValuePair<string, string>("apiKey", db.ApiKey));
+
+                var frRes = await httpClient.PutAsync(FeedRepo + "feed", new FormUrlEncodedContent(form2));
+                var frBody = await frRes.Content.ReadAsStringAsync();
+
+                if (frRes.IsSuccessStatusCode)
+                {
+                    await res.SendString(frBody);
+                }
+                else
+                {
+                    await res.SendString(frBody, status: 400);
+                }
+            });
+            _server.Post("/feed/register", async (req, res) =>
+            {
+                var form = await req.GetFormDataAsync();
+                var frForm = form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]));
+
+                var fRes = await httpClient.PostAsync(FeedRepo + "feed/register", new FormUrlEncodedContent(frForm));
+                if (fRes.IsSuccessStatusCode)
+                {
+                    var feedInfo =
+                        JsonConvert.DeserializeObject<UserActionResponse<Feed>>(await fRes.Content.ReadAsStringAsync());
+
+                    await db.StoreApiKey(feedInfo.Result.Id);
+                    await res.SendJson(feedInfo.Result);
+                }
+                else
+                {
+                    await res.SendString(await fRes.Content.ReadAsStringAsync(), status: (int) fRes.StatusCode);
+                }
+
             });
 
 
