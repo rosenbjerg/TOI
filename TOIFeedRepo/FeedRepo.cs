@@ -122,7 +122,7 @@ namespace TOIFeedRepo
                     var form = await req.GetFormDataAsync();
                     var apiKey = await auth.RequestApiKey(form);
 
-                    if (!string.IsNullOrEmpty(apiKey))
+                    if (string.IsNullOrEmpty(apiKey))
                     {
                         await res.SendString("Could not create an Api Key", status: 400);
                     }

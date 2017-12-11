@@ -444,11 +444,10 @@ namespace TOIFeedServer
                 var fRes = await httpClient.PostAsync(FeedRepo + "register", new FormUrlEncodedContent(frForm));
                 if (fRes.IsSuccessStatusCode)
                 {
-                    var feedInfo =
-                        JsonConvert.DeserializeObject<UserActionResponse<Feed>>(await fRes.Content.ReadAsStringAsync());
+                    var apiKey = await fRes.Content.ReadAsStringAsync();
 
-                    await db.StoreApiKey(feedInfo.Result.Id);
-                    await res.SendJson(feedInfo.Result);
+                    await db.StoreApiKey(apiKey);
+                    await res.SendString("Your feed was activated and is now visible");
                 }
                 else
                 {

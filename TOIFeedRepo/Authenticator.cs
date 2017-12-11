@@ -23,7 +23,7 @@ namespace TOIFeedRepo
                 .RequiresString("type")
                 .RequiresString("name")
                 .RequiresString("street")
-                .RequiresString("zip", 4)
+                .RequiresString("zip")
                 .RequiresString("city")
                 .RequiresString("country")
                 .Build();
@@ -48,13 +48,15 @@ namespace TOIFeedRepo
             if (custInsertion != DatabaseStatusCode.Ok)
                 return null;
             var key = _keygen.GenerateNew();
-            await _db.Feeds.Insert(new Feed()
+            Console.WriteLine("New API key: " + key);
+            var feedInserted = await _db.Feeds.Insert(new Feed()
             {
                 Id = key,
-                Owner = customer 
+                Owner = customer,
+                Title = "Unnamed Feed",
+                IsActive = false
             });
-
-            return key;
+            return feedInserted != DatabaseStatusCode.Ok ? null : key;
         }
     }
 }
