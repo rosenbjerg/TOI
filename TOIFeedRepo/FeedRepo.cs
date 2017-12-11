@@ -41,7 +41,7 @@ namespace TOIFeedRepo
             });
             _server.Post("/feeds/fromlocation", async (req, res) =>
             {
-                var location = await req.ParseBodyAsync<GpsLocation>();
+                var location = await req.ParseBodyAsync<LocationModel>();
                 var feeds = await fMan.FeedsFromLocation(location);
                 if (feeds != null)
                 {
