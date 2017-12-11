@@ -229,6 +229,7 @@ function loadAll() {
                 });
             });
         });
+        getResource("feed");
     }, function(files) {
         console.log(files);
         for(let i in files) {
@@ -481,7 +482,6 @@ $viewSpace.on("submit", "#login-form", function (ev) {
         function(feedInfo) {
             console.log(this);
             console.log(feedInfo);
-            cache.feed = feedInfo;
             $(".header-menu").show();
             loadAll();
         },
@@ -584,7 +584,7 @@ $viewSpace.on("click", "#feed-deactivate", function() {
     });
 });
 $viewSpace.on("click", "#feed-activate", function () {
-    if(cache.feed) {
+    if(cache.feed.Id) {
         ajax("/feed/activate", "POST", null,
             function (resp) {
                 showProfile();

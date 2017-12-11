@@ -36,7 +36,7 @@ namespace TOIFeedRepo
                 }
                 else
                 {
-                    await res.SendJson("No active feeds", StatusCodes.Status204NoContent);
+                    await res.SendString("No active feeds", status: StatusCodes.Status404NotFound);
                 }
             });
             _server.Post("/feeds/fromlocation", async (req, res) =>
@@ -49,7 +49,7 @@ namespace TOIFeedRepo
                 }
                 else
                 {
-                    await res.SendJson("No active feeds", StatusCodes.Status204NoContent);
+                    await res.SendString("No active feeds", status: StatusCodes.Status404NotFound);
                 }
             });
             _server.Get("/feed", async (req, res) =>
@@ -114,7 +114,7 @@ namespace TOIFeedRepo
                 }
             });
 
-            _server.Put("/feed/register", async (req, res) =>
+            _server.Post("/feed/register", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var createFeedResult = await fMan.RegisterFeed(form);

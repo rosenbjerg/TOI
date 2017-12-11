@@ -38,25 +38,27 @@ namespace TOIFeedServer.Managers
                 return await _db.Tags.Find(t => ids.Contains(t.Id));
             }
 
+            if (query.ContainsKey("contexts"))
+            {
+                var contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
+                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(c => contexts.Contains(c)));
+                if (toisSearch.Status == DatabaseStatusCode.NoElement)
+                    return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
+                var tagIds = toisSearch.Result
+                    .SelectMany(toi => toi.Tags)
+                    .ToHashSet();
+                return await _db.Tags.Find(tag => tagIds.Contains(tag.Id));
+            }
+
             try
             {
-                if (!query.ContainsKey("contexts"))
-                    return await _db.Tags.GetAll();
+                return await _db.Tags.GetAll();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
             }
-
-            var contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
-            var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(c => contexts.Contains(c)));
-            if (toisSearch.Status == DatabaseStatusCode.NoElement)
-                return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
-            var tagIds = toisSearch.Result
-                .SelectMany(toi => toi.Tags)
-                .ToHashSet();
-            return await _db.Tags.Find(tag => tagIds.Contains(tag.Id));
         }
 
         
