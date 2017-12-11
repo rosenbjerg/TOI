@@ -153,21 +153,6 @@ namespace TOIFeedServer
                     await res.SendJson(toi.Result);
                 }
             });
-            _server.Post("/toi/fromgps", async (req, res) =>
-            {
-                var bString = await req.ParseBodyAsync<string>();
-                var gpsLocation = JsonConvert.DeserializeObject<GpsLocation>(bString);
-
-                var toi = await toiMan.GetToiByGpsLocation(gpsLocation);
-                if (toi.Status == DatabaseStatusCode.NoElement)
-                {
-                    await res.SendString("Not found", status: StatusCodes.Status404NotFound);
-                }
-                else
-                {
-                    await res.SendJson(toi.Result);
-                }
-            });
             _server.Post("/toi", async (req, res) =>
             {
                 if (!await CheckAuthentication(req, res)) return;
@@ -302,19 +287,27 @@ namespace TOIFeedServer
                 }
                 else
                 {
+                    res.AddHeader("Set-Cookie", loggedIn.Message);
+
                     try
                     {
                         var feedInfo = await httpClient.GetAsync(FeedRepo + "feed?apiKey=" + db.ApiKey);
-                        var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
-                        await res.SendString(feedInfoStr);
+                        if (feedInfo.IsSuccessStatusCode)
+                        {
+                            var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
+                            await res.SendString(feedInfoStr);
+                        }
+                        else if(feedInfo.StatusCode == HttpStatusCode.Unauthorized)
+                        {
+                            await res.SendString("The feed server has not been activated yet",
+                                status: StatusCodes.Status207MultiStatus);
+                        }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("Failed to connect to Feed Repo");
                         Console.WriteLine(e);
                     }
-
-                    res.AddHeader("Set-Cookie", loggedIn.Message);
                 }
             });
             _server.Post("/register", async (req, res) =>

@@ -479,6 +479,8 @@ $viewSpace.on("submit", "#login-form", function (ev) {
     let form = new FormData(this);
     ajax("/login", "POST", form,
         function(feedInfo) {
+            console.log(this);
+            console.log(feedInfo);
             cache.feed = feedInfo;
             $(".header-menu").show();
             loadAll();
