@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using TOIFeedRepo.Database;
+using TOIFeedServer;
 
 namespace TOIFeedRepo
 {
@@ -16,7 +18,7 @@ namespace TOIFeedRepo
             _db = db;
         }
 
-        public string GenerateNew()
+        public async Task<string> GenerateNew()
         {
             var data = new byte[32];
             _cryptoGen.GetBytes(data);
@@ -26,9 +28,9 @@ namespace TOIFeedRepo
             idSb.Replace('=', (char)_random.Next(97, 122));
             idSb.Replace('/', (char)_random.Next(97, 122));
             var id = idSb.ToString();
-            return _db.Feeds.FindOne(id) == null 
+            return (await _db.Feeds.FindOne(f => f.Id == id)).Status != DatabaseStatusCode.Ok 
                 ? id 
-                : GenerateNew();
+                : await GenerateNew();
         }
     }
 }

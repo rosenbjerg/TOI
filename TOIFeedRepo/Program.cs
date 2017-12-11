@@ -26,7 +26,7 @@ namespace TOIFeedRepo
                 Console.WriteLine("Adding sample tag data.");
             }
 
-            var fr = new FeedRepo();
+            var fr = new FeedRepo(development);
             fr.Start();
 
 
