@@ -288,26 +288,6 @@ namespace TOIFeedServer
                 else
                 {
                     res.AddHeader("Set-Cookie", loggedIn.Message);
-
-                    try
-                    {
-                        var feedInfo = await httpClient.GetAsync(FeedRepo + "feed?apiKey=" + db.ApiKey);
-                        if (feedInfo.IsSuccessStatusCode)
-                        {
-                            var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
-                            await res.SendString(feedInfoStr);
-                        }
-                        else if(feedInfo.StatusCode == HttpStatusCode.Unauthorized)
-                        {
-                            await res.SendString("The feed server has not been activated yet",
-                                status: StatusCodes.Status207MultiStatus);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to connect to Feed Repo");
-                        Console.WriteLine(e);
-                    }
                 }
             });
             _server.Post("/register", async (req, res) =>
@@ -330,6 +310,30 @@ namespace TOIFeedServer
                 }
             });
 
+            _server.Get("/feed", async (req, res) =>
+            {
+                if (string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("The server does not have an API Key yet", status: 403);
+                    return;
+                }
+
+                try
+                {
+                    var feedInfo = await httpClient.GetAsync(FeedRepo + "feed?apiKey=" + db.ApiKey);
+                    if (feedInfo.IsSuccessStatusCode)
+                    {
+                        var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
+                        await res.SendString(feedInfoStr);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to connect to Feed Repo");
+                    Console.WriteLine(e);
+                    await res.SendString("Could not fetch Feed Server information", status: 400);
+                }
+            });
             _server.Put("/feed/location", async (req, res) =>
             {
                 if (string.IsNullOrEmpty(db.ApiKey))
@@ -432,25 +436,23 @@ namespace TOIFeedServer
                     await res.SendString(frBody, status: 400);
                 }
             });
-            _server.Post("/feed/register", async (req, res) =>
+            _server.Post("/feed/registerowner", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var frForm = form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]));
 
-                var fRes = await httpClient.PostAsync(FeedRepo + "feed/register", new FormUrlEncodedContent(frForm));
+                var fRes = await httpClient.PostAsync(FeedRepo + "register", new FormUrlEncodedContent(frForm));
                 if (fRes.IsSuccessStatusCode)
                 {
-                    var feedInfo =
-                        JsonConvert.DeserializeObject<UserActionResponse<Feed>>(await fRes.Content.ReadAsStringAsync());
+                    var apiKey = await fRes.Content.ReadAsStringAsync();
 
-                    await db.StoreApiKey(feedInfo.Result.Id);
-                    await res.SendJson(feedInfo.Result);
+                    await db.StoreApiKey(apiKey);
+                    await res.SendString("Your feed was activated and is now visible");
                 }
                 else
                 {
                     await res.SendString(await fRes.Content.ReadAsStringAsync(), status: (int) fRes.StatusCode);
                 }
-
             });
 
 

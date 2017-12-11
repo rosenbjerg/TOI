@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOIClasses;
@@ -63,10 +64,11 @@ namespace TOIFeedRepo.Managers
             return feedResults.Status == DatabaseStatusCode.Ok ? feedResults.Result : null;
         }
 
-        public async Task<IEnumerable<Feed>> FeedsFromLocation(GpsLocation gpsLoc)
+        public async Task<IEnumerable<Feed>> FeedsFromLocation(LocationModel gpsLoc)
         {
-            var feedResults = await _db.Feeds.Find(f => f.IsActive && f.WithinRange(gpsLoc));
-            return feedResults.Status == DatabaseStatusCode.Ok ? feedResults.Result : null;
+            var feedResults = await _db.Feeds.Find(f => f.IsActive);
+            var withinRange = feedResults.Result.Where(f => f.WithinRange(gpsLoc));
+            return withinRange;
         }
 
         public async Task<Feed> GetFeedServer(string apiKey)
@@ -88,11 +90,8 @@ namespace TOIFeedRepo.Managers
                 Title = form["title"][0],
                 BaseUrl = form["baseUrl"][0],
                 IsActive = false,
-                LocationCenter = new GpsLocation
-                {
-                    Longitude = double.Parse(form["longitude"][0]),
-                    Latitude = double.Parse(form["longitude"][0])
-                },
+                Longitude = double.Parse(form["longitude"][0]),
+                Latitude = double.Parse(form["longitude"][0]),
                 Radius = int.Parse(form["radius"][0])
             };
             if (form.ContainsKey("description"))
@@ -165,8 +164,8 @@ namespace TOIFeedRepo.Managers
             }
             var oldFeed = feedExists.Result;
 
-            oldFeed.LocationCenter.Latitude = double.Parse(form["latitude"][0]);
-            oldFeed.LocationCenter.Longitude = double.Parse(form["longitude"][0]);
+            oldFeed.Latitude = double.Parse(form["latitude"][0]);
+            oldFeed.Longitude = double.Parse(form["longitude"][0]);
             oldFeed.Radius = int.Parse(form["radius"][0]);
 
             var updated = await _db.Feeds.Update(oldFeed.Id, oldFeed);

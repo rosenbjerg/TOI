@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -36,12 +37,12 @@ namespace TOIFeedRepo
                 }
                 else
                 {
-                    await res.SendJson("No active feeds", StatusCodes.Status204NoContent);
+                    await res.SendString("No active feeds", status: StatusCodes.Status404NotFound);
                 }
             });
             _server.Post("/feeds/fromlocation", async (req, res) =>
             {
-                var location = await req.ParseBodyAsync<GpsLocation>();
+                var location = await req.ParseBodyAsync<LocationModel>();
                 var feeds = await fMan.FeedsFromLocation(location);
                 if (feeds != null)
                 {
@@ -49,7 +50,7 @@ namespace TOIFeedRepo
                 }
                 else
                 {
-                    await res.SendJson("No active feeds", StatusCodes.Status204NoContent);
+                    await res.SendString("No active feeds", status: StatusCodes.Status404NotFound);
                 }
             });
             _server.Get("/feed", async (req, res) =>
@@ -114,7 +115,29 @@ namespace TOIFeedRepo
                 }
             });
 
-            _server.Put("/feed/register", async (req, res) =>
+            _server.Post("/register", async (req, res) =>
+            {
+                try
+                {
+                    var form = await req.GetFormDataAsync();
+                    var apiKey = await auth.RequestApiKey(form);
+
+                    if (string.IsNullOrEmpty(apiKey))
+                    {
+                        await res.SendString("Could not create an Api Key", status: 400);
+                    }
+                    else
+                    {
+                        await res.SendString(apiKey);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            });
+
+            _server.Post("/feed/register", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var createFeedResult = await fMan.RegisterFeed(form);

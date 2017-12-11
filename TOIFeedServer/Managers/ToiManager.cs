@@ -24,30 +24,7 @@ namespace TOIFeedServer.Managers
             var res = await _db.Tois.Find(t => t.Tags.Any(i => ids.Contains(i)));
             return res;
         }
-
-        private static bool WithinRange(LocationModel gps1, GpsLocation gps2)
-        {
-            var a = gps1.LocationCenter.Latitude - gps2.Latitude;
-            var b = gps1.LocationCenter.Longitude - gps2.Longitude;
-            var dist = Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
-            //Calculate the distance in meter, 111.325 km pr. degree
-            var distInM = dist * 111.325 * 1000;
-            
-            return distInM <= gps1.Radius;
-        }
-
-        public async Task<DbResult<IEnumerable<ToiModel>>> GetToiByGpsLocation(GpsLocation gpsLocations)
-        {
-            var allTags = await _db.Tags.GetAll();
-            if (allTags.Status == DatabaseStatusCode.NoElement)
-            {
-                return new DbResult<IEnumerable<ToiModel>>(null, DatabaseStatusCode.NoElement);
-            }
-            var tags = allTags.Result.Where(t => t.Type == TagType.Gps && WithinRange(t, gpsLocations));
-         
-            var toi = await GetToiByTagIds(tags.Select(t => t.Id));
-            return toi;
-        }
+        
         public async Task<DbResult<IEnumerable<ToiModel>>> GetToisByContext(string context)
         {
             DbResult<IEnumerable<ToiModel>> result;

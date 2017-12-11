@@ -31,16 +31,17 @@ namespace TOIFeedServer.Managers
 
         public async Task<DbResult<IEnumerable<TagModel>>> GetTags(IQueryCollection query)
         {
-            HashSet<string> ids, contexts;
+            HashSet<string> ids;
             if (query.ContainsKey("ids"))
             {
                 ids = Extensions.SplitIds(query["ids"][0]).ToHashSet();
                 return await _db.Tags.Find(t => ids.Contains(t.Id));
             }
+
             if (query.ContainsKey("contexts"))
             {
-                contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
-                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(contexts.Contains));
+                var contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
+                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(c => contexts.Contains(c)));
                 if (toisSearch.Status == DatabaseStatusCode.NoElement)
                     return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
                 var tagIds = toisSearch.Result
@@ -48,7 +49,16 @@ namespace TOIFeedServer.Managers
                     .ToHashSet();
                 return await _db.Tags.Find(tag => tagIds.Contains(tag.Id));
             }
-            return await _db.Tags.GetAll();
+
+            try
+            {
+                return await _db.Tags.GetAll();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
+            }
         }
 
         
