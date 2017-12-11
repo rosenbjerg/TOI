@@ -1,8 +1,7 @@
 "use strict";
 
 const FeedRepo = "http://ssh.windelborg.info:7575/";
-let $viewSpace = $("#viewSpace");
-let $body = $("body");
+let $viewSpace = $("#viewSpace"), $body = $("body");
 let cache = {
     tags: {},
     tois: {},
@@ -231,7 +230,6 @@ function loadAll() {
         });
         getResource("feed");
     }, function(files) {
-        console.log(files);
         for(let i in files) {
             files[i].Icon = getMaterialFileIcon(files[i].Filetype);
         }
@@ -419,6 +417,65 @@ $("#show-profile").click(showProfile);
 $("#show-files").click(showFiles);
 $("#show-administration").click(showAdministration);
 
+$viewSpace.on("submit", "#login-form", function (ev) {
+    ev.preventDefault();
+    this.disabled = true;
+    let form = new FormData(this);
+    ajax("/login", "POST", form,
+        feedInfo => {
+            console.log(feedInfo);
+            $(".header-menu").show();
+            loadAll();
+        },
+        () => {
+            toastr["error"]("Wrong username or password");
+            this.disabled = true;
+        });
+});
+$viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
+    ev.preventDefault();
+    let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
+    let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
+    let form = new FormData(this);
+    let id = $(this).data("id");
+    if(id)
+        form.append("id", id);
+    form.append("tags", tags);
+    form.append("contexts", contexts);
+    if (id) {
+        ajax("/toi", "PUT", form, function (toi) {
+            cache.tois[toi.Id] = toi;
+            toastr["success"]("ToI updated");
+            showToiList();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+    else {
+        ajax("/toi", "POST", form, function (toi) {
+            cache.tois[toi.Id] = toi;
+            toastr["success"]("ToI created");
+            showSaveEditToi();
+        }, function (data) {
+            toastr["error"](data.responseText);
+        });
+    }
+
+});
+$viewSpace.on("submit", "#update-feed-form", function(ev) {
+    ev.preventDefault();
+    let form = new FormData(this);
+    ajax("/feed", "PUT", form,
+        function (resp) {
+            showProfile();
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+});
+
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
 $viewSpace.on("click", "#create-new-context", function () {showSaveEditContext()});
@@ -472,24 +529,6 @@ $viewSpace.on("click", "#choose-file-button", function() {
         $.magnificPopup.close();
     });
 });
-
-$viewSpace.on("submit", "#login-form", function (ev) {
-    $(this).find("input[type=submit]").val("<i class='material-icons spin'>cached</i>");
-
-    ev.preventDefault();
-    let form = new FormData(this);
-    ajax("/login", "POST", form,
-        function(feedInfo) {
-            console.log(this);
-            console.log(feedInfo);
-            $(".header-menu").show();
-            loadAll();
-        },
-        function() {
-            toastr["error"]("Wrong username or password");
-        });
-});
-
 $viewSpace.on("click", ".tag", function () {
     let id = $(this).data("id");
     let tag = cache.tags[id];
@@ -524,49 +563,6 @@ $viewSpace.on("click", ".file", function () {
     };
 
 });
-$viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
-    ev.preventDefault();
-    let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
-    let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
-    let form = new FormData(this);
-    let id = $(this).data("id");
-    if(id)
-        form.append("id", id);
-    form.append("tags", tags);
-    form.append("contexts", contexts);
-    if (id) {
-        ajax("/toi", "PUT", form, function (toi) {
-            cache.tois[toi.Id] = toi;
-            toastr["success"]("ToI updated");
-            showToiList();
-        }, function (data) {
-            toastr["error"](data.responseText);
-        });
-    }
-    else {
-        ajax("/toi", "POST", form, function (toi) {
-            cache.tois[toi.Id] = toi;
-            toastr["success"]("ToI created");
-            showSaveEditToi();
-        }, function (data) {
-            toastr["error"](data.responseText);
-        });
-    }
-
-});
-$viewSpace.on("submit", "#update-feed-form", function(ev) {
-    ev.preventDefault();
-    let form = new FormData(this);
-    ajax("/feed", "PUT", form,
-        function (resp) {
-            showProfile();
-            cache.feed = resp.Result;
-            toastr["success"](resp.Message);
-        },
-        function (resp) {
-            toastr["error"](resp.responseText);
-        });
-});
 $viewSpace.on("click", "#feed-change-location", function() {
     showPopup(modalTemplates.feedLocationPicker.render(cache.feed));
 });
@@ -599,20 +595,35 @@ $viewSpace.on("click", "#feed-activate", function () {
         showPopup(modalTemplates.apiKeyRegister.render());
     }
 });
-$body.on("submit", "pick-feed-location", function () {
-    let form = new FormData(this);
-    ajax("/feed/location", "PUT", null,
-        function (resp) {
-            showProfile();
-            $.magnificPopup.close();
-            cache.feed = resp.Result;
-            toastr["success"](resp.Message);
-        },
-        function (resp) {
-            toastr["error"](resp.responseText);
-        });
+
+$viewSpace.on("input", "#filter-ToI", function () {
+    let searchTerm = this.value;
+    let result = searchInData(cache.tois, function (toi) {
+        return toi.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = renderAll(result, templates.toi);
+    $("#list-ul").empty().append(l);
+});
+$viewSpace.on("input", "#filter-context", function () {
+    let searchTerm = this.value;
+    let result = searchInData(cache.contexts, function (ctx) {
+        return ctx.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = renderAll(result, templates.context);
+    $("#list-ul").empty().append(l);
+});
+$viewSpace.on("input", "#filter-tag", function () {
+    let searchTerm = this.value;
+    let result = searchInData(cache.tags, function (tag) {
+        return  tag.Id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tag.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    let l = renderAll(result, templates.tag);
+    $("#list-ul").empty().append(l);
 });
 
+
+// Forms in popups are "bound" to body
 $body.on("submit", "#add-file-to-batch-form", function (ev) {
     ev.preventDefault();
     let $this = $(this);
@@ -679,8 +690,6 @@ $body.on("submit", "#api-key-form", function(ev) {
             toastr["error"](resp);
         });
 });
-
-// Forms in popups are "bound" to body
 $body.on("submit", "#create-tag-form", function (ev) {
     ev.preventDefault();
     let form = new FormData(this);
@@ -729,6 +738,20 @@ $body.on("submit", "#edit-file-form", function (ev) {
             toastr["error"](resp.responseText);
         })
 });
+$body.on("submit", "pick-feed-location", function () {
+    let form = new FormData(this);
+    ajax("/feed/location", "PUT", null,
+        function (resp) {
+            showProfile();
+            $.magnificPopup.close();
+            cache.feed = resp.Result;
+            toastr["success"](resp.Message);
+        },
+        function (resp) {
+            toastr["error"](resp.responseText);
+        });
+});
+
 $body.on("click", "#remove-context", function () {
     let id = $(this.parentNode).data("id");
     promptUser("Delete context?", "Are you sure you want to delete this context?", function () {
@@ -776,29 +799,6 @@ $body.on("click", "#remove-tag", function () {
 $body.on("click", "#user-prompt-cancel", function () {
     $.magnificPopup.close();
 });
-$body.on("input", "#add-toi-tag-search input", function () {
-    let searchTerm = this.value.toLowerCase();
-    let result = searchInData(cache.tags, function (c) {
-        return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm) || c.Id.toLowerCase().includes(searchTerm);
-    });
-
-    let str = "";
-    for (let i in result){
-        str += templates.tagCell.render({action: "add_circle", tag: result[i]});
-    }
-    $("#tag-search-result").empty().append(str);
-});
-$body.on("input", "#add-toi-context-search input", function () {
-    let searchTerm = this.value;
-    let result = searchInData(cache.contexts, function (c) {
-        return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm);
-    });
-    let str = "";
-    for (let i in result){
-        str += templates.contextCell.render({action: "add_circle", context: result[i]});
-    }
-    $("#context-search-result").empty().append(str);
-});
 $body.on("click", "#add-toi-context-search .context-cell .action-button", function () {
     let context = cache.contexts[$(this.parentNode.parentNode).data("id")];
     $("#added-contexts").append(templates.contextCell.render({action: "remove_circle", context: context}));
@@ -830,6 +830,33 @@ $body.on("click", "#save-edit-toi-form .info-button", function () {
         showSaveEditContext(item);
     }
 });
+$body.on("click", "#copy-url", function () {
+
+});
+
+$body.on("input", "#add-toi-tag-search input", function () {
+    let searchTerm = this.value.toLowerCase();
+    let result = searchInData(cache.tags, function (c) {
+        return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm) || c.Id.toLowerCase().includes(searchTerm);
+    });
+
+    let str = "";
+    for (let i in result){
+        str += templates.tagCell.render({action: "add_circle", tag: result[i]});
+    }
+    $("#tag-search-result").empty().append(str);
+});
+$body.on("input", "#add-toi-context-search input", function () {
+    let searchTerm = this.value;
+    let result = searchInData(cache.contexts, function (c) {
+        return searchTerm === "" || c.Title.toLowerCase().includes(searchTerm);
+    });
+    let str = "";
+    for (let i in result){
+        str += templates.contextCell.render({action: "add_circle", context: result[i]});
+    }
+    $("#context-search-result").empty().append(str);
+});
 $body.on("input", "#create-tag-form select", function () {
     let hid = $("#hardware-id-wrapper");
     let hidInput = hid.find("input");
@@ -841,35 +868,6 @@ $body.on("input", "#create-tag-form select", function () {
         hidInput.val("");
         hid.show(100);
     }
-});
-$body.on("click", "#copy-url", function () {
-
-});
-
-$viewSpace.on("input", "#filter-ToI", function () {
-    let searchTerm = this.value;
-    let result = searchInData(cache.tois, function (toi) {
-        return toi.Title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-    let l = renderAll(result, templates.toi);
-    $("#list-ul").empty().append(l);
-});
-$viewSpace.on("input", "#filter-context", function () {
-    let searchTerm = this.value;
-    let result = searchInData(cache.contexts, function (ctx) {
-        return ctx.Title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-    let l = renderAll(result, templates.context);
-    $("#list-ul").empty().append(l);
-});
-$viewSpace.on("input", "#filter-tag", function () {
-    let searchTerm = this.value;
-    let result = searchInData(cache.tags, function (tag) {
-        return  tag.Id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                tag.Title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-    let l = renderAll(result, templates.tag);
-    $("#list-ul").empty().append(l);
 });
 
 loadAll();
