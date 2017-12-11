@@ -40,7 +40,7 @@ namespace TOIFeedServer.Managers
             if (query.ContainsKey("contexts"))
             {
                 contexts = Extensions.SplitIds(query["contexts"][0]).ToHashSet();
-                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(contexts.Contains));
+                var toisSearch = await _db.Tois.Find(toi => toi.Contexts.Any(c => contexts.Contains(c)));
                 if (toisSearch.Status == DatabaseStatusCode.NoElement)
                     return new DbResult<IEnumerable<TagModel>>(null, DatabaseStatusCode.NoElement);
                 var tagIds = toisSearch.Result

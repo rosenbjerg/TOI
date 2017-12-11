@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TOIClasses;
@@ -65,8 +66,9 @@ namespace TOIFeedRepo.Managers
 
         public async Task<IEnumerable<Feed>> FeedsFromLocation(LocationModel gpsLoc)
         {
-            var feedResults = await _db.Feeds.Find(f => f.IsActive && f.WithinRange(gpsLoc));
-            return feedResults.Status == DatabaseStatusCode.Ok ? feedResults.Result : null;
+            var feedResults = await _db.Feeds.Find(f => f.IsActive);
+            var withinRange = feedResults.Result.Where(f => f.WithinRange(gpsLoc));
+            return withinRange;
         }
 
         public async Task<Feed> GetFeedServer(string apiKey)
