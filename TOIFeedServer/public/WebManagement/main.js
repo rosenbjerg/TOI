@@ -229,7 +229,13 @@ function loadAll() {
                 });
             });
         });
-        getResource("feed");
+        ajax("/feed", "GET", null,
+            function (feed) {
+                cache.feed = feed;
+            },
+            function (resp) {
+                toastr["error"](resp);
+            });
     }, function(files) {
         console.log(files);
         for(let i in files) {

@@ -324,7 +324,7 @@ namespace TOIFeedServer
                     if (feedInfo.IsSuccessStatusCode)
                     {
                         var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
-                        await res.SendString(feedInfoStr);
+                        await res.SendString(feedInfoStr, "application/json");
                     }
                 }
                 catch (Exception e)

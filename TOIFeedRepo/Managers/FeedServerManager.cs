@@ -38,7 +38,6 @@ namespace TOIFeedRepo.Managers
                 .Build();
             _updateFormValidator = FormValidatorBuilder
                 .New()
-                .RequiresString("id")
                 .RequiresString("title")
                 .RequiresString("baseUrl")
                 .RequiresString("apiKey")
