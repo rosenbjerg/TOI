@@ -83,7 +83,7 @@ namespace TOIFeedRepo
                 }
             });
 
-            _server.Put("/feed/update", async (req, res) =>
+            _server.Put("/feed", async (req, res) =>
             {
                 var form = await req.GetFormDataAsync();
                 var createFeedResult = await fMan.UpdateFeed(form);

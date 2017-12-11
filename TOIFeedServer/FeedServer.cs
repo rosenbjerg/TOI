@@ -438,6 +438,12 @@ namespace TOIFeedServer
             });
             _server.Post("/feed/registerowner", async (req, res) =>
             {
+                if (!string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("Cannot register the same feed server twice.", status: 400);
+                    return;
+                }
+
                 var form = await req.GetFormDataAsync();
                 var frForm = form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]));
 
