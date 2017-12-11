@@ -31,14 +31,13 @@ namespace TOIFeedRepo.Managers
                 .RequiresString("apiKey")
                 .RequiresString("title")
                 .RequiresString("baseUrl")
-                .RequiresRational("latitude", -85.05115, 85)
-                .RequiresRational("longitude", -180, 180)
+                .RequiresRational("latitude")
+                .RequiresRational("longitude")
                 .RequiresRational("radius", 0, double.MaxValue)
                 .RequiresString("contactEmail")
                 .Build();
             _updateFormValidator = FormValidatorBuilder
                 .New()
-                .RequiresString("id")
                 .RequiresString("title")
                 .RequiresString("baseUrl")
                 .RequiresString("apiKey")

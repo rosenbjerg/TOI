@@ -324,7 +324,7 @@ namespace TOIFeedServer
                     if (feedInfo.IsSuccessStatusCode)
                     {
                         var feedInfoStr = await feedInfo.Content.ReadAsStringAsync();
-                        await res.SendString(feedInfoStr);
+                        await res.SendString(feedInfoStr, "application/json");
                     }
                 }
                 catch (Exception e)
@@ -352,14 +352,14 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
                     await res.SendString(frBody, status: 400);
                 }
             });
-            _server.Post("/feed/deativate", async (req, res) =>
+            _server.Post("/feed/deactivate", async (req, res) =>
             {
                 if (string.IsNullOrEmpty(db.ApiKey))
                 {
@@ -378,7 +378,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
@@ -404,7 +404,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
@@ -429,7 +429,7 @@ namespace TOIFeedServer
 
                 if (frRes.IsSuccessStatusCode)
                 {
-                    await res.SendString(frBody);
+                    await res.SendString(frBody, "application/json");
                 }
                 else
                 {
@@ -438,6 +438,12 @@ namespace TOIFeedServer
             });
             _server.Post("/feed/registerowner", async (req, res) =>
             {
+                if (!string.IsNullOrEmpty(db.ApiKey))
+                {
+                    await res.SendString("Cannot register the same feed server twice.", status: 400);
+                    return;
+                }
+
                 var form = await req.GetFormDataAsync();
                 var frForm = form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value[0]));
 

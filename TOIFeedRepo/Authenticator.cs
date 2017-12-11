@@ -40,23 +40,23 @@ namespace TOIFeedRepo
                 Type = form["type"][0],
                 Name = form["name"][0],
                 Street = form["street"][0],
-                Zip = form["zip"],
-                City = form["city"],
-                Country = form["country"]
+                Zip = form["zip"][0],
+                City = form["city"][0],
+                Country = form["country"][0]
             };
             var custInsertion = await _db.Customers.Insert(customer);
-            if (custInsertion != DatabaseStatusCode.Ok)
+            if (custInsertion != DatabaseStatusCode.Created)
                 return null;
-            var key = _keygen.GenerateNew();
-            Console.WriteLine("New API key: " + key);
-            var feedInserted = await _db.Feeds.Insert(new Feed()
+            var key = await _keygen.GenerateNew();
+
+            var feedInserted = await _db.Feeds.Insert(new Feed
             {
                 Id = key,
                 Owner = customer,
                 Title = "Unnamed Feed",
                 IsActive = false
             });
-            return feedInserted != DatabaseStatusCode.Ok ? null : key;
+            return feedInserted != DatabaseStatusCode.Created ? null : key;
         }
     }
 }
