@@ -110,7 +110,7 @@ namespace TOIFeedServer.Managers
             return new TagModel
             {
                 Title = form["title"][0],
-                Id = id,
+                Id = id.ToUpperInvariant(),
                 Radius = radius,
                 Longitude = longitude,
                 Latitude = latitude,
