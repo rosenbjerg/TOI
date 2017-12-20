@@ -6,15 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TOIClasses;
-using TOIFeedServer.Database;
-using static TOIFeedServer.Extensions;
 
 namespace TOIFeedServer.Tests
 {
     [TestClass]
     public class ModelsTest
     {
-        private static DatabaseService _dbs;
+        private static Database _dbs;
         private List<string> _guids;
         private List<TagModel> _tags;
         private List<ContextModel> _contexts;
@@ -33,7 +31,7 @@ namespace TOIFeedServer.Tests
         [TestInitialize]
         public void InitializeTest()
         {
-            _dbs = new DatabaseService(DatabaseFactory.DatabaseType.InMemory);
+            _dbs = DatabaseFactory.BuildDatabase(DatabaseFactory.DatabaseType.InMemory);
             _dbs.TruncateDatabase().Wait();
             FillMock();
         }
@@ -52,8 +50,8 @@ namespace TOIFeedServer.Tests
                 new TagModel(_guids[0], TagType.Bluetooth)
                 {
                     Title = "test1",
-                    Longitude = 45.00M,
-                    Latitude = 50.00M
+                    Longitude = 45.00,
+                    Latitude = 50.00
                 },
 
                 new TagModel(_guids[1], TagType.Bluetooth)
@@ -117,8 +115,8 @@ namespace TOIFeedServer.Tests
         public async Task TagUploaded_CorrectFetch()
         {
             //Act
-            await _dbs.InsertTag(_tags[0]);
-            var res = await _dbs.GetTagFromId(_guids[0]);
+            await _dbs.Tags.Insert(_tags[0]);
+            var res = await _dbs.Tags.FindOne(t => t.Id == _guids[0]);
 
             //Assert
             Assert.AreEqual(typeof(TagModel), res.Result.GetType());
@@ -128,26 +126,11 @@ namespace TOIFeedServer.Tests
         public async Task TagUploaded_ReturnCorrectType()
         {
             //Act
-            await _dbs.InsertTag(_tags[0]);
-            var res = await _dbs.GetTagFromId(_guids[0]);
+            await _dbs.Tags.Insert(_tags[0]);
+            var res = await _dbs.Tags.FindOne(t => t.Id == _guids[0]);
 
             //Assert
             Assert.AreEqual(TagType.Bluetooth, res.Result.Type);
-        }
-
-        private async Task InsertTags(IEnumerable<TagModel> tags)
-        {
-            foreach (var t in tags)
-            {
-                await _dbs.InsertTag(t);
-            }
-        }
-        private async Task InsertContexts(IEnumerable<ContextModel> ctxts)
-        {
-            foreach (var t in ctxts)
-            {
-                await _dbs.InsertContext(t);
-            }
         }
 
         [TestMethod]
@@ -157,8 +140,8 @@ namespace TOIFeedServer.Tests
 
 
             // Act
-            await _dbs.InsertContext(_contexts[0]);
-            var res = await _dbs.GetContextFromId(_guids[0]);
+            await _dbs.Contexts.Insert(_contexts[0]);
+            var res = await _dbs.Contexts.FindOne(c => c.Id == _guids[0]);
 
             // Assert
             Assert.AreEqual(_guids[0], res.Result.Id);
@@ -175,8 +158,8 @@ namespace TOIFeedServer.Tests
             };
 
             // Act
-            await _dbs.InsertContext(collection);
-            var res = await _dbs.GetAllContexts();
+            await _dbs.Contexts.Insert(collection);
+            var res = await _dbs.Contexts.GetAll();
 
             // Assert
             Assert.AreEqual(3, res.Result.Count());
@@ -186,9 +169,9 @@ namespace TOIFeedServer.Tests
         public async Task GetToisFromTagId()
         {
             // Act
-            var test = await _dbs.InsertToiModel(_tois[0]);
+            var test = await _dbs.Tois.Insert(_tois[0]);
 
-            var result = await _dbs.GetToisByTagIds(new[] {_guids[0]});
+            var result = await _dbs.Tois.Find(t => t.Id == _guids[0]);
 
             // Assert
             Assert.AreEqual(DatabaseStatusCode.Ok, result.Status);
@@ -207,7 +190,7 @@ namespace TOIFeedServer.Tests
                 _tois[0]
             };
 
-            var result = await _dbs.InsertToiModel(toiModels);
+            var result = await _dbs.Tois.Insert(toiModels);
 
             Assert.AreEqual(DatabaseStatusCode.ListContainsDuplicate, result);
         }
@@ -232,10 +215,10 @@ namespace TOIFeedServer.Tests
             };
 
 
-            await _dbs.InsertTag(tags);
-            await _dbs.InsertToiModel(tois);
+            await _dbs.Tags.Insert(tags);
+            await _dbs.Tois.Insert(tois);
 
-            var result = await _dbs.GetToisByTagIds(tagsId);
+            var result = await _dbs.Tois.Find(t => t.Tags.Any(i => tagsId.Contains(i)));
 
             Assert.AreEqual(true, tois.All(result.Result.Contains));
         }
@@ -260,14 +243,14 @@ namespace TOIFeedServer.Tests
             };
 
 
-            var insertStatusCode = await _dbs.InsertToiModel(toi1);
+            var insertStatusCode = await _dbs.Tois.Insert(toi1);
 
-            var statusCode = await _dbs.UpdateToiModel(toi2);
+            var statusCode = await _dbs.Tois.Update(toi2.Id, toi2);
 
-            var updated = await _dbs.GetToi(_guids[0]);
+            var updated = await _dbs.Tois.FindOne(_guids[0]);
 
             Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
-            Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
+            Assert.AreEqual(DatabaseStatusCode.Updated, statusCode);
             Assert.AreEqual("test2", updated.Result.Description);
         }
 
@@ -276,14 +259,14 @@ namespace TOIFeedServer.Tests
         {
             var toi1 = _tois[0];
             var tagsBefore = toi1.Tags.Count;
-            var insertStatusCode = await _dbs.InsertToiModel(toi1);
+            var insertStatusCode = await _dbs.Tois.Insert(toi1);
             toi1.Tags.Add(_tags[2].Id);
-            var statusCode = await _dbs.UpdateToiModel(toi1);
+            var statusCode = await _dbs.Tois.Update(toi1.Id, toi1);
 
-            var updated = await _dbs.GetToi(toi1.Id);
+            var updated = await _dbs.Tois.FindOne(toi1.Id);
 
             Assert.AreEqual(DatabaseStatusCode.Created, insertStatusCode);
-            Assert.AreEqual(DatabaseStatusCode.Ok, statusCode);
+            Assert.AreEqual(DatabaseStatusCode.Updated, statusCode);
             Assert.AreEqual(tagsBefore + 1, updated.Result.Tags.Count);
         }
     }

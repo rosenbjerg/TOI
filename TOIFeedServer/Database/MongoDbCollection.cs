@@ -4,9 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Operations;
 using TOIClasses;
 
-namespace TOIFeedServer.Database
+namespace TOIFeedServer
 {
     public class MongoDbCollection<T> : IDbCollection<T>
         where T : ModelBase
@@ -30,9 +31,8 @@ namespace TOIFeedServer.Database
                 await _db.InsertManyAsync(items);
                 return DatabaseStatusCode.Created;
             }
-            catch (MongoException e)
+            catch (MongoBulkWriteException e)
             {
-                Console.WriteLine(e);
                 return DatabaseStatusCode.AlreadyContainsElement;
             }
         }

@@ -1,0 +1,501 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ToI Manager</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" async="async"></script>
+    <script src='http://maps.google.com/maps/api/js?key=AIzaSyAD5NfDSTB2wh0pNavJkIzVTnGD2mT6xQQ&libraries=places'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-locationpicker/0.1.12/locationpicker.jquery.min.js" async="async"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://libs.rosenbjerg.dk/jstemplates/latest/JsTemplates.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|Roboto|Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h3>ToI Manager</h3>
+        <div class="header-menu">
+            <div class="header-menu-button" id="show-tois" tabindex="1">ToI</div>
+            <div class="header-menu-button" id="show-tags" tabindex="2">Tags</div>
+            <div class="header-menu-button" id="show-contexts" tabindex="3">Contexts</div>
+            <div class="header-menu-button" id="show-files" tabindex="4">Files</div>
+            <div class="header-menu-button" id="show-profile" tabindex="5">Settings</div>
+        </div>
+    </div>
+    <div id="viewSpace"></div>
+</div>
+
+<template id="login-template">
+    <h3 class="u-full-width" style="text-align: center">Login</h3>
+
+    <form id="login-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <input id="login-submit" class="button-primary" type="submit" value="Login" style="float:right;">
+    </form>
+</template>
+<template id="register-template">
+    <h3 class="u-full-width" style="text-align: center">Register</h3>
+
+    <form id="register-form">
+        <label>Username</label>
+        <input class="u-full-width" required="required" name="username" type="text">
+        <label>Email</label>
+        <input class="u-full-width" required="required" name="email" type="email">
+        <label>Password</label>
+        <input class="u-full-width" required="required" name="password" type="password">
+        <label>Confirm Password</label>
+        <input class="u-full-width" required="required" name="confirmPassword" type="password">
+        <input id="register-cancel" type="button", value="Back">
+        <input id="register-submit" class="button-primary" type="submit" value="Confirm" style="float:right;">
+    </form>
+</template>
+
+<template id="create-tag-template">
+        <h3>Create new tag</h3>
+        <form id="create-tag-form">
+            <label>Title</label>
+            <input required="required" name="title" class="u-full-width" type="text" placeholder="Title"/>
+            <div class="row">
+                <label>Type</label>
+                <select name="type" class="u-full-width">
+                    <option value="none" >- Please select</option>
+                    <option value="Nfc">NFC</option>
+                    <option value="Bluetooth">Bluetooth</option>
+                    <option value="Wifi">Wi-Fi</option>
+                    <option value="Gps">GPS</option>
+                </select>
+            </div>
+            <div id="hardware-id-wrapper">
+                <label>Hardware ID</label>
+                <input name="id" class="u-full-width" type="text" placeholder="F.x. FA:C4:D1:03:8D:3D"/>
+            </div>
+            <label>Location name (optional)</label>
+            <input class="u-full-width locationNameInput" type="text" form="noform"/>
+            <!-- http://logicify.github.io/jquery-locationpicker-plugin/ -->
+            <label>Pick location or type in coordinates</label>
+            <div class="mapPicker u-full-width"></div>
+            <div class="row">
+                <div class="four columns">
+                    <label>Latitude</label>
+                    <input required="required" name="latitude" class="u-full-width latitudeInput" type="number" step="any"/>
+                </div>
+                <div class="four columns">
+                    <label>Longitude</label>
+                    <input required="required" name="longitude" class="u-full-width longitudeInput" type="number" step="any"/>
+                </div>
+                <div class="four columns">
+                    <label>Radius</label>
+                    <input required="required" name="radius" class="u-full-width radiusInput" type="number" min="1"/>
+                </div>
+            </div>
+            <input class="six columns button-primary" type="submit" value="Save tag"/>
+        </form>
+</template>
+
+<template id="edit-tag-template">
+    <h3><i class="material-icons" style="font-size: inherit;">{{icon}}</i> Edit tag</h3>
+    <form id="edit-tag-form" data-id="{{tag.Id}}" data-type="{{tag.Type}}">
+        <label>Tag name</label>
+        <input required="required" class="u-full-width" value="{{tag.Title}}" name="title" type="text">
+        <label>Hardware ID</label>
+        <input required="required" class="u-full-width" type="text" value="{{tag.Id}}" readonly="readonly" disabled="disabled"/>
+        <label>Location (Optional)</label>
+        <input class="u-full-width locationNameInput" type="text" form="noform"/>
+        <div class="mapPicker u-full-width"></div>
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{tag.Latitude}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{tag.Longitude}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{tag.Radius}}" type="number" min="1"/>
+            </div>
+        </div>
+        <input style="margin-left: 0" class="six columns" type="button" id="remove-tag" value="Delete"/>
+        <input class="six columns button-primary" type="submit" value="Save changes"/>
+    </form>
+</template>
+
+<template id="save-edit-context-template">
+    <h3>{{action}} context</h3>
+    <form id="save-edit-context-form" data-id="{{context.Id}}">
+        <label>Context name</label>
+        <input class="u-full-width" type="text" required="required" value="{{context.Title}}" name="title">
+        <label>Description</label>
+        <textarea class="u-full-width" required="required" name="description">{{context.Description}}</textarea>
+        {{{ create }}}
+        <input class="six columns button-primary" type="submit" value="Save context"/>
+    </form>
+</template>
+
+<script type="text/template" id="save-edit-toi-template">
+        <h3 class="u-full-width">{{action}} ToI</h3>
+        <form id="save-edit-toi-form" data-id="{{toi.Id}}">
+            <div class="row">
+                <div class="six columns divided-left">
+                    <label>Title</label>
+                    <input required="required" type="text" value="{{toi.Title}}" name="title" class="u-full-width">
+                    <label>Image</label>
+                    <input required="required" type="url" name="image" class="u-full-width" value="{{toi.Image = https://}}">
+
+                    <hr>
+
+                    <div class="u-full-width">
+                        <label>Tags</label>
+                        <table class="u-full-width">
+                            <tbody id="added-tags" class="empty-placeholder u-full-width truncate" data-empty-message="No tags added to ToI">{{{ toi.Tags }}}</tbody>
+                        </table>
+                        <div id="add-toi-tag-search">
+                            <label>Find tags</label>
+                            <input class="u-full-width" type="search" placeholder="Search for tags by typing here" form="noform">
+                            <table class="u-full-width">
+                                <tbody  id="tag-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="six columns divided-right">
+                    <label>Information</label>
+                    <select name="type" class="u-full-width" name="type">
+                        <option>Website</option>
+                        <option>Video</option>
+                        <option>Image</option>
+                        <option>Audio</option>
+                        <option>Text</option>
+                    </select>
+                    <input id="information-url" class="u-full-width" value="{{toi.Url = https://}}" name="url" type="url">
+                    <button class="u-full-width" type="button" id="choose-file-button">Choose File</button>
+
+                    <div class="u-full-width">
+                        <label>Short description</label>
+                        <textarea class="u-full-width" name="description" rows="10">{{toi.Description}}</textarea>
+                    </div>
+                    <div class="u-full-width">
+                        <hr style="margin-top: 0;">
+                        <label>Contexts</label>
+                        <table class="u-full-width">
+                            <tbody id="added-contexts" class="empty-placeholder u-full-width" data-empty-message="No contexts added to ToI">{{{ toi.Contexts }}}</tbody>
+                        </table>
+                        <div id="add-toi-context-search">
+                            <label>Add contexts</label>
+                            <input style="margin-bottom: 2px;" class="u-full-width" type="search" placeholder="Search for contexts by typing here" form="noform">
+                            <a class="u-full-width" id="create-new-context-inline">Create new context</a>
+                            <table class="u-full-width">
+                                <tbody  id="context-search-result" class="empty-placeholder" data-empty-message="No search results"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 2%;">
+                {{{ create }}}
+                <input style="margin: 0;" class="six columns button-primary" type="submit" value="Save ToI"/>
+            </div>
+        </form>
+</script>
+
+<template id="tag-table-cell">
+    <tr class="tag-cell" data-id="{{tag.Id}}" data-type="tag">
+        <td title="{{tag.Type}}"><i class="material-icons tag-type-image">{{tag.Type}}</i></td>
+        <td class="truncate">{{tag.Title = Unnamed}}</td>
+        <td><i class="material-icons info-button">info</i></td>
+        <td><i class="material-icons action-button">{{action}}</i></td>
+    </tr>
+</template>
+
+<template id="context-table-cell">
+    <tr class="context-cell" data-id="{{context.Id}}" data-type="context">
+        <td class="truncate">{{context.Title = Unnamed}}</td>
+        <td><i class="material-icons info-button">info</i></td>
+        <td><i class="material-icons action-button">{{action}}</i></td>
+    </tr>
+</template>
+
+<template id="list-template">
+    <div class="list-header">
+        <h3 style="display: inline-block" class="first truncate">{{title}}</h3>
+        <input id="filter-{{thing}}" class="middle" type="search" placeholder="Filter {{thing}}s">
+        <span>
+            <button id="{{createButtonId}}" title="{{createText}}" class="material-icons last">add_circle_outline</button>
+        </span>
+    </div>
+    <ul class="empty-placeholder" data-empty-message="No {{thing}}s to show" id="list-ul">{{{list}}}</ul>
+</template>
+
+<template id="tag-template">
+    <li class="tag" data-id="{{Id}}">
+        <table>
+            <tbody>
+                <tr>
+                    <td title="{{Type}}"><i class="material-icons">{{{Type}}}</i></td>
+                    <td>{{Title}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
+<template id="toi-template">
+    <li class="toi" data-id="{{Id}}">
+        <table>
+            <tbody>
+            <tr>
+                <td class="truncate">
+                    <strong title="{{Title}}">{{Title}}</strong>
+                </td>
+                <td rowspan="4">
+                    <img src="{{Image}}" alt="No image">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p class="truncate" title="{{Description}}">{{Description}}</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="truncate">
+                    <i title="{{ Contexts }}">{{ Contexts }}</i>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <i>Tags: {{ Tags.length = 0 }}</i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
+<template id="context-template">
+    <div class="context" data-id="{{Id}}">
+        <p>{{Title}}</p>
+    </div>
+</template>
+
+<template id="user-prompt-template">
+    <h3>{{title}}</h3>
+    <p>{{question}}</p>
+    <button class="six columns" style="margin-left: 0" id="user-prompt-cancel">Cancel</button>
+    <button class="six columns button-primary" id="user-prompt-accept">Yes</button>
+</template>
+
+<template id="profile-template">
+    <h3>Settings</h3>
+    <div style="margin-left: 0" class="six columns divided-left">
+        <h4>Profile Settings</h4>
+        <div class="row">
+            <form class="u-full-width" id="change-email-form">
+                <label>Change Email</label>
+                <input class="u-full-width" type="email" required="required" name="email" value="{{user.Email}}">
+                <input class="u-full-width button-primary" type="submit" value="Change email">
+            </form>
+        </div>
+        <hr>
+        <div class="row">
+            <form class="u-full-width" id="change-password-form">
+                <label>Change Password</label>
+                <input class="u-full-width" type="password" name="pwd1" required="required" pattern=".{6,}" placeholder="Password (min. 6 characters)">
+                <input class="u-full-width" type="password" name="pwd2" required="required" pattern="Repeat password">
+                <input class="u-full-width button-primary" type="submit" value="Change password">
+            </form>
+        </div>
+    </div>
+    <div class="six columns divided-right">
+        <h4>Server Settings</h4>
+        <div class="row">
+            <form calss="u-full-width" id="update-feed-form">
+                <label>Display Name</label>
+                <input class="u-full-width" type="text" name="title" required="required" placeholder="Display Name" value="{{feed.Title}}">
+                <label>Description</label>
+                <textarea name="description">{{feed.Description}}</textarea>
+                <label>Base Url</label>
+                <input name="baseUrl" class="u-full-width" type="url" required="required" value="{{feed.BaseUrl=http://localhost:7474/}}">
+                <input type="submit" class="u-full-width button-primary" value="Update Feed">
+            </form>
+        </div>
+        <div style="margin-top: 4%" class="row">
+            <button id="feed-change-location" class="u-full-width">Change Feed Location</button>
+            <button style="display: {{deactivateStyle}}" id="feed-deactivate" class="u-full-width">Deactivate Feed</button>
+            <button style="display: {{activateStyle}}" id="feed-activate" class="u-full-width">Activate Feed</button>
+        </div>
+    </div>
+</template>
+
+<template id="file-box-template">
+    <li class="file" data-id="{{Id}}">
+        <table>
+            <tbody>
+            <tr>
+                <td rowspan="2" style="width: 60px;">
+                    <a href="/uploads/{{Id}}.{{Filetype}}" target="_blank" class="material-icons">{{Icon}}</a>
+                </td>
+                <td class="truncate">
+                    <strong title="{{Title}}">{{Title}}</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="truncate" title="{{Description}}">{{Description}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </li>
+</template>
+
+<script type="text/template" id="file-upload-box-template">
+    <div>
+        <form class="row" id="add-file-to-batch-form">
+            {{{ uploadHeader }}}
+        </form>
+        <div class="row">
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <td>Title</td>
+                        <td>Description</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody id="file-upload-list">
+
+                </tbody>
+            </table>
+            <form id="file-upload-form" style="display: none">
+
+            </form>
+            <input class="button-primary" type="submit" form="file-upload-form" value="Upload">
+        </div>
+    </div>
+</script>
+
+<template id="file-upload-header">
+    <input required="required" class="u-full-width" type="text" placeholder="File title">
+    <textarea class="u-full-width" placeholder="File description"></textarea>
+
+    <div class="ten columns" style="margin-left: 0;">
+        <input type="file" required="required" class="u-full-width">
+    </div>
+    <div class="two columns">
+        <button style="float: right;" type="submit" form="add-file-to-batch-form" class="material-icons">add_circle_outline</button>
+    </div>
+</template>
+
+<template id="file-upload-batch">
+    <tr class="row file-batch" data-no="{{ Number }}">
+        <td class="truncate">{{ Title }}</td>
+        <td class="truncate">{{ Description }}</td>
+        <td>
+            <i class="material-icons">remove_circle_outline</i>
+        </td>
+    </tr>
+</template>
+
+<template id="file-edit-template">
+    <div>
+        <i class="material-icons edit-file-icon">{{Icon}}</i>
+        <h3 class="file-edit-title">File</h3>
+    </div>
+    <form id="edit-file-form" data-id="{{Id}}">
+
+        <label>Title</label>
+        <input required="required" class="u-full-width" type="text" name="title" value="{{Title}}">
+        <label>Description</label>
+        <textarea class="u-full-width" name="description">{{Description}}</textarea>
+        <label>Filename</label>
+        <div class="row">
+            <input class="nine columns" form="noform" type="url"  value="{{Id}}.{{Filetype}}" readonly="readonly" disabled="true">
+            <input id="copy-url" type="button" class="three columns" value="Copy Url">
+        </div>
+        <button id="delete-file" type="button">Delete File</button>
+        <button style="float: right;" type="submit" class="button-primary">Update</button>
+    </form>
+</template>
+
+<template id="choose-file-template">
+    <div class="list-header">
+        <h3 style="display: inline-block" class="first truncate">Files</h3>
+        <input id="filter-file" class="middle" type="search" placeholder="Filter files">
+    </div>
+    <ul class="empty-placeholder file-select-list" data-empty-message="No files to show" id="list-ul">{{{list}}}</ul>
+</template>
+
+<template id="feed-pick-location">
+    <h3>Pick Feed Location</h3>
+    <form class="row" id="pick-feed-location">
+        <div class="mapPicker u-full-width"></div>
+        <div class="row">
+            <div class="four columns">
+                <label>Latitude</label>
+                <input required="required" name="latitude" class="u-full-width latitudeInput" value="{{Latitude=57.012392}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Longitude</label>
+                <input required="required" name="longitude" class="u-full-width longitudeInput" value="{{Longitude=9.991555999999946}}" type="number" step="any"/>
+            </div>
+            <div class="four columns">
+                <label>Radius</label>
+                <input required="required" name="radius" class="u-full-width radiusInput" value="{{Radius=50}}" type="number" min="1"/>
+            </div>
+        </div>
+        <input type="submit" class="button-primary" style="float: right;" value="Submit">
+    </form>
+</template>
+
+<template id="api-key-template">
+    <h3>Activate Feed Server</h3>
+    <form class="row" id="api-key-form">
+        <div class="six columns">
+            <label>Name</label>
+            <input class="u-full-width" type="text" required="required" name="name">
+            <label>Email</label>
+            <input class="u-full-width" type="email" required="required" name="email">
+            <label>Organization Type</label>
+            <select name="type" class="u-full-width">
+                <option>Company</option>
+                <option>Private business</option>
+                <option>Union</option>
+                <option>Other</option>
+            </select>
+        </div>
+        <div class="six columns">
+            <label>Street</label>
+            <input class="u-full-width" type="text" required="required" name="street">
+            <label>City</label>
+            <input class="u-full-width" type="text" required="required" name="city">
+            <label>Zip</label>
+            <input class="u-full-width" type="number" required="required" name="zip">
+            <label>Country</label>
+            <input class="u-full-width" type="text" required="required" name="country">
+            <input type="submit" class="six columns" value="Activate">
+        </div>
+    </form>
+</template>
+
+<script src="main.js"></script>
+</body>
+</html>

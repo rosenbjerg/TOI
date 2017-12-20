@@ -8,13 +8,18 @@
     <None Remove="toi.db-journal" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Core" Version="1.4.0" />
     <PackageReference Include="LiteDB" Version="4.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="RHttpServer" Version="2.0.5" />
-    <PackageReference Include="TOIClasses" Version="1.0.4" />
+    <PackageReference Include="SessionManager" Version="1.0.1" />
+    <PackageReference Include="TOIClasses" Version="1.1.4" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="public\uploads\" />
   </ItemGroup>
 </Project>

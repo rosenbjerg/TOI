@@ -1,0 +1,19 @@
+#context-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+td:first-child {
+    max-width: 250px;
+    vertical-align: top;
+}
+
+td:nth-child(2){
+    max-width: 100px;
+}
+img {
+    width: 100%;
+}

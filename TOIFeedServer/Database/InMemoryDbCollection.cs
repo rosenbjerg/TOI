@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.Extensions.ObjectPool;
 using TOIClasses;
 
-namespace TOIFeedServer.Database
+namespace TOIFeedServer
 {
     public class InMemoryDbCollection<T> : IDbCollection<T>
         where T : ModelBase

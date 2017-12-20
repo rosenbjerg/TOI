@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using TOIClasses;
 
-namespace TOIFeedServer.Database
+namespace TOIFeedServer
 {
     public interface IDbCollection<T>
         where T : ModelBase
