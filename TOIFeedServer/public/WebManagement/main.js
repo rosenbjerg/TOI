@@ -440,6 +440,7 @@ $viewSpace.on("submit", "#login-form", function (ev) {
 });
 $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     ev.preventDefault();
+    console.log("create toi called");
     let tags = $("#added-tags").find("tr").map(function (i, e) { return $(e).data("id") }).get();
     let contexts = $("#added-contexts").find("tr").map(function (i, e) { return $(e).data("id") }).get();
     let form = new FormData(this);
@@ -468,19 +469,19 @@ $viewSpace.on("submit", "#save-edit-toi-form", function (ev) {
     }
 
 });
-$viewSpace.on("submit", "#update-feed-form", function(ev) {
-    ev.preventDefault();
-    let form = new FormData(this);
-    ajax("/feed", "PUT", form,
-        function (resp) {
-            showProfile();
-            cache.feed = resp.Result;
-            toastr["success"](resp.Message);
-        },
-        function (resp) {
-            toastr["error"](resp.responseText);
-        });
-});
+// $viewSpace.on("submit", "#update-feed-form", function(ev) {
+//     ev.preventDefault();
+//     let form = new FormData(this);
+//     ajax("/feed", "PUT", form,
+//         function (resp) {
+//             showProfile();
+//             cache.feed = resp.Result;
+//             toastr["success"](resp.Message);
+//         },
+//         function (resp) {
+//             toastr["error"](resp.responseText);
+//         });
+// });
 
 $viewSpace.on("click", "#create-new-toi", function () {showSaveEditToi()});
 $viewSpace.on("click", "#create-new-tag", function () {showCreateTag()});
@@ -504,6 +505,7 @@ $viewSpace.on("click", "#remove-toi", function () {
             function () {
                 delete cache.tois[id];
                 toastr["success"]("The ToI was deleted");
+                $.magnificPopup.close();
                 showToiList();
             },
             function (resp) {
