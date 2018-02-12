@@ -672,7 +672,7 @@ $viewSpace.on("input", "#filter-tag", function () {
     });
     let l = renderAll(result, templates.tag);
     $("#list-ul").empty().append(l);
-}
+});
 $body.on("submit", "#pick-feed-location", function (ev) {
     ev.preventDefault();
 
