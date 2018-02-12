@@ -502,8 +502,9 @@ $viewSpace.on("click", "#remove-toi", function () {
         console.log("id to delete", id);
         ajax("/toi", "DELETE", form,
             function () {
-                showToiList();
+                delete cache.tois[id];
                 toastr["success"]("The ToI was deleted");
+                showToiList();
             },
             function (resp) {
                 toastr["error"](resp.responseText);
