@@ -497,8 +497,9 @@ $viewSpace.on("click", "#upload-file", function() {showFilesUpload()});
 $viewSpace.on("click", "#remove-toi", function () {
     promptUser("Delete ToI?", "Are you sure you want to delete this ToI?", function () {
         let form = new FormData();
-        form.append("id", $(this).parent().parent().data("id"));
-
+        let id = $(this).parent().parent().data("id");
+        form.append("id", id);
+        console.log("id to delete", id);
         ajax("/toi", "DELETE", form,
             function () {
                 showToiList();
