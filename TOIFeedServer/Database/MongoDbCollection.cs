@@ -45,8 +45,10 @@ namespace TOIFeedServer
 
         public async Task<DatabaseStatusCode> Delete(string id)
         {
-            await _db.DeleteOneAsync(i => i.Id == id);
-            return DatabaseStatusCode.Deleted;
+            var del = await _db.DeleteOneAsync(i => i.Id == id);
+            if (del.DeletedCount > 0)
+                return DatabaseStatusCode.Deleted;
+            return DatabaseStatusCode.Error;
         }
 
         public async Task<DbResult<IEnumerable<T>>> Find(Expression<Func<T, bool>> predicate)
